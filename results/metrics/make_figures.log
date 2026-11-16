@@ -1,0 +1,16 @@
+/home/box/.local/lib/python3.13/site-packages/pennylane/operation.py:1982: PennyLaneDeprecationWarning: The 'id' argument is deprecated and will be removed in v0.46.
+  super().__init__(*params, wires=wires, id=id)
+/home/box/.local/lib/python3.13/site-packages/pennylane/operation.py:1100: PennyLaneDeprecationWarning: Using 'id' to add a custom label to your operator is deprecated. Please use 'pennylane.drawer.label' to add a custom label to your operator instead. 
+  warnings.warn(
+/workspace/QPINO/results/figures/fig01_covid_data.png
+/workspace/QPINO/results/figures/fig02_m2_reconstruction.png
+/workspace/QPINO/results/figures/fig03_galerkin_vs_full.png
+/workspace/QPINO/results/figures/fig04c_coupling_graphs.png
+/workspace/QPINO/results/figures/fig05_loss_curves.png
+/workspace/QPINO/results/figures/fig06_data_vs_pde_losses.png
+/workspace/QPINO/results/figures/fig07_covid_pred_vs_obs.png
+/workspace/QPINO/results/figures/fig08_multistep_forecasts.png
+/workspace/QPINO/results/figures/fig09_fourier_trajectories.png
+/workspace/QPINO/results/figures/fig10_frequency_spectrum.png
+/workspace/QPINO/results/figures/fig11_ablations.png
+/workspace/QPINO/results/figures/fig12_runtime_resources.png
