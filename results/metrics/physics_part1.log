@@ -1,0 +1,8 @@
+[syn] lam_pde=0 (E)                        full: incr 0.0902 roll 0.0365 | low: incr 0.4462 roll 0.2816
+[syn] lam_pde=0.01                         full: incr 0.0902 roll 0.0365 | low: incr 0.4462 roll 0.2816
+[syn] lam_pde=0.1 (D default)              full: incr 0.0900 roll 0.0364 | low: incr 0.4461 roll 0.2815
+[syn] lam_pde=1                            full: incr 0.0884 roll 0.0358 | low: incr 0.4465 roll 0.2819
+[syn] lam_pde=10                           full: incr 0.0788 roll 0.0322 | low: incr 0.4386 roll 0.2697
+[syn] lam_pde=1, no curriculum             full: incr 0.0715 roll 0.0292 | low: incr 0.3146 roll 0.1127
+[syn] PDE-only (lam_data=0, lam_roll=0)    full: incr 0.0777 roll 0.0286 | low: incr 0.3434 roll 0.1919
+done in 1714s

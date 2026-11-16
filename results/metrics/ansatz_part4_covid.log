@@ -1,0 +1,13 @@
+/workspace/QPINO/experiments/ansatz_comparison.py:88: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  train_time_s=hist["train_time_s"], c=float(m.c), final_train_data=hist["data"][-1])
+[covid] graph=structured                 incr 1.132 field1 13.734 roll 21.334
+[covid] graph=triad                      incr 1.208 field1 13.755 roll 22.706
+[covid] graph=full                       incr 1.124 field1 13.732 roll 22.590
+[covid] graph=nearest                    incr 1.205 field1 13.751 roll 20.553
+[covid] graph=none (F)                   incr 1.214 field1 13.755 roll 21.789
+[covid] HEA (C)                          incr 1.188 field1 13.747 roll 21.449
+[covid] trotter L=1                      incr 1.192 field1 13.745 roll 21.310
+[covid] trotter L=4                      incr 1.276 field1 13.767 roll 24.682
+[covid] tau fixed c=2                    incr 1.330 field1 13.789 roll 19.145
+[covid] tau fixed c=10                   incr 1.183 field1 13.747 roll 21.767

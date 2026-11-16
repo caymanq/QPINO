@@ -1,0 +1,12 @@
+/workspace/QPINO/experiments/ansatz_comparison.py:88: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  train_time_s=hist["train_time_s"], c=float(m.c), final_train_data=hist["data"][-1])
+[syn] measure Z only                   incr 0.1005±0.0102 roll 0.0333 dt0.2 roll 0.150 t 67s
+[syn] decoder MLP                      incr 0.0319±0.0034 roll 0.0107 dt0.2 roll 0.436 t 81s
+[syn] frozen circuit + MLP decoder     incr 0.2655±0.0042 roll 0.1199 dt0.2 roll 0.217 t 37s
+[syn] frozen circuit + linear decoder  incr 0.2509±0.0089 roll 0.1112 dt0.2 roll 0.158 t 33s
+[syn] alpha0=0.25                      incr 0.0772±0.0056 roll 0.0279 dt0.2 roll 0.333 t 49s
+[syn] alpha0=0.5                       incr 0.0862±0.0204 roll 0.0351 dt0.2 roll 0.522 t 50s
+[syn] alpha0=2                         incr 0.0901±0.0232 roll 0.0462 dt0.2 roll 0.283 t 54s
+[syn] alpha fixed=1                    incr 0.1840±0.0266 roll 0.1258 dt0.2 roll 0.269 t 47s
+done in 1604s

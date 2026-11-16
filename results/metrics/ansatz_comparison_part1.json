@@ -1,0 +1,839 @@
+{
+  "synthetic": {
+    "graph=triad": {
+      "rel_l2_increment": {
+        "mean": 0.271560907319474,
+        "std": 0.0031760148352893702
+      },
+      "rel_l2": {
+        "mean": 0.007475174635064601,
+        "std": 8.742519595949768e-05
+      },
+      "rollout_rel_l2": {
+        "mean": 0.08604341668080306,
+        "std": 0.007699552207432972
+      },
+      "pde_residual_rms_trapezoid": {
+        "mean": 0.05163992658315842,
+        "std": 0.0006126847015760356
+      },
+      "galerkin_residual_rms_trapezoid": {
+        "mean": 0.022977662241050904,
+        "std": 0.0002657189137687827
+      },
+      "dt0.05_rel_l2_increment": {
+        "mean": 0.4885314647661694,
+        "std": 0.08719990117228904
+      },
+      "dt0.05_rollout_rel_l2": {
+        "mean": 0.14754684091904038,
+        "std": 0.03649919153249003
+      },
+      "dt0.2_rel_l2_increment": {
+        "mean": 0.5574943648307418,
+        "std": 0.12711224609009622
+      },
+      "dt0.2_rollout_rel_l2": {
+        "mean": 0.26668720714021577,
+        "std": 0.032733379865520745
+      },
+      "n_params": {
+        "mean": 101.0,
+        "std": 0.0
+      },
+      "quantum_params": {
+        "mean": 21.0,
+        "std": 0.0
+      },
+      "train_time_s": {
+        "mean": 59.120270133018494,
+        "std": 2.431716561317444
+      },
+      "c": {
+        "mean": 12.009619551061295,
+        "std": 0.9867095306379179
+      },
+      "final_train_data": {
+        "mean": 0.8107275684156748,
+        "std": 0.005016436869706653
+      },
+      "per_seed": [
+        {
+          "rel_l2_increment": 0.2747369221547634,
+          "rel_l2": 0.007562599831024099,
+          "rollout_rel_l2": 0.09374296888823604,
+          "pde_residual_rms_trapezoid": 0.052252611284734456,
+          "galerkin_residual_rms_trapezoid": 0.02324338115481969,
+          "dt0.05_rel_l2_increment": 0.40133156359388034,
+          "dt0.05_rollout_rel_l2": 0.11104764938655036,
+          "dt0.2_rel_l2_increment": 0.4303821187406455,
+          "dt0.2_rollout_rel_l2": 0.23395382727469505,
+          "n_params": 101,
+          "quantum_params": 21,
+          "train_time_s": 61.55198669433594,
+          "c": 12.996329081699214,
+          "final_train_data": 0.8057111315459682
+        },
+        {
+          "rel_l2_increment": 0.2683848924841847,
+          "rel_l2": 0.007387749439105104,
+          "rollout_rel_l2": 0.07834386447337009,
+          "pde_residual_rms_trapezoid": 0.051027241881582384,
+          "galerkin_residual_rms_trapezoid": 0.022711943327282123,
+          "dt0.05_rel_l2_increment": 0.5757313659384584,
+          "dt0.05_rollout_rel_l2": 0.18404603245153042,
+          "dt0.2_rel_l2_increment": 0.684606610920838,
+          "dt0.2_rollout_rel_l2": 0.29942058700573654,
+          "n_params": 101,
+          "quantum_params": 21,
+          "train_time_s": 56.68855357170105,
+          "c": 11.022910020423378,
+          "final_train_data": 0.8157440052853815
+        }
+      ]
+    },
+    "graph=full": {
+      "rel_l2_increment": {
+        "mean": 0.0817476517285086,
+        "std": 0.00487287032728842
+      },
+      "rel_l2": {
+        "mean": 0.0022502427860802083,
+        "std": 0.00013413402182978055
+      },
+      "rollout_rel_l2": {
+        "mean": 0.03470476747909777,
+        "std": 0.005743737129130981
+      },
+      "pde_residual_rms_trapezoid": {
+        "mean": 0.017198288312710412,
+        "std": 0.0011105081092322982
+      },
+      "galerkin_residual_rms_trapezoid": {
+        "mean": 0.006901938959049312,
+        "std": 0.0004352069018576628
+      },
+      "dt0.05_rel_l2_increment": {
+        "mean": 0.5503892002879789,
+        "std": 0.04999606494583836
+      },
+      "dt0.05_rollout_rel_l2": {
+        "mean": 0.1831057881767868,
+        "std": 0.014419196463162906
+      },
+      "dt0.2_rel_l2_increment": {
+        "mean": 0.5347683236358494,
+        "std": 0.03887608744631593
+      },
+      "dt0.2_rollout_rel_l2": {
+        "mean": 0.2153064947386038,
+        "std": 0.023633882854146457
+      },
+      "n_params": {
+        "mean": 106.0,
+        "std": 0.0
+      },
+      "quantum_params": {
+        "mean": 26.0,
+        "std": 0.0
+      },
+      "train_time_s": {
+        "mean": 314.6006473302841,
+        "std": 235.3223980665207
+      },
+      "c": {
+        "mean": 12.145235372654058,
+        "std": 0.18877767835321357
+      },
+      "final_train_data": {
+        "mean": 0.2724360150712416,
+        "std": 0.03309632013706679
+      },
+      "per_seed": [
+        {
+          "rel_l2_increment": 0.08662052205579703,
+          "rel_l2": 0.0023843768079099886,
+          "rollout_rel_l2": 0.040448504608228755,
+          "pde_residual_rms_trapezoid": 0.018308796421942712,
+          "galerkin_residual_rms_trapezoid": 0.007337145860906975,
+          "dt0.05_rel_l2_increment": 0.5003931353421405,
+          "dt0.05_rollout_rel_l2": 0.19752498463994972,
+          "dt0.2_rel_l2_increment": 0.5736444110821652,
+          "dt0.2_rollout_rel_l2": 0.23894037759275025,
+          "n_params": 106,
+          "quantum_params": 26,
+          "train_time_s": 79.27824926376343,
+          "c": 12.334013051007272,
+          "final_train_data": 0.23933969493417478
+        },
+        {
+          "rel_l2_increment": 0.07687478140122019,
+          "rel_l2": 0.0021161087642504275,
+          "rollout_rel_l2": 0.028961030349966794,
+          "pde_residual_rms_trapezoid": 0.016087780203478116,
+          "galerkin_residual_rms_trapezoid": 0.006466732057191649,
+          "dt0.05_rel_l2_increment": 0.6003852652338172,
+          "dt0.05_rollout_rel_l2": 0.1686865917136239,
+          "dt0.2_rel_l2_increment": 0.4958922361895334,
+          "dt0.2_rollout_rel_l2": 0.19167261188445733,
+          "n_params": 106,
+          "quantum_params": 26,
+          "train_time_s": 549.9230453968048,
+          "c": 11.956457694300845,
+          "final_train_data": 0.30553233520830836
+        }
+      ]
+    },
+    "graph=nearest": {
+      "rel_l2_increment": {
+        "mean": 0.11876016947743291,
+        "std": 0.06159197344089608
+      },
+      "rel_l2": {
+        "mean": 0.003269075123133593,
+        "std": 0.0016954235502215172
+      },
+      "rollout_rel_l2": {
+        "mean": 0.06114128000853393,
+        "std": 0.04457846952885573
+      },
+      "pde_residual_rms_trapezoid": {
+        "mean": 0.023851005459182464,
+        "std": 0.010581118866261681
+      },
+      "galerkin_residual_rms_trapezoid": {
+        "mean": 0.009954668808173995,
+        "std": 0.005159397234972914
+      },
+      "dt0.05_rel_l2_increment": {
+        "mean": 0.5891141942122615,
+        "std": 0.09816426653582411
+      },
+      "dt0.05_rollout_rel_l2": {
+        "mean": 0.3099294464482802,
+        "std": 0.12679797988304134
+      },
+      "dt0.2_rel_l2_increment": {
+        "mean": 1.2647077370991677,
+        "std": 0.7321337176214276
+      },
+      "dt0.2_rollout_rel_l2": {
+        "mean": 0.48457612452408255,
+        "std": 0.30083790203002186
+      },
+      "n_params": {
+        "mean": 100.0,
+        "std": 0.0
+      },
+      "quantum_params": {
+        "mean": 20.0,
+        "std": 0.0
+      },
+      "train_time_s": {
+        "mean": 50.17965030670166,
+        "std": 0.3448982238769531
+      },
+      "c": {
+        "mean": 12.370186020665448,
+        "std": 0.43853364811944395
+      },
+      "final_train_data": {
+        "mean": 0.3578825254256518,
+        "std": 0.07421883992723169
+      },
+      "per_seed": [
+        {
+          "rel_l2_increment": 0.180352142918329,
+          "rel_l2": 0.00496449867335511,
+          "rollout_rel_l2": 0.10571974953738966,
+          "pde_residual_rms_trapezoid": 0.034432124325444145,
+          "galerkin_residual_rms_trapezoid": 0.015114066043146909,
+          "dt0.05_rel_l2_increment": 0.4909499276764374,
+          "dt0.05_rollout_rel_l2": 0.18313146656523885,
+          "dt0.2_rel_l2_increment": 0.5325740194777401,
+          "dt0.2_rollout_rel_l2": 0.1837382224940607,
+          "n_params": 100,
+          "quantum_params": 20,
+          "train_time_s": 50.52454853057861,
+          "c": 12.808719668784892,
+          "final_train_data": 0.4321013653528835
+        },
+        {
+          "rel_l2_increment": 0.05716819603653683,
+          "rel_l2": 0.0015736515729120758,
+          "rollout_rel_l2": 0.016562810479678204,
+          "pde_residual_rms_trapezoid": 0.013269886592920782,
+          "galerkin_residual_rms_trapezoid": 0.004795271573201081,
+          "dt0.05_rel_l2_increment": 0.6872784607480856,
+          "dt0.05_rollout_rel_l2": 0.4367274263313215,
+          "dt0.2_rel_l2_increment": 1.9968414547205953,
+          "dt0.2_rollout_rel_l2": 0.7854140265541044,
+          "n_params": 100,
+          "quantum_params": 20,
+          "train_time_s": 49.83475208282471,
+          "c": 11.931652372546004,
+          "final_train_data": 0.28366368549842014
+        }
+      ]
+    },
+    "graph=none (F)": {
+      "rel_l2_increment": {
+        "mean": 0.30144662041768977,
+        "std": 0.019872312660648178
+      },
+      "rel_l2": {
+        "mean": 0.008297829584584943,
+        "std": 0.0005470191162905199
+      },
+      "rollout_rel_l2": {
+        "mean": 0.12091134578656648,
+        "std": 0.029527122057124967
+      },
+      "pde_residual_rms_trapezoid": {
+        "mean": 0.057091873149647976,
+        "std": 0.003661664166339753
+      },
+      "galerkin_residual_rms_trapezoid": {
+        "mean": 0.025459407785947748,
+        "std": 0.0016442778232081644
+      },
+      "dt0.05_rel_l2_increment": {
+        "mean": 0.4285730841175006,
+        "std": 0.05599711189529774
+      },
+      "dt0.05_rollout_rel_l2": {
+        "mean": 0.13774908893831966,
+        "std": 0.0022380665015295786
+      },
+      "dt0.2_rel_l2_increment": {
+        "mean": 0.7408742437259301,
+        "std": 0.1730840325004625
+      },
+      "dt0.2_rollout_rel_l2": {
+        "mean": 0.3429600548781653,
+        "std": 0.04672018507842965
+      },
+      "n_params": {
+        "mean": 96.0,
+        "std": 0.0
+      },
+      "quantum_params": {
+        "mean": 16.0,
+        "std": 0.0
+      },
+      "train_time_s": {
+        "mean": 49.0785174369812,
+        "std": 0.917137622833252
+      },
+      "c": {
+        "mean": 11.24447332740099,
+        "std": 0.001282997316363499
+      },
+      "final_train_data": {
+        "mean": 0.8038417307293275,
+        "std": 0.003044167419188948
+      },
+      "per_seed": [
+        {
+          "rel_l2_increment": 0.28157430775704156,
+          "rel_l2": 0.007750810468294423,
+          "rollout_rel_l2": 0.09138422372944151,
+          "pde_residual_rms_trapezoid": 0.05343020898330822,
+          "galerkin_residual_rms_trapezoid": 0.023815129962739583,
+          "dt0.05_rel_l2_increment": 0.37257597222220284,
+          "dt0.05_rollout_rel_l2": 0.13998715543984924,
+          "dt0.2_rel_l2_increment": 0.5677902112254676,
+          "dt0.2_rollout_rel_l2": 0.2962398697997356,
+          "n_params": 96,
+          "quantum_params": 16,
+          "train_time_s": 48.16137981414795,
+          "c": 11.245756324717352,
+          "final_train_data": 0.8068858981485164
+        },
+        {
+          "rel_l2_increment": 0.3213189330783379,
+          "rel_l2": 0.008844848700875462,
+          "rollout_rel_l2": 0.15043846784369144,
+          "pde_residual_rms_trapezoid": 0.060753537315987725,
+          "galerkin_residual_rms_trapezoid": 0.027103685609155912,
+          "dt0.05_rel_l2_increment": 0.4845701960127983,
+          "dt0.05_rollout_rel_l2": 0.13551102243679009,
+          "dt0.2_rel_l2_increment": 0.9139582762263926,
+          "dt0.2_rollout_rel_l2": 0.3896802399565949,
+          "n_params": 96,
+          "quantum_params": 16,
+          "train_time_s": 49.99565505981445,
+          "c": 11.243190330084625,
+          "final_train_data": 0.8007975633101385
+        }
+      ]
+    },
+    "HEA (C)": {
+      "rel_l2_increment": {
+        "mean": 0.0879343666007116,
+        "std": 0.004195638343760112
+      },
+      "rel_l2": {
+        "mean": 0.002420542607742913,
+        "std": 0.00011549206266380342
+      },
+      "rollout_rel_l2": {
+        "mean": 0.03473412897090015,
+        "std": 0.003249640788128047
+      },
+      "pde_residual_rms_trapezoid": {
+        "mean": 0.017604127290815494,
+        "std": 0.0006295750996315203
+      },
+      "galerkin_residual_rms_trapezoid": {
+        "mean": 0.007373094142371119,
+        "std": 0.00035596309021449033
+      },
+      "dt0.05_rel_l2_increment": {
+        "mean": 0.08667328075768861,
+        "std": 0.004341545335627167
+      },
+      "dt0.05_rollout_rel_l2": {
+        "mean": 0.03403334604858323,
+        "std": 0.0032761914605242085
+      },
+      "dt0.2_rel_l2_increment": {
+        "mean": 0.09313283598236857,
+        "std": 0.004051695840297603
+      },
+      "dt0.2_rollout_rel_l2": {
+        "mean": 0.036841603376725096,
+        "std": 0.003219923426757542
+      },
+      "n_params": {
+        "mean": 105.0,
+        "std": 0.0
+      },
+      "quantum_params": {
+        "mean": 25.0,
+        "std": 0.0
+      },
+      "train_time_s": {
+        "mean": 58.73008954524994,
+        "std": 0.28367388248443604
+      },
+      "c": {
+        "mean": 10.0,
+        "std": 0.0
+      },
+      "final_train_data": {
+        "mean": 0.2021704646589875,
+        "std": 0.037200648551136056
+      },
+      "per_seed": [
+        {
+          "rel_l2_increment": 0.09213000494447172,
+          "rel_l2": 0.0025360346704067166,
+          "rollout_rel_l2": 0.037983769759028195,
+          "pde_residual_rms_trapezoid": 0.018233702390447012,
+          "galerkin_residual_rms_trapezoid": 0.00772905723258561,
+          "dt0.05_rel_l2_increment": 0.09101482609331578,
+          "dt0.05_rollout_rel_l2": 0.037309537509107434,
+          "dt0.2_rel_l2_increment": 0.09718453182266618,
+          "dt0.2_rollout_rel_l2": 0.040061526803482635,
+          "n_params": 105,
+          "quantum_params": 25,
+          "train_time_s": 59.013763427734375,
+          "c": 10.0,
+          "final_train_data": 0.16496981610785144
+        },
+        {
+          "rel_l2_increment": 0.0837387282569515,
+          "rel_l2": 0.0023050505450791098,
+          "rollout_rel_l2": 0.0314844881827721,
+          "pde_residual_rms_trapezoid": 0.016974552191183972,
+          "galerkin_residual_rms_trapezoid": 0.007017131052156629,
+          "dt0.05_rel_l2_increment": 0.08233173542206144,
+          "dt0.05_rollout_rel_l2": 0.030757154588059017,
+          "dt0.2_rel_l2_increment": 0.08908114014207097,
+          "dt0.2_rollout_rel_l2": 0.03362167994996755,
+          "n_params": 105,
+          "quantum_params": 25,
+          "train_time_s": 58.4464156627655,
+          "c": 10.0,
+          "final_train_data": 0.23937111321012355
+        }
+      ]
+    },
+    "trotter L=1": {
+      "rel_l2_increment": {
+        "mean": 0.07467519690345442,
+        "std": 0.0009800213764532065
+      },
+      "rel_l2": {
+        "mean": 0.002055561469694379,
+        "std": 2.6976750841628842e-05
+      },
+      "rollout_rel_l2": {
+        "mean": 0.030892902879462402,
+        "std": 0.001166728965701986
+      },
+      "pde_residual_rms_trapezoid": {
+        "mean": 0.014951116523517684,
+        "std": 7.455782117711789e-05
+      },
+      "galerkin_residual_rms_trapezoid": {
+        "mean": 0.006255211657626752,
+        "std": 8.053066139431181e-05
+      },
+      "dt0.05_rel_l2_increment": {
+        "mean": 0.5896491752785634,
+        "std": 0.10267424099023578
+      },
+      "dt0.05_rollout_rel_l2": {
+        "mean": 0.1768708687854414,
+        "std": 0.0030433507708175073
+      },
+      "dt0.2_rel_l2_increment": {
+        "mean": 1.1189390506829904,
+        "std": 0.43962062189069917
+      },
+      "dt0.2_rollout_rel_l2": {
+        "mean": 0.3814518798929927,
+        "std": 0.1871977826737815
+      },
+      "n_params": {
+        "mean": 105.0,
+        "std": 0.0
+      },
+      "quantum_params": {
+        "mean": 25.0,
+        "std": 0.0
+      },
+      "train_time_s": {
+        "mean": 199.80566537380219,
+        "std": 148.98644602298737
+      },
+      "c": {
+        "mean": 10.285775971318916,
+        "std": 0.07484387512111645
+      },
+      "final_train_data": {
+        "mean": 0.22004398128347363,
+        "std": 0.00532322323899366
+      },
+      "per_seed": [
+        {
+          "rel_l2_increment": 0.07369517552700121,
+          "rel_l2": 0.0020285847188527503,
+          "rollout_rel_l2": 0.03205963184516439,
+          "pde_residual_rms_trapezoid": 0.014876558702340567,
+          "galerkin_residual_rms_trapezoid": 0.0061746809962324395,
+          "dt0.05_rel_l2_increment": 0.48697493428832767,
+          "dt0.05_rollout_rel_l2": 0.1799142195562589,
+          "dt0.2_rel_l2_increment": 1.5585596725736897,
+          "dt0.2_rollout_rel_l2": 0.5686496625667742,
+          "n_params": 105,
+          "quantum_params": 25,
+          "train_time_s": 348.79211139678955,
+          "c": 10.2109320961978,
+          "final_train_data": 0.21472075804447996
+        },
+        {
+          "rel_l2_increment": 0.07565521827990762,
+          "rel_l2": 0.002082538220536008,
+          "rollout_rel_l2": 0.029726173913760416,
+          "pde_residual_rms_trapezoid": 0.015025674344694803,
+          "galerkin_residual_rms_trapezoid": 0.006335742319021063,
+          "dt0.05_rel_l2_increment": 0.6923234162687992,
+          "dt0.05_rollout_rel_l2": 0.17382751801462387,
+          "dt0.2_rel_l2_increment": 0.6793184287922913,
+          "dt0.2_rollout_rel_l2": 0.19425409721921116,
+          "n_params": 105,
+          "quantum_params": 25,
+          "train_time_s": 50.81921935081482,
+          "c": 10.360619846440033,
+          "final_train_data": 0.22536720452246728
+        }
+      ]
+    },
+    "trotter L=2": {
+      "rel_l2_increment": {
+        "mean": 0.06373518008121153,
+        "std": 0.006919372846730654
+      },
+      "rel_l2": {
+        "mean": 0.001754418948614926,
+        "std": 0.00019046747525256402
+      },
+      "rollout_rel_l2": {
+        "mean": 0.02745861423809954,
+        "std": 0.0035088626168781577
+      },
+      "pde_residual_rms_trapezoid": {
+        "mean": 0.01343564117865726,
+        "std": 0.001595427698976434
+      },
+      "galerkin_residual_rms_trapezoid": {
+        "mean": 0.005314111431036385,
+        "std": 0.0005620441247848134
+      },
+      "dt0.05_rel_l2_increment": {
+        "mean": 0.5654240110195003,
+        "std": 0.03936904412786618
+      },
+      "dt0.05_rollout_rel_l2": {
+        "mean": 0.23022256802039034,
+        "std": 0.052448886296334235
+      },
+      "dt0.2_rel_l2_increment": {
+        "mean": 1.0260402216809064,
+        "std": 0.4103376433190841
+      },
+      "dt0.2_rollout_rel_l2": {
+        "mean": 0.5709529542726659,
+        "std": 0.3611520525611248
+      },
+      "n_params": {
+        "mean": 105.0,
+        "std": 0.0
+      },
+      "quantum_params": {
+        "mean": 25.0,
+        "std": 0.0
+      },
+      "train_time_s": {
+        "mean": 50.295023918151855,
+        "std": 1.3829643726348877
+      },
+      "c": {
+        "mean": 11.192058401028191,
+        "std": 0.7665975857535345
+      },
+      "final_train_data": {
+        "mean": 0.20586032766162748,
+        "std": 0.02155452716487756
+      },
+      "per_seed": [
+        {
+          "rel_l2_increment": 0.07065455292794218,
+          "rel_l2": 0.00194488642386749,
+          "rollout_rel_l2": 0.030967476854977697,
+          "pde_residual_rms_trapezoid": 0.015031068877633695,
+          "galerkin_residual_rms_trapezoid": 0.005876155555821198,
+          "dt0.05_rel_l2_increment": 0.6047930551473666,
+          "dt0.05_rollout_rel_l2": 0.2826714543167246,
+          "dt0.2_rel_l2_increment": 0.6157025783618223,
+          "dt0.2_rollout_rel_l2": 0.2098009017115411,
+          "n_params": 105,
+          "quantum_params": 25,
+          "train_time_s": 51.67798829078674,
+          "c": 10.425460815274656,
+          "final_train_data": 0.22741485482650506
+        },
+        {
+          "rel_l2_increment": 0.05681580723448087,
+          "rel_l2": 0.001563951473362362,
+          "rollout_rel_l2": 0.02394975162122138,
+          "pde_residual_rms_trapezoid": 0.011840213479680827,
+          "galerkin_residual_rms_trapezoid": 0.004752067306251571,
+          "dt0.05_rel_l2_increment": 0.5260549668916342,
+          "dt0.05_rollout_rel_l2": 0.1777736817240561,
+          "dt0.2_rel_l2_increment": 1.4363778649999905,
+          "dt0.2_rollout_rel_l2": 0.9321050068337908,
+          "n_params": 105,
+          "quantum_params": 25,
+          "train_time_s": 48.91205954551697,
+          "c": 11.958655986781725,
+          "final_train_data": 0.18430580049674994
+        }
+      ]
+    },
+    "trotter L=4": {
+      "rel_l2_increment": {
+        "mean": 0.07265489099419738,
+        "std": 0.0014141623514196955
+      },
+      "rel_l2": {
+        "mean": 0.0019999491224054426,
+        "std": 3.892721763062751e-05
+      },
+      "rollout_rel_l2": {
+        "mean": 0.03543016669271552,
+        "std": 0.002814250596906046
+      },
+      "pde_residual_rms_trapezoid": {
+        "mean": 0.01540592511057361,
+        "std": 0.00024587711138230033
+      },
+      "galerkin_residual_rms_trapezoid": {
+        "mean": 0.006093276789779854,
+        "std": 0.00010599712458268969
+      },
+      "dt0.05_rel_l2_increment": {
+        "mean": 0.3566339840497279,
+        "std": 0.07077645519519157
+      },
+      "dt0.05_rollout_rel_l2": {
+        "mean": 0.1671945829271319,
+        "std": 0.039809794058304954
+      },
+      "dt0.2_rel_l2_increment": {
+        "mean": 0.5131127087780706,
+        "std": 0.08382559510101148
+      },
+      "dt0.2_rollout_rel_l2": {
+        "mean": 0.4044156446715374,
+        "std": 0.0634289140308994
+      },
+      "n_params": {
+        "mean": 105.0,
+        "std": 0.0
+      },
+      "quantum_params": {
+        "mean": 25.0,
+        "std": 0.0
+      },
+      "train_time_s": {
+        "mean": 46.702258348464966,
+        "std": 1.3838317394256592
+      },
+      "c": {
+        "mean": 12.79298448336235,
+        "std": 0.2992022836981425
+      },
+      "final_train_data": {
+        "mean": 0.28245626164420284,
+        "std": 0.05817604665150665
+      },
+      "per_seed": [
+        {
+          "rel_l2_increment": 0.07406905334561707,
+          "rel_l2": 0.00203887634003607,
+          "rollout_rel_l2": 0.03824441728962157,
+          "pde_residual_rms_trapezoid": 0.01565180222195591,
+          "galerkin_residual_rms_trapezoid": 0.006199273914362544,
+          "dt0.05_rel_l2_increment": 0.4274104392449195,
+          "dt0.05_rollout_rel_l2": 0.12738478886882695,
+          "dt0.2_rel_l2_increment": 0.5969383038790821,
+          "dt0.2_rollout_rel_l2": 0.4678445587024368,
+          "n_params": 105,
+          "quantum_params": 25,
+          "train_time_s": 48.086090087890625,
+          "c": 13.092186767060493,
+          "final_train_data": 0.2242802149926962
+        },
+        {
+          "rel_l2_increment": 0.07124072864277768,
+          "rel_l2": 0.001961021904774815,
+          "rollout_rel_l2": 0.03261591609580948,
+          "pde_residual_rms_trapezoid": 0.01516004799919131,
+          "galerkin_residual_rms_trapezoid": 0.005987279665197165,
+          "dt0.05_rel_l2_increment": 0.28585752885453636,
+          "dt0.05_rollout_rel_l2": 0.20700437698543686,
+          "dt0.2_rel_l2_increment": 0.42928711367705913,
+          "dt0.2_rollout_rel_l2": 0.340986730640638,
+          "n_params": 105,
+          "quantum_params": 25,
+          "train_time_s": 45.31842660903931,
+          "c": 12.493782199664208,
+          "final_train_data": 0.3406323082957095
+        }
+      ]
+    },
+    "trotter L=8": {
+      "rel_l2_increment": {
+        "mean": 0.08051035890713776,
+        "std": 0.013783222066603498
+      },
+      "rel_l2": {
+        "mean": 0.002216184202295989,
+        "std": 0.0003794065684886175
+      },
+      "rollout_rel_l2": {
+        "mean": 0.04067477533787339,
+        "std": 0.014627094011820966
+      },
+      "pde_residual_rms_trapezoid": {
+        "mean": 0.016814260826776277,
+        "std": 0.002889293184100035
+      },
+      "galerkin_residual_rms_trapezoid": {
+        "mean": 0.0067520630710953865,
+        "std": 0.001174949346951326
+      },
+      "dt0.05_rel_l2_increment": {
+        "mean": 0.7900122993793489,
+        "std": 0.026398927961182483
+      },
+      "dt0.05_rollout_rel_l2": {
+        "mean": 0.26534679320738963,
+        "std": 0.06959248965439105
+      },
+      "dt0.2_rel_l2_increment": {
+        "mean": 0.5739269474603557,
+        "std": 0.029769479432127766
+      },
+      "dt0.2_rollout_rel_l2": {
+        "mean": 0.2553078201890595,
+        "std": 0.01784596601203821
+      },
+      "n_params": {
+        "mean": 105.0,
+        "std": 0.0
+      },
+      "quantum_params": {
+        "mean": 25.0,
+        "std": 0.0
+      },
+      "train_time_s": {
+        "mean": 45.78807032108307,
+        "std": 0.3300663232803345
+      },
+      "c": {
+        "mean": 12.079984150135598,
+        "std": 0.2857524031902363
+      },
+      "final_train_data": {
+        "mean": 0.2816986811095509,
+        "std": 0.00964164364098477
+      },
+      "per_seed": [
+        {
+          "rel_l2_increment": 0.09429358097374126,
+          "rel_l2": 0.0025955907707846063,
+          "rollout_rel_l2": 0.05530186934969436,
+          "pde_residual_rms_trapezoid": 0.019703554010876312,
+          "galerkin_residual_rms_trapezoid": 0.007927012418046712,
+          "dt0.05_rel_l2_increment": 0.8164112273405314,
+          "dt0.05_rollout_rel_l2": 0.3349392828617807,
+          "dt0.2_rel_l2_increment": 0.5441574680282278,
+          "dt0.2_rollout_rel_l2": 0.2731537862010977,
+          "n_params": 105,
+          "quantum_params": 25,
+          "train_time_s": 46.1181366443634,
+          "c": 12.365736553325833,
+          "final_train_data": 0.2913403247505356
+        },
+        {
+          "rel_l2_increment": 0.06672713684053426,
+          "rel_l2": 0.0018367776338073713,
+          "rollout_rel_l2": 0.026047681326052428,
+          "pde_residual_rms_trapezoid": 0.013924967642676242,
+          "galerkin_residual_rms_trapezoid": 0.0055771137241440605,
+          "dt0.05_rel_l2_increment": 0.7636133714181664,
+          "dt0.05_rollout_rel_l2": 0.1957543035529986,
+          "dt0.2_rel_l2_increment": 0.6036964268924834,
+          "dt0.2_rollout_rel_l2": 0.2374618541770213,
+          "n_params": 105,
+          "quantum_params": 25,
+          "train_time_s": 45.458003997802734,
+          "c": 11.79423174694536,
+          "final_train_data": 0.2720570374685661
+        }
+      ]
+    }
+  },
+  "covid": {},
+  "epochs": 1500,
+  "seeds": [
+    0,
+    1
+  ],
+  "total_time_s": 1765.4003705978394
+}

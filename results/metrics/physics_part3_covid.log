@@ -1,0 +1,11 @@
+[covid] lam_pde=0 (E)                        incr 1.134 field1 13.734 roll 21.346
+[covid] lam_pde=0.01                         incr 1.134 field1 13.734 roll 21.352
+[covid] lam_pde=0.1 (D default)              incr 1.132 field1 13.734 roll 21.334
+[covid] lam_pde=1                            incr 1.110 field1 13.729 roll 20.572
+[covid] lam_pde=10                           incr 1.071 field1 13.717 roll 20.384
+[covid] PDE-only (lam_data=0, lam_roll=0)    incr 0.995 field1 13.700 roll 18.832
+[covid] lam_roll=0                           incr 1.414 field1 13.815 roll 20.715
+[covid] lam_roll=2                           incr 1.138 field1 13.735 roll 21.665
+[covid] residual=galerkin (projected)        incr 1.120 field1 13.732 roll 21.061
+[covid] scheme=forward                       incr 1.132 field1 13.734 roll 21.344
+done in 865s

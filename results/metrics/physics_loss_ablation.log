@@ -1,0 +1,4 @@
+[syn] lam_pde=0 (E)                        full: incr 0.0902 roll 0.0365 | low: incr 0.3137 roll 0.1140
+[syn] lam_pde=0.01                         full: incr 0.0902 roll 0.0365 | low: incr 0.4462 roll 0.2816
+[syn] lam_pde=0.1 (D default)              full: incr 0.0905 roll 0.0366 | low: incr 0.4461 roll 0.2815
+[syn] lam_pde=1                            full: incr 0.0884 roll 0.0358 | low: incr 0.4465 roll 0.2819

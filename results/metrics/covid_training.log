@@ -1,0 +1,33 @@
+/workspace/QPINO/src/data_loader.py:73: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  daily = cum.diff(axis=1)
+/workspace/QPINO/src/preprocessing.py:73: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  daily_raw = c.diff(axis=1).iloc[:, 1:]
+199 counties, L=3735 km, 32 bins (117 km), S=82.53 cases/100k/day
+periodicity/truncation: {'wrap_jump_rel_mean': 0.20622517279178842, 'wrap_jump_rel_train_mean': 0.22726032530809434, 'wrap_jump_rel_july_mean': 0.13847466501375036, 'M2_trunc_rel_l2_periodic': {'train': 0.627130023205052, 'val': 0.5347411802168954, 'july': 0.3766515421079089}, 'M2_trunc_rel_l2_mirror': {'train': 0.6876810898634428, 'july': 0.41195802409051635}, 'M2_trunc_rel_l2_detrended_periodic': {'train': 0.7323268359282988, 'july': 0.8505548851732024}, 'july_trunc_rel_l2_M1': 0.40849778697753464, 'july_trunc_rel_l2_M2': 0.37665154210806456, 'july_trunc_rel_l2_M4': 0.32324631893854217, 'july_trunc_rel_l2_M8': 0.2074069296689739}
+/workspace/QPINO/experiments/covid_training.py:95: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  opt.step(cl); l = float(cl())
+fitted Fisher-KPP: {'D': 0.0014930790712079456, 'rho': 0.03516018582746346, 'beta': 0.10380318470466471, 'loss': 0.9912033311628267, 'D_physical_km2_per_day': 527.5053638393978, 'K_carrying_capacity_u': 0.33871972162992253}
+B         s0: 1-step coeff rel 0.0511 incr 1.207 | field rmse/100k 1-step 13.77 roll 20.57
+B         s1: 1-step coeff rel 0.0497 incr 1.176 | field rmse/100k 1-step 13.76 roll 20.06
+B         s2: 1-step coeff rel 0.0528 incr 1.247 | field rmse/100k 1-step 13.76 roll 26.14
+B-data    s0: 1-step coeff rel 0.0509 incr 1.203 | field rmse/100k 1-step 13.77 roll 21.87
+B-data    s1: 1-step coeff rel 0.0498 incr 1.177 | field rmse/100k 1-step 13.76 roll 20.22
+B-data    s2: 1-step coeff rel 0.0529 incr 1.249 | field rmse/100k 1-step 13.76 roll 26.14
+C         s0: 1-step coeff rel 0.0490 incr 1.158 | field rmse/100k 1-step 13.74 roll 23.25
+C         s1: 1-step coeff rel 0.0474 incr 1.122 | field rmse/100k 1-step 13.73 roll 19.47
+C         s2: 1-step coeff rel 0.0543 incr 1.283 | field rmse/100k 1-step 13.77 roll 21.63
+D         s0: 1-step coeff rel 0.0532 incr 1.257 | field rmse/100k 1-step 13.76 roll 19.46
+D         s1: 1-step coeff rel 0.0444 incr 1.049 | field rmse/100k 1-step 13.72 roll 21.80
+D         s2: 1-step coeff rel 0.0462 incr 1.092 | field rmse/100k 1-step 13.72 roll 22.74
+D-mlpdec  s0: 1-step coeff rel 0.0590 incr 1.395 | field rmse/100k 1-step 13.80 roll 23.64
+D-mlpdec  s1: 1-step coeff rel 0.0613 incr 1.449 | field rmse/100k 1-step 13.82 roll 30.21
+D-mlpdec  s2: 1-step coeff rel 0.0637 incr 1.507 | field rmse/100k 1-step 13.86 roll 19.02
+E         s0: 1-step coeff rel 0.0533 incr 1.259 | field rmse/100k 1-step 13.76 roll 19.41
+E         s1: 1-step coeff rel 0.0444 incr 1.050 | field rmse/100k 1-step 13.72 roll 21.80
+E         s2: 1-step coeff rel 0.0462 incr 1.093 | field rmse/100k 1-step 13.72 roll 22.83
+F         s0: 1-step coeff rel 0.0558 incr 1.318 | field rmse/100k 1-step 13.79 roll 20.92
+F         s1: 1-step coeff rel 0.0518 incr 1.225 | field rmse/100k 1-step 13.75 roll 20.00
+F         s2: 1-step coeff rel 0.0464 incr 1.097 | field rmse/100k 1-step 13.72 roll 24.45
+mirror: {'fitted_params': {'D': 0.0006176170610408487, 'rho': 0.03292753231703368, 'beta': 0.0828448081746832, 'loss': 0.5924050773866061}, 'imag_parts_max_abs': 3.028718159151056e-17, 'D-mirror': {'field_rmse_per100k_onestep': 14.836681588142635, 'field_rmse_per100k_rollout': 21.535878086888253}, 'Persistence-mirror': {'field_rmse_per100k_onestep': 14.776327863099075, 'field_rmse_per100k_rollout': 20.024245788627262}}
+done in 1030s

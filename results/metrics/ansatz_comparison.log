@@ -1,0 +1,9 @@
+/workspace/QPINO/experiments/ansatz_comparison.py:85: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  train_time_s=hist["train_time_s"], c=float(m.c), final_train_data=hist["data"][-1])
+[syn] graph=structured                 incr 0.0905±0.0111 roll 0.0366 dt0.2 roll 0.167 t 41s
+[syn] graph=triad                      incr 0.2718±0.0030 roll 0.0862 dt0.2 roll 0.267 t 38s
+[syn] graph=full                       incr 0.0805±0.0059 roll 0.0341 dt0.2 roll 0.224 t 86s
+[syn] graph=nearest                    incr 0.1188±0.0616 roll 0.0611 dt0.2 roll 0.484 t 39s
+[syn] graph=none (F)                   incr 0.3014±0.0199 roll 0.1209 dt0.2 roll 0.343 t 37s
+[syn] HEA (C)                          incr 0.0879±0.0042 roll 0.0347 dt0.2 roll 0.037 t 56s

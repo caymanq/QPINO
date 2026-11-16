@@ -1,0 +1,10 @@
+[syn] lam_roll=0                           full: incr 0.1051 roll 0.0414 | low: incr 0.4515 roll 0.2876
+[syn] lam_roll=2                           full: incr 0.0754 roll 0.0306 | low: incr 0.3852 roll 0.1944
+[syn] residual=galerkin (projected)        full: incr 0.0900 roll 0.0364 | low: incr 0.4457 roll 0.2804
+[syn] residual=both                        full: incr 0.0900 roll 0.0364 | low: incr 0.4459 roll 0.2810
+[syn] scheme=forward                       full: incr 0.0900 roll 0.0364 | low: incr 0.4475 roll 0.2833
+[syn] scheme=midpoint                      full: incr 0.0900 roll 0.0364 | low: incr 0.4461 roll 0.2815
+[syn] no regularization                    full: incr 0.0903 roll 0.0366 | low: incr 0.4447 roll 0.2811
+[syn-low] MLP lam_pde=0                    incr 0.5592 roll 0.2928
+[syn-low] MLP lam_pde=1                    incr 0.5622 roll 0.2949
+done in 1717s
