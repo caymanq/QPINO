@@ -31,4 +31,4 @@ tests/test_quantum.py::test_all_circuits_unitary
     errs["reupload3_state_norm"] = float((psi.abs().pow(2).sum(1) - 1).abs().max())
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-=================== 19 passed, 1 warning in 61.40s (0:01:01) ===================
+======================== 19 passed, 1 warning in 4.56s =========================
