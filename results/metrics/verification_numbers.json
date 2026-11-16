@@ -1,0 +1,128 @@
+{
+  "test_fourier_roundtrip": {
+    "max_abs_error": 1.7763568394002505e-15
+  },
+  "test_galerkin_equations_vs_projection": {
+    "explicit_vs_convolution": 7.105427357601002e-15,
+    "explicit_vs_projection": 1.7763568394002505e-14
+  },
+  "test_conjugate_symmetry": {
+    "rhs_symmetry_error": 1.7763568394002505e-15,
+    "integrated_symmetry_drift": 3.4768908113053004e-37
+  },
+  "test_solver_linear_modes": {
+    "spectral_max_err": 2.35597791276021e-11,
+    "fd_err_32": 0.0043164908547389386,
+    "fd_err_64": 0.001067669183685685,
+    "fd_err_128": 0.0002661975719924492,
+    "fd_order_1": 2.0153942333521098,
+    "fd_order_2": 2.0038953810387126
+  },
+  "test_solver_logistic": {
+    "max_err": 7.246653277448445e-11
+  },
+  "test_solver_self_convergence": {
+    "err_N32": 7.151434999741468e-10,
+    "err_N64": 1.3078815808142963e-11
+  },
+  "test_galerkin_integrator_agreement": {
+    "err": 5.2735593669694936e-15
+  },
+  "test_truncation_error_decreases_with_M": {
+    "rel_err_M1": 0.016185275720429222,
+    "rel_err_M2": 0.0021523476228844855,
+    "rel_err_M3": 0.0002969550769630771,
+    "rel_err_M4": 3.923755289270918e-05
+  },
+  "test_galerkin_residual_converges": {
+    "forward_rms_dt0.1": 0.0015305840965633528,
+    "forward_rms_dt0.0125": 0.00018994832214201088,
+    "forward_order": 1.0015320952278108,
+    "trapezoid_rms_dt0.1": 2.5722891174438673e-05,
+    "trapezoid_rms_dt0.0125": 4.02108405270681e-07,
+    "trapezoid_order": 1.999966928541986,
+    "midpoint_rms_dt0.1": 2.8100494036411297e-05,
+    "midpoint_rms_dt0.0125": 4.3918856372589033e-07,
+    "midpoint_order": 1.9999815329645723
+  },
+  "test_full_pde_residual_converges": {
+    "full_rms_M2_by_dt": [
+      0.008104365744683881,
+      0.008107612214322867,
+      0.008108469713275356,
+      0.0081086869564751
+    ],
+    "full_rms_M2": 0.008108686956475096,
+    "full_rms_M4": 0.00041275372371979234,
+    "full_rms_M8": 5.43141921107125e-07,
+    "full_rms_M16": 6.34355077592052e-08,
+    "galerkin_traj_full_residual": 0.009904108401327055,
+    "unresolved_mode_rms": 0.009896905653106277
+  },
+  "test_embedding_equals_ry_product": {
+    "max_err": 1.6653345369377348e-16
+  },
+  "test_all_circuits_unitary": {
+    "max_err": 7.771561172376096e-15,
+    "exact_structured": 6.8833827526759706e-15,
+    "trotter1_structured": 6.661338147750939e-16,
+    "trotter2_structured": 1.1102230246251565e-15,
+    "trotter8_structured": 3.219646771412954e-15,
+    "exact_triad": 3.552713678800501e-15,
+    "trotter1_triad": 6.661338147750939e-16,
+    "trotter2_triad": 8.881784197001252e-16,
+    "trotter8_triad": 5.10702591327572e-15,
+    "exact_full": 7.771561172376096e-15,
+    "trotter1_full": 5.551115123125783e-16,
+    "trotter2_full": 1.1102230246251565e-15,
+    "trotter8_full": 3.774758283725532e-15,
+    "exact_nearest": 5.995204332975845e-15,
+    "trotter1_nearest": 5.551115123125783e-16,
+    "trotter2_nearest": 1.3322676295501878e-15,
+    "trotter8_nearest": 3.3306690738754696e-15,
+    "exact_none": 2.886579864025407e-15,
+    "trotter1_none": 6.661338147750939e-16,
+    "trotter2_none": 8.881784197001252e-16,
+    "trotter8_none": 3.3306690738754696e-15,
+    "hea": 1.1102230246251565e-15,
+    "reupload3_state_norm": 2.220446049250313e-15
+  },
+  "test_trotter_converges_first_order": {
+    "err_L4": 0.21023100850749193,
+    "err_L8": 0.10496184245517642,
+    "err_L16": 0.05235370534613344,
+    "err_L32": 0.026134252968829073,
+    "observed_order": 1.0023497265018073
+  },
+  "test_torch_matches_pennylane": {
+    "exact": 8.104628079763643e-15,
+    "trotter": 2.55351295663786e-15,
+    "reupload2": 3.747002708109903e-15,
+    "hea": 8.881784197001252e-16
+  },
+  "test_measurement_gradcheck": {
+    "max_rel_err_param_grads": 8.133739509447164e-08,
+    "n_param_tensors": 7.0,
+    "input_gradcheck": 1.0
+  },
+  "test_gradients_reach_all_parameters": {
+    "min_grad": 0.01043725370723308
+  },
+  "test_identity_at_zero_dt": {
+    "max_err": 0.0
+  },
+  "test_fourier_spectrum_degree": {
+    "R1_max_power_beyond_R": 7.134190659448216e-17,
+    "R1_power_at_R": 0.4868850078836115,
+    "R2_max_power_beyond_R": 5.781462642306629e-17,
+    "R2_power_at_R": 0.09597376060913164,
+    "R3_max_power_beyond_R": 3.9841184475681005e-17,
+    "R3_power_at_R": 0.015503057695820055
+  },
+  "test_training_loop_smoke": {
+    "initial_total": 727.9694608153598,
+    "final_total": 12.759143802134865,
+    "initial_data": 218.79106131449524,
+    "final_data": 4.249918153235795
+  }
+}
