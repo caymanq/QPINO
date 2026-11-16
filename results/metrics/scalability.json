@@ -1,0 +1,384 @@
+{
+  "runtime_vs_qubits": {
+    "3": {
+      "statevector_bytes": 128,
+      "structured-like(full)_exact_s_per_fwdbwd_batch256": 0.0023177623748779296,
+      "structured-like(full)_trotter_s_per_fwdbwd_batch256": 0.0008945465087890625,
+      "nearest_exact_s_per_fwdbwd_batch256": 0.000836181640625,
+      "nearest_trotter_s_per_fwdbwd_batch256": 0.0007442474365234375
+    },
+    "4": {
+      "statevector_bytes": 256,
+      "structured-like(full)_exact_s_per_fwdbwd_batch256": 0.001223134994506836,
+      "structured-like(full)_trotter_s_per_fwdbwd_batch256": 0.0009584903717041015,
+      "nearest_exact_s_per_fwdbwd_batch256": 0.0009576320648193359,
+      "nearest_trotter_s_per_fwdbwd_batch256": 0.0008598804473876953
+    },
+    "5": {
+      "statevector_bytes": 512,
+      "structured-like(full)_exact_s_per_fwdbwd_batch256": 0.0018863677978515625,
+      "structured-like(full)_trotter_s_per_fwdbwd_batch256": 0.0015267372131347657,
+      "nearest_exact_s_per_fwdbwd_batch256": 0.0018403053283691407,
+      "nearest_trotter_s_per_fwdbwd_batch256": 0.0012578964233398438
+    },
+    "6": {
+      "statevector_bytes": 1024,
+      "structured-like(full)_exact_s_per_fwdbwd_batch256": 0.006338977813720703,
+      "structured-like(full)_trotter_s_per_fwdbwd_batch256": 0.0020281791687011717,
+      "nearest_exact_s_per_fwdbwd_batch256": 0.006508684158325196,
+      "nearest_trotter_s_per_fwdbwd_batch256": 0.001838350296020508
+    },
+    "7": {
+      "statevector_bytes": 2048,
+      "structured-like(full)_exact_s_per_fwdbwd_batch256": 0.03442850112915039,
+      "structured-like(full)_trotter_s_per_fwdbwd_batch256": 0.0048695564270019535,
+      "nearest_exact_s_per_fwdbwd_batch256": 0.03339061737060547,
+      "nearest_trotter_s_per_fwdbwd_batch256": 0.005846214294433594
+    },
+    "8": {
+      "statevector_bytes": 4096,
+      "structured-like(full)_exact_s_per_fwdbwd_batch256": 0.2435743808746338,
+      "structured-like(full)_trotter_s_per_fwdbwd_batch256": 0.02375454902648926,
+      "nearest_exact_s_per_fwdbwd_batch256": 0.2094327449798584,
+      "nearest_trotter_s_per_fwdbwd_batch256": 0.02135810852050781
+    },
+    "9": {
+      "statevector_bytes": 8192,
+      "structured-like(full)_exact_s_per_fwdbwd_batch256": 1.6722463369369507,
+      "structured-like(full)_trotter_s_per_fwdbwd_batch256": 0.14576566219329834,
+      "nearest_exact_s_per_fwdbwd_batch256": 1.5530391931533813,
+      "nearest_trotter_s_per_fwdbwd_batch256": 0.13225948810577393
+    },
+    "10": {
+      "statevector_bytes": 16384,
+      "structured-like(full)_exact_s_per_fwdbwd_batch256": 13.115399837493896,
+      "structured-like(full)_trotter_s_per_fwdbwd_batch256": 1.0115782022476196,
+      "nearest_exact_s_per_fwdbwd_batch256": 13.497558832168579,
+      "nearest_trotter_s_per_fwdbwd_batch256": 0.9853631258010864
+    },
+    "11": {
+      "statevector_bytes": 32768,
+      "structured-like(full)_trotter_s_per_fwdbwd_batch256": 8.451027274131775,
+      "nearest_trotter_s_per_fwdbwd_batch256": 7.684462308883667
+    }
+  },
+  "per_sample_forward_s": {
+    "pennylane_default_qubit": 0.006598126888275146,
+    "torch_statevector_batched": 1.2589693069458006e-05
+  },
+  "circuit_resources": {
+    "structured_L1": {
+      "depth": 9,
+      "n_gates": 24,
+      "gate_types": {
+        "RY": 5,
+        "IsingZZ": 9,
+        "RX": 5,
+        "RZ": 5
+      },
+      "n_two_qubit": 9,
+      "cnot_equiv": 18,
+      "n_hamiltonian_params": 19,
+      "n_edges": 9
+    },
+    "structured_L4": {
+      "depth": 30,
+      "n_gates": 81,
+      "gate_types": {
+        "RY": 5,
+        "IsingZZ": 36,
+        "RX": 20,
+        "RZ": 20
+      },
+      "n_two_qubit": 36,
+      "cnot_equiv": 72,
+      "n_hamiltonian_params": 19,
+      "n_edges": 9
+    },
+    "triad_L1": {
+      "depth": 7,
+      "n_gates": 20,
+      "gate_types": {
+        "RY": 5,
+        "IsingZZ": 5,
+        "RX": 5,
+        "RZ": 5
+      },
+      "n_two_qubit": 5,
+      "cnot_equiv": 10,
+      "n_hamiltonian_params": 15,
+      "n_edges": 5
+    },
+    "triad_L4": {
+      "depth": 25,
+      "n_gates": 65,
+      "gate_types": {
+        "RY": 5,
+        "IsingZZ": 20,
+        "RX": 20,
+        "RZ": 20
+      },
+      "n_two_qubit": 20,
+      "cnot_equiv": 40,
+      "n_hamiltonian_params": 15,
+      "n_edges": 5
+    },
+    "full_L1": {
+      "depth": 10,
+      "n_gates": 25,
+      "gate_types": {
+        "RY": 5,
+        "IsingZZ": 10,
+        "RX": 5,
+        "RZ": 5
+      },
+      "n_two_qubit": 10,
+      "cnot_equiv": 20,
+      "n_hamiltonian_params": 20,
+      "n_edges": 10
+    },
+    "full_L4": {
+      "depth": 31,
+      "n_gates": 85,
+      "gate_types": {
+        "RY": 5,
+        "IsingZZ": 40,
+        "RX": 20,
+        "RZ": 20
+      },
+      "n_two_qubit": 40,
+      "cnot_equiv": 80,
+      "n_hamiltonian_params": 20,
+      "n_edges": 10
+    },
+    "nearest_L1": {
+      "depth": 7,
+      "n_gates": 19,
+      "gate_types": {
+        "RY": 5,
+        "IsingZZ": 4,
+        "RX": 5,
+        "RZ": 5
+      },
+      "n_two_qubit": 4,
+      "cnot_equiv": 8,
+      "n_hamiltonian_params": 14,
+      "n_edges": 4
+    },
+    "nearest_L4": {
+      "depth": 19,
+      "n_gates": 61,
+      "gate_types": {
+        "RY": 5,
+        "IsingZZ": 16,
+        "RX": 20,
+        "RZ": 20
+      },
+      "n_two_qubit": 16,
+      "cnot_equiv": 32,
+      "n_hamiltonian_params": 14,
+      "n_edges": 4
+    },
+    "none_L1": {
+      "depth": 3,
+      "n_gates": 15,
+      "gate_types": {
+        "RY": 5,
+        "RX": 5,
+        "RZ": 5
+      },
+      "n_two_qubit": 0,
+      "cnot_equiv": 0,
+      "n_hamiltonian_params": 10,
+      "n_edges": 0
+    },
+    "none_L4": {
+      "depth": 9,
+      "n_gates": 45,
+      "gate_types": {
+        "RY": 5,
+        "RX": 20,
+        "RZ": 20
+      },
+      "n_two_qubit": 0,
+      "cnot_equiv": 0,
+      "n_hamiltonian_params": 10,
+      "n_edges": 0
+    },
+    "HEA_2layers": {
+      "depth": 15,
+      "n_gates": 35,
+      "gate_types": {
+        "RY": 15,
+        "RZ": 10,
+        "CNOT": 10
+      },
+      "n_two_qubit": 10,
+      "n_hamiltonian_params": 20
+    }
+  },
+  "circuit_evaluations": {
+    "synthetic_per_epoch_simulator": 7040,
+    "synthetic_total_simulator": 10560000,
+    "hardware_parameter_shift_per_epoch": 359040,
+    "hardware_shots_per_epoch_at_1e3_shots": 359040000,
+    "note": "parameter-shift needs 2 evaluations per quantum parameter per sample (generalised shift rules needed for multi-eigenvalue generators such as exp(-i tau H_theta) when not decomposed into gates)"
+  },
+  "shot_sensitivity": {
+    "synthetic": {
+      "exact_mse": 2.3926392884989066e-06,
+      "64": {
+        "mse_mean": 1.477730747687758e-05,
+        "mse_std": 1.4036078114429644e-06,
+        "rms_dev_from_exact": 0.003416915788973666
+      },
+      "256": {
+        "mse_mean": 5.060988639473591e-06,
+        "mse_std": 6.364608490118125e-07,
+        "rms_dev_from_exact": 0.0016225395319249569
+      },
+      "1024": {
+        "mse_mean": 3.1037911600504475e-06,
+        "mse_std": 2.011351258687219e-07,
+        "rms_dev_from_exact": 0.0008737997734269693
+      },
+      "4096": {
+        "mse_mean": 2.5481640186627645e-06,
+        "mse_std": 1.1445666339766196e-07,
+        "rms_dev_from_exact": 0.0004165889848864879
+      },
+      "16384": {
+        "mse_mean": 2.4456525900353182e-06,
+        "mse_std": 5.4633026415545806e-08,
+        "rms_dev_from_exact": 0.00020343076170438904
+      },
+      "65536": {
+        "mse_mean": 2.4025664757032475e-06,
+        "mse_std": 1.4259666348484328e-08,
+        "rms_dev_from_exact": 0.00010340630613833142
+      }
+    },
+    "pennylane_20000shots_max_abs_dev_from_exact": 0.015573094411641675,
+    "expected_1sigma_at_20000_shots": 0.007071067811865475,
+    "covid_july": {
+      "exact_mse": 0.0004424875749567476,
+      "64": {
+        "mse_mean": 0.00045423131422208627,
+        "mse_std": 1.213729083718083e-05,
+        "rms_dev_from_exact": 0.003071769155502071
+      },
+      "256": {
+        "mse_mean": 0.0004442009691944272,
+        "mse_std": 5.397112253860576e-06,
+        "rms_dev_from_exact": 0.0015576506184844965
+      },
+      "1024": {
+        "mse_mean": 0.0004425170110549335,
+        "mse_std": 4.020488841967429e-06,
+        "rms_dev_from_exact": 0.0007903519798154693
+      },
+      "4096": {
+        "mse_mean": 0.0004420095487226173,
+        "mse_std": 1.5382919450619813e-06,
+        "rms_dev_from_exact": 0.00039613063890871805
+      },
+      "16384": {
+        "mse_mean": 0.0004425734263530107,
+        "mse_std": 5.402274893635824e-07,
+        "rms_dev_from_exact": 0.00019539702931676214
+      },
+      "65536": {
+        "mse_mean": 0.00044254064607784905,
+        "mse_std": 4.460029995910589e-07,
+        "rms_dev_from_exact": 9.474616299364375e-05
+      }
+    }
+  },
+  "training_runtime": {
+    "synthetic_results.json": {
+      "Persistence": {
+        "train_time_s": 0.0,
+        "n_params": 0
+      },
+      "A": {
+        "train_time_s": 0.0,
+        "n_params": 3
+      },
+      "A-fit": {
+        "train_time_s": 0.0,
+        "n_params": 3
+      },
+      "B": {
+        "train_time_s": 11.968567927678427,
+        "n_params": 165
+      },
+      "B-data": {
+        "train_time_s": 28.256652275721233,
+        "n_params": 165
+      },
+      "C": {
+        "train_time_s": 225.98356835047403,
+        "n_params": 105
+      },
+      "D": {
+        "train_time_s": 38.7084588209788,
+        "n_params": 105
+      },
+      "D-mlpdec": {
+        "train_time_s": 40.48037767410278,
+        "n_params": 366
+      },
+      "E": {
+        "train_time_s": 202.4875841140747,
+        "n_params": 105
+      },
+      "F": {
+        "train_time_s": 36.448761542638145,
+        "n_params": 96
+      }
+    },
+    "covid_results.json": {
+      "Persistence": {
+        "train_time_s": 0.0,
+        "n_params": 0
+      },
+      "LinearTrend": {
+        "train_time_s": 0.0,
+        "n_params": 0
+      },
+      "A": {
+        "train_time_s": 0.0,
+        "n_params": 3
+      },
+      "B": {
+        "train_time_s": 5.312836805979411,
+        "n_params": 165
+      },
+      "B-data": {
+        "train_time_s": 5.483015775680542,
+        "n_params": 165
+      },
+      "C": {
+        "train_time_s": 41.89968864123026,
+        "n_params": 105
+      },
+      "D": {
+        "train_time_s": 200.86601305007935,
+        "n_params": 105
+      },
+      "D-mlpdec": {
+        "train_time_s": 25.844914197921753,
+        "n_params": 366
+      },
+      "E": {
+        "train_time_s": 24.010177691777546,
+        "n_params": 105
+      },
+      "F": {
+        "train_time_s": 23.388420343399048,
+        "n_params": 96
+      }
+    }
+  },
+  "total_time_s": 114.66661787033081
+}

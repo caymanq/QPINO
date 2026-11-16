@@ -11,3 +11,6 @@ Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pyto
 [covid] trotter L=4                      incr 1.276 field1 13.767 roll 24.682
 [covid] tau fixed c=2                    incr 1.330 field1 13.789 roll 19.145
 [covid] tau fixed c=10                   incr 1.183 field1 13.747 roll 21.767
+[covid] tau learned c0=10                incr 1.132 field1 13.734 roll 21.334
+[covid] reupload R=2                     incr 1.121 field1 13.732 roll 21.253
+[covid] reupload R=3                     incr 1.101 field1 13.729 roll 18.703

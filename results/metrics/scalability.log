@@ -1,0 +1,70 @@
+3 {'statevector_bytes': '128', 'structured-like(full)_exact_s_per_fwdbwd_batch256': '0.00232', 'structured-like(full)_trotter_s_per_fwdbwd_batch256': '0.000895', 'nearest_exact_s_per_fwdbwd_batch256': '0.000836', 'nearest_trotter_s_per_fwdbwd_batch256': '0.000744'}
+4 {'statevector_bytes': '256', 'structured-like(full)_exact_s_per_fwdbwd_batch256': '0.00122', 'structured-like(full)_trotter_s_per_fwdbwd_batch256': '0.000958', 'nearest_exact_s_per_fwdbwd_batch256': '0.000958', 'nearest_trotter_s_per_fwdbwd_batch256': '0.00086'}
+5 {'statevector_bytes': '512', 'structured-like(full)_exact_s_per_fwdbwd_batch256': '0.00189', 'structured-like(full)_trotter_s_per_fwdbwd_batch256': '0.00153', 'nearest_exact_s_per_fwdbwd_batch256': '0.00184', 'nearest_trotter_s_per_fwdbwd_batch256': '0.00126'}
+6 {'statevector_bytes': '1.02e+03', 'structured-like(full)_exact_s_per_fwdbwd_batch256': '0.00634', 'structured-like(full)_trotter_s_per_fwdbwd_batch256': '0.00203', 'nearest_exact_s_per_fwdbwd_batch256': '0.00651', 'nearest_trotter_s_per_fwdbwd_batch256': '0.00184'}
+7 {'statevector_bytes': '2.05e+03', 'structured-like(full)_exact_s_per_fwdbwd_batch256': '0.0344', 'structured-like(full)_trotter_s_per_fwdbwd_batch256': '0.00487', 'nearest_exact_s_per_fwdbwd_batch256': '0.0334', 'nearest_trotter_s_per_fwdbwd_batch256': '0.00585'}
+8 {'statevector_bytes': '4.1e+03', 'structured-like(full)_exact_s_per_fwdbwd_batch256': '0.244', 'structured-like(full)_trotter_s_per_fwdbwd_batch256': '0.0238', 'nearest_exact_s_per_fwdbwd_batch256': '0.209', 'nearest_trotter_s_per_fwdbwd_batch256': '0.0214'}
+9 {'statevector_bytes': '8.19e+03', 'structured-like(full)_exact_s_per_fwdbwd_batch256': '1.67', 'structured-like(full)_trotter_s_per_fwdbwd_batch256': '0.146', 'nearest_exact_s_per_fwdbwd_batch256': '1.55', 'nearest_trotter_s_per_fwdbwd_batch256': '0.132'}
+10 {'statevector_bytes': '1.64e+04', 'structured-like(full)_exact_s_per_fwdbwd_batch256': '13.1', 'structured-like(full)_trotter_s_per_fwdbwd_batch256': '1.01', 'nearest_exact_s_per_fwdbwd_batch256': '13.5', 'nearest_trotter_s_per_fwdbwd_batch256': '0.985'}
+11 {'statevector_bytes': '3.28e+04', 'structured-like(full)_trotter_s_per_fwdbwd_batch256': '8.45', 'nearest_trotter_s_per_fwdbwd_batch256': '7.68'}
+/workspace/QPINO/experiments/scalability.py:52: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  q([ang[i]], [hp], lay.edges, float(m.tau(0.1)), "trotter", 4)
+per-sample forward: pennylane 0.006598126888275146 torch 1.2589693069458006e-05
+/home/box/.local/lib/python3.13/site-packages/pennylane/devices/device_api.py:207: PennyLaneDeprecationWarning: Setting shots on device is deprecated. Please use the `set_shots` transform on the respective QNode instead.
+  warnings.warn(
+shots: {
+ "synthetic": {
+  "exact_mse": 2.3926392884989066e-06,
+  "64": {
+   "mse_mean": 1.477730747687758e-05,
+   "mse_std": 1.4036078114429644e-06,
+   "rms_dev_from_exact": 0.003416915788973666
+  },
+  "256": {
+   "mse_mean": 5.060988639473591e-06,
+   "mse_std": 6.364608490118125e-07,
+   "rms_dev_from_exact": 0.0016225395319249569
+  },
+  "1024": {
+   "mse_mean": 3.1037911600504475e-06,
+   "mse_std": 2.011351258687219e-07,
+   "rms_dev_from_exact": 0.0008737997734269693
+  },
+  "4096": {
+   "mse_mean": 2.5481640186627645e-06,
+   "mse_std": 1.1445666339766196e-07,
+   "rms_dev_from_exact": 0.0004165889848864879
+  },
+  "16384": {
+   "mse_mean": 2.4456525900353182e-06,
+   "mse_std": 5.4633026415545806e-08,
+   "rms_dev_from_exact": 0.00020343076170438904
+  },
+  "65536": {
+   "mse_mean": 2.4025664757032475e-06,
+   "mse_std": 1.4259666348484328e-08,
+   "rms_dev_from_exact": 0.00010340630613833142
+  }
+ },
+ "pennylane_20000shots_max_abs_dev_from_exact": 0.015573094411641675,
+ "expected_1sigma_at_20000_shots": 0.007071067811865475,
+ "covid_july": {
+  "exact_mse": 0.0004424875749567476,
+  "64": {
+   "mse_mean": 0.00045423131422208627,
+   "mse_std": 1.213729083718083e-05,
+   "rms_dev_from_exact": 0.003071769155502071
+  },
+  "256": {
+   "mse_mean": 0.0004442009691944272,
+   "mse_std": 5.397112253860576e-06,
+   "rms_dev_from_exact": 0.0015576506184844965
+  },
+  "1024": {
+   "mse_mean": 0.0004425170110549335,
+   "mse_std": 4.020488841967429e-06,
+   "rms_dev_from_exact": 0.0007903519798154693
+  },
+  
+done in 115s
