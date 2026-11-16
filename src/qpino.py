@@ -11,6 +11,8 @@ QPINO one-step map (5 real Galerkin coefficients a -> a'):
 """
 from __future__ import annotations
 
+import contextlib
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -48,7 +50,7 @@ class QPINO(nn.Module):
         self.ansatz_type, self.evolution, self.trotter_L = ansatz, evolution, trotter_L
         self.tau_mode, self.reupload, self.graph_name = tau_mode, reupload, graph
         if ansatz == "hamiltonian":
-            edges = get_graph(graph)
+            edges = get_graph(graph, n)
             self.layers = nn.ModuleList([HamiltonianAnsatz(edges, n, init_scale, seed + 17 * r)
                                          for r in range(reupload)])
         elif ansatz == "hea":
@@ -69,9 +71,9 @@ class QPINO(nn.Module):
         self.register_buffer("meas", meas)
         nf = meas.shape[1]
         if decoder == "linear":
-            self.decoder = nn.Linear(nf, 5)
+            self.decoder = nn.Linear(nf, n)
         else:
-            self.decoder = nn.Sequential(nn.Linear(nf, hidden), nn.Tanh(), nn.Linear(hidden, 5))
+            self.decoder = nn.Sequential(nn.Linear(nf, hidden), nn.Tanh(), nn.Linear(hidden, n))
         self.decoder_type = decoder
         self.shots = None  # None = exact expectation values
 
@@ -95,8 +97,25 @@ class QPINO(nn.Module):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
     def unitaries(self, dt):
+        cache = getattr(self, "_ucache", None)
+        if cache is not None and dt in cache:
+            return cache[dt]
         tau = self.tau(dt)
-        return [l.unitary(tau, self.evolution, self.trotter_L) for l in self.layers]
+        Us = [l.unitary(tau, self.evolution, self.trotter_L) for l in self.layers]
+        if cache is not None:
+            cache[dt] = Us
+        return Us
+
+    @contextlib.contextmanager
+    def cache_unitaries(self):
+        """Within the context, U_theta(tau) is built once per dt and reused by every forward
+        call (one-step + all rollout steps of one loss evaluation).  Numerically identical to
+        rebuilding it; only valid while the parameters do not change (one optimiser step)."""
+        self._ucache = {}
+        try:
+            yield
+        finally:
+            self._ucache = None
 
     def state(self, a, dt):
         z = (a - self.norm.mu) / self.norm.sigma
@@ -144,15 +163,15 @@ class QPINO(nn.Module):
 class MLPOperator(nn.Module):
     """Baseline B: classical residual MLP a -> a + dt * s_G * MLP(z)."""
 
-    def __init__(self, norm: Standardizer, hidden=8, depth=2, seed=0):
+    def __init__(self, norm: Standardizer, hidden=8, depth=2, seed=0, n=5):
         super().__init__()
         torch.manual_seed(seed)
         self.norm = norm
-        layers, d = [], 5
+        layers, d = [], n
         for _ in range(depth):
             layers += [nn.Linear(d, hidden), nn.Tanh()]
             d = hidden
-        layers.append(nn.Linear(d, 5))
+        layers.append(nn.Linear(d, n))
         self.net = nn.Sequential(*layers)
 
     def n_params(self):

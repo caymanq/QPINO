@@ -1,6 +1,7 @@
 """Training loop for QPINO and baselines (data + PDE residual + rollout + regularisation)."""
 from __future__ import annotations
 
+import contextlib
 import copy
 import json
 import os
@@ -46,6 +47,13 @@ def make_norm(trajs, dt, x_c):
     norm = Standardizer(mu, sigma, s_inc / dt)
     return norm, dict(s_inc=torch.tensor(s_inc), s_field=float(s_field), mu=mu, sigma=sigma,
                       u_max=float(U.max()))
+
+
+def _ucache(model):
+    """Unitary cache context for QPINO models (no-op for classical models)."""
+    if hasattr(model, "cache_unitaries"):
+        return model.cache_unitaries()
+    return contextlib.nullcontext()
 
 
 def pde_weight(epoch, cfg):
@@ -102,14 +110,15 @@ def train(model, train_ds, val_ds, dt, cfg, phys, scales, x_c, ckpt_path=None, v
         perm = torch.randperm(P)
         for i in range(0, P, bs):
             opt.zero_grad()
-            out = compute_losses(model, train_ds, dt, cfg, phys, scales, x_c, lam,
-                                 idx=perm[i:i + bs] if bs < P else None)
+            with _ucache(model):
+                out = compute_losses(model, train_ds, dt, cfg, phys, scales, x_c, lam,
+                                     idx=perm[i:i + bs] if bs < P else None)
             out["total"].backward()
             torch.nn.utils.clip_grad_norm_(params, cfg.get("clip", 10.0))
             opt.step()
         sched.step()
         if ep % cfg.get("log_every", 10) == 0 or ep == cfg["epochs"] - 1:
-            with torch.no_grad():
+            with torch.no_grad(), _ucache(model):
                 out = compute_losses(model, train_ds, dt, cfg, phys, scales, x_c, lam)
                 vout = compute_losses(model, val_ds, dt, cfg, phys, scales, x_c, lam)
             for k in ["total", "data", "field", "pde_full", "pde_gal", "roll", "reg"]:

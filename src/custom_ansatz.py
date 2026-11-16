@@ -24,15 +24,20 @@ N_QUBITS = 5
 
 
 # ---------------------------------------------------------------- coupling graphs
-def galerkin_graph(tol=1e-12):
-    """Edges (j,k) for which a_j a_k appears in some Galerkin equation (Hessian != 0)."""
-    Hs = galerkin.coupling_hessian()
-    return [(j, k) for j, k in itertools.combinations(range(5), 2) if Hs[j, k] > tol]
+def _M(n):
+    return (n - 1) // 2
 
 
-def triad_graph():
-    """Only the k=1 <-> k=2 mode-transfer couplings (drops the a0 'mean-field' edges)."""
-    return [(j, k) for (j, k) in galerkin_graph() if j > 0 and k > 0]
+def galerkin_graph(n=N_QUBITS, tol=1e-12):
+    """Edges (j,k) for which a_j a_k appears in some Galerkin equation (Hessian != 0).
+    n = 2M+1 qubits (M=2: 9 of 10 pairs; M=4: 34 of 36 pairs)."""
+    Hs = galerkin.coupling_hessian(Mo=_M(n))
+    return [(j, k) for j, k in itertools.combinations(range(n), 2) if Hs[j, k] > tol]
+
+
+def triad_graph(n=N_QUBITS):
+    """Only the k>=1 mode-transfer couplings (drops the a0 'mean-field' edges)."""
+    return [(j, k) for (j, k) in galerkin_graph(n) if j > 0 and k > 0]
 
 
 def full_graph(n=N_QUBITS):
@@ -44,11 +49,11 @@ def nn_graph(n=N_QUBITS):
 
 
 GRAPHS = {"structured": galerkin_graph, "triad": triad_graph, "full": full_graph,
-          "nearest": nn_graph, "none": lambda: []}
+          "nearest": nn_graph, "none": lambda n=N_QUBITS: []}
 
 
-def get_graph(name):
-    return GRAPHS[name]()
+def get_graph(name, n=N_QUBITS):
+    return GRAPHS[name](n)
 
 
 # ---------------------------------------------------------------- Hamiltonian ansatz

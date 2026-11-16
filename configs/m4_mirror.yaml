@@ -1,0 +1,10 @@
+# Overrides for the M=4 / mirrored-boundary / data-dominated study (merged over default.yaml).
+# The M=2 periodic results were produced with default.yaml and are left untouched.
+galerkin_M: 4            # 2M+1 = 9 real coefficients = 9 qubits
+covid_boundary: mirror   # even reflection of the I-10 transect (domain 2L, cosine series)
+train:
+  lambda_pde: 0.01       # data-dominated loss (was 0.1); curriculum ramp [0.2, 0.6] unchanged
+mlp:
+  hidden: 14             # 9-14-14-9 MLP: 485 parameters ~ QPINO D (476) / HEA C (459)
+lambda_pde_sweep: [0.0, 0.001, 0.01]
+reupload_sweep: [1, 2, 3]
