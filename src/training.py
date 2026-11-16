@@ -123,7 +123,8 @@ def train(model, train_ds, val_ds, dt, cfg, phys, scales, x_c, ckpt_path=None, v
             hist.setdefault("epoch", []).append(ep)
             vscore = float(vout["data"]) + (float(vout["roll"]) if cfg["lambda_roll"] > 0 else 0.0)
             # model selection only after the PDE curriculum has reached its target weight
-            if ep >= cfg["epochs"] * cfg.get("pde_ramp", [0.2, 0.6])[1] * 0.999 or cfg["lambda_pde"] == 0:
+            # (the same selection window is used for every run, with or without physics loss)
+            if ep >= cfg["epochs"] * cfg.get("select_after", cfg.get("pde_ramp", [0.2, 0.6])[1]) * 0.999:
                 if np.isfinite(vscore) and vscore < best:
                     best, best_state = vscore, copy.deepcopy(model.state_dict())
             if verbose and ep % (10 * cfg.get("log_every", 10)) == 0:

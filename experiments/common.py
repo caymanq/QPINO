@@ -18,7 +18,7 @@ from src.training import make_dataset, make_norm, save_json, set_seed, train  # 
 
 torch.set_default_dtype(torch.float64)
 C = config.load()
-torch.set_num_threads(C.get("threads", 4))
+torch.set_num_threads(int(os.environ.get("QPINO_THREADS", C.get("threads", 4))))
 RES = os.path.join(ROOT, "results")
 FIG, MET, CKPT = (os.path.join(RES, d) for d in ("figures", "metrics", "checkpoints"))
 for d in (FIG, MET, CKPT, os.path.join(ROOT, "data", "processed")):

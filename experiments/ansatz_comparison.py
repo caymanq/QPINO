@@ -21,6 +21,9 @@ p.add_argument("--epochs", type=int, default=C["train"]["epochs"])
 p.add_argument("--seeds", type=int, nargs="+", default=[0, 1])
 p.add_argument("--covid-seeds", type=int, nargs="+", default=[0, 1, 2])
 p.add_argument("--skip-covid", action="store_true")
+p.add_argument("--skip-synthetic", action="store_true")
+p.add_argument("--variants", nargs="+", default=None, help="subset of variant names (default: all)")
+p.add_argument("--out", default="ansatz_comparison.json")
 args = p.parse_args()
 S = C["synthetic"]
 phys = (S["D"], S["rho"], S["beta"])
@@ -88,7 +91,10 @@ def run(variant, over, bundle, seed, covid=False):
 
 out = {"synthetic": {}, "covid": {}}
 trained = {}
+SEL = args.variants or list(VARIANTS)
 for v, over in VARIANTS.items():
+    if args.skip_synthetic or v not in SEL:
+        continue
     rows = []
     for s in args.seeds:
         r, m = run(v, over, dict(train=data["train"], val=data["val"]), s)
@@ -101,27 +107,30 @@ for v, over in VARIANTS.items():
           f"t {rows[0]['train_time_s']:.0f}s", flush=True)
 
 # post-hoc Trotterisation of the exact-trained structured model
-m = trained["graph=structured"]
-post = {}
-Te = make_dataset(data["test"], 1)
-with torch.no_grad():
-    U_ex = m.layers[0].unitary(m.tau(dt)).detach()
-    base = m(Te["a_n"], dt)
-    for L in [1, 2, 4, 8, 16, 32, 64]:
-        m.evolution, m.trotter_L = "trotter", L
-        pr = m(Te["a_n"], dt)
-        r, _ = evaluate_on_trajs(m, data["test"], dt, phys, X_C)
-        post[L] = dict(unitary_max_abs_err=float((m.layers[0].unitary(m.tau(dt), "trotter", L) - U_ex).abs().max()),
-                       pred_rms_dev_from_exact=float((pr - base).pow(2).mean().sqrt()),
-                       rel_l2_increment=r["rel_l2_increment"], rollout_rel_l2=r["rollout_rel_l2"])
-    m.evolution = "exact"
-out["posthoc_trotter_structured"] = post
-out["tau_structured"] = dict(learned_c=float(m.c), tau_train=float(m.tau(dt)),
-                             H_norm=float(torch.linalg.matrix_norm(m.layers[0].hamiltonian(), 2)))
+if "graph=structured" in trained:
+    m = trained["graph=structured"]
+    post = {}
+    Te = make_dataset(data["test"], 1)
+    with torch.no_grad():
+        U_ex = m.layers[0].unitary(m.tau(dt)).detach()
+        base = m(Te["a_n"], dt)
+        for L in [1, 2, 4, 8, 16, 32, 64]:
+            m.evolution, m.trotter_L = "trotter", L
+            pr = m(Te["a_n"], dt)
+            r, _ = evaluate_on_trajs(m, data["test"], dt, phys, X_C)
+            post[L] = dict(unitary_max_abs_err=float((m.layers[0].unitary(m.tau(dt), "trotter", L) - U_ex).abs().max()),
+                           pred_rms_dev_from_exact=float((pr - base).pow(2).mean().sqrt()),
+                           rel_l2_increment=r["rel_l2_increment"], rollout_rel_l2=r["rollout_rel_l2"])
+        m.evolution = "exact"
+    out["posthoc_trotter_structured"] = post
+    out["tau_structured"] = dict(learned_c=float(m.c), tau_train=float(m.tau(dt)),
+                                 H_norm=float(torch.linalg.matrix_norm(m.layers[0].hamiltonian(), 2)))
 
 # Fourier spectra of trained models along each input angle (other inputs at the training mean)
 spec = {}
 for R, v in [(1, "graph=structured"), (2, "reupload R=2"), (3, "reupload R=3")]:
+    if v not in trained:
+        continue
     m = trained[v]
     n_grid = 64
     spec[R] = {"theory_freqs_per_dim": accessible_frequencies(R)[0], "theory_n_freq_vectors": accessible_frequencies(R)[1]}
@@ -148,7 +157,8 @@ for R, v in [(1, "graph=structured"), (2, "reupload R=2"), (3, "reupload R=3")]:
     spec[R]["power_by_total_degree_output0"] = {int(d_): float((c[deg == d_] ** 2).sum()) for d_ in np.unique(deg)}
     spec[R]["max_coeff_beyond_R_linf"] = float(c[linf > R].max())
     spec[R]["n_nonzero_freq_vectors(>1e-10)"] = int((c > 1e-10).sum())
-out["fourier_spectrum"] = spec
+if spec:
+    out["fourier_spectrum"] = spec
 
 if not args.skip_covid and os.path.exists(os.path.join(MET, "covid_results.json")):
     B = covid_bundle()
@@ -156,11 +166,13 @@ if not args.skip_covid and os.path.exists(os.path.join(MET, "covid_results.json"
               "trotter L=1", "trotter L=4", "tau fixed c=2", "tau fixed c=10", "tau learned c0=10",
               "reupload R=2", "reupload R=3", "measure Z only", "decoder MLP", "frozen circuit + MLP decoder",
               "alpha0=0.25", "alpha0=2"]:
+        if v not in SEL:
+            continue
         rows = [run(v, VARIANTS[v], B, s, covid=True)[0] for s in args.covid_seeds]
         out["covid"][v] = dict(agg(rows), per_seed=rows)
         print(f"[covid] {v:32s} incr {out['covid'][v]['rel_l2_increment']['mean']:.3f} "
               f"field1 {out['covid'][v]['field_rmse_per100k_onestep']['mean']:.3f} "
               f"roll {out['covid'][v]['field_rmse_per100k_rollout']['mean']:.3f}", flush=True)
 out["epochs"], out["seeds"], out["total_time_s"] = args.epochs, args.seeds, time.time() - t0
-save_json(out, f"{MET}/ansatz_comparison.json")
+save_json(out, f"{MET}/{args.out}")
 print(f"done in {time.time() - t0:.0f}s")

@@ -20,6 +20,9 @@ p = argparse.ArgumentParser()
 p.add_argument("--epochs", type=int, default=C["train"]["epochs"])
 p.add_argument("--seeds", type=int, nargs="+", default=[0, 1])
 p.add_argument("--covid-seeds", type=int, nargs="+", default=[0, 1, 2])
+p.add_argument("--settings", nargs="+", default=None)
+p.add_argument("--regimes", nargs="+", default=["synthetic", "covid"])
+p.add_argument("--out", default="physics_loss_ablation.json")
 args = p.parse_args()
 S = C["synthetic"]
 phys_syn = (S["D"], S["rho"], S["beta"])
@@ -63,7 +66,10 @@ def syn_test(m):
 
 out = {"synthetic_full": {}, "synthetic_lowdata": {}, "covid": {}}
 low_tr = [T[:11] for T in data["train"][:2]]  # 2 trajectories x 10 steps (t <= 1)
+SEL = args.settings or list(SETTINGS)
 for name, over in SETTINGS.items():
+    if "synthetic" not in args.regimes or name not in SEL:
+        continue
     rows = [run(over, data["train"], data["val"], syn_test, data["dt"], phys_syn, S["c0"], S["horizon"], s) for s in args.seeds]
     out["synthetic_full"][name] = dict(agg(rows), per_seed=rows)
     rows = [run(over, low_tr, data["val"], syn_test, data["dt"], phys_syn, S["c0"], S["horizon"], s) for s in args.seeds]
@@ -74,16 +80,20 @@ for name, over in SETTINGS.items():
           flush=True)
 # MLP in the low-data regime with / without physics (is the physics benefit model-specific?)
 for name, over in [("MLP lam_pde=0", dict(lambda_pde=0.0)), ("MLP lam_pde=1", dict(lambda_pde=1.0))]:
+    if "synthetic" not in args.regimes or (args.settings is not None and name not in args.settings):
+        continue
     rows = [run(over, low_tr, data["val"], syn_test, data["dt"], phys_syn, S["c0"], S["horizon"], s, mlp=True) for s in args.seeds]
     out["synthetic_lowdata"][name] = dict(agg(rows), per_seed=rows)
     print(f"[syn-low] {name:32s} incr {out['synthetic_lowdata'][name]['rel_l2_increment']['mean']:.4f} "
           f"roll {out['synthetic_lowdata'][name]['rollout_rel_l2']['mean']:.4f}", flush=True)
 
-if os.path.exists(os.path.join(MET, "covid_results.json")):
+if "covid" in args.regimes and os.path.exists(os.path.join(MET, "covid_results.json")):
     B = covid_bundle()
     for name in ["lam_pde=0 (E)", "lam_pde=0.01", "lam_pde=0.1 (D default)", "lam_pde=1", "lam_pde=10",
                  "PDE-only (lam_data=0, lam_roll=0)", "lam_roll=0", "lam_roll=2", "residual=galerkin (projected)",
                  "scheme=forward"]:
+        if name not in SEL:
+            continue
         rows = [run(SETTINGS[name], B["train"], B["val"], lambda m: covid_eval(m, B), B["dt"], B["phys"], B["c0"], B["H"], s)
                 for s in args.covid_seeds]
         out["covid"][name] = dict(agg(rows), per_seed=rows)
@@ -91,5 +101,5 @@ if os.path.exists(os.path.join(MET, "covid_results.json")):
               f"field1 {out['covid'][name]['field_rmse_per100k_onestep']['mean']:.3f} "
               f"roll {out['covid'][name]['field_rmse_per100k_rollout']['mean']:.3f}", flush=True)
 out["epochs"], out["total_time_s"] = args.epochs, time.time() - t0
-save_json(out, f"{MET}/physics_loss_ablation.json")
+save_json(out, f"{MET}/{args.out}")
 print(f"done in {time.time() - t0:.0f}s")

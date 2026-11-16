@@ -66,7 +66,7 @@ def fig_covid_data(Z, counties, waypoints, split_dates, path):
                        extent=[0, T - 1, 0, s[-1] + s[0]], vmax=np.nanpercentile(A, 99.5))
         plt.colorbar(im, ax=ax)
         for d, lbl in split_dates:
-            i = list(dates).index(d)
+            i = list(pd.DatetimeIndex(dates)).index(pd.Timestamp(d))
             ax.axvline(i, color="c", lw=1, ls="--"); ax.text(i + 0.5, 50, lbl, color="c", fontsize=7)
         _date_ax(ax, dates); ax.set_ylabel("s (km): LA -> Jacksonville"); ax.set_title(lab, fontsize=9)
     fig.suptitle(f"Fig. 1  Raw and processed {JHU}", fontsize=11)
@@ -79,7 +79,7 @@ def fig_m2_reconstruction(Z, periodic, path):
     xf = np.linspace(0, 2 * np.pi, 400)
     fig, axs = plt.subplots(2, 3, figsize=(12, 6.2))
     for ax, d in zip(axs.flat[:4], ["2020-04-15", "2020-06-16", "2020-06-30", "2020-07-21"]):
-        i = list(dates).index(d)
+        i = list(pd.DatetimeIndex(dates)).index(pd.Timestamp(d))
         a = gk.field_to_coeffs(u[i], x)
         ax.bar(x, u[i], width=2 * np.pi / len(x) * 0.9, color="#bbb", label="observed u (32 bins)")
         ax.plot(xf, gk.reconstruct(a, xf), "r", lw=2, label="M=2 Galerkin reconstruction")
@@ -151,7 +151,7 @@ def fig_circuits(path_qpino, path_hea, path_graphs, edges_by_name):
         plc.trotter_layer(np.ones(5) * 0.5, np.ones(5) * 0.5, np.ones(len(E)) * 0.5, E, 1.0)
         return [qml.expval(qml.PauliZ(j)) for j in range(5)]
 
-    fig, ax = qml.draw_mpl(circ, decimals=None, style="pennylane")()
+    fig, ax = qml.draw_mpl(circ, decimals=None, style="black_white")()
     fig.suptitle("Fig. 4a  QPINO circuit: R_y(alpha_j z_j) embedding  +  one first-order Trotter step of\n"
                  "exp(-i tau H_theta), H_theta = sum h Z + sum g X + sum_{(j,k) in E_Galerkin} J ZZ   (repeat L times), measure <Z_j>, <Z_jZ_k>",
                  fontsize=10)
@@ -168,7 +168,7 @@ def fig_circuits(path_qpino, path_hea, path_graphs, edges_by_name):
                 qml.CNOT(wires=[j, (j + 1) % 5])
         return [qml.expval(qml.PauliZ(j)) for j in range(5)]
 
-    fig, ax = qml.draw_mpl(hea, decimals=None, style="pennylane")()
+    fig, ax = qml.draw_mpl(hea, decimals=None, style="black_white")()
     fig.suptitle("Fig. 4b  Baseline C: same R_y embedding + generic hardware-efficient ansatz (2 layers)", fontsize=10)
     fig.savefig(path_hea, bbox_inches="tight", dpi=200); plt.close(fig)
 

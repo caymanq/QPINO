@@ -3,6 +3,5 @@ __pycache__/
 .pytest_cache/
 data/raw/*
 !data/raw/.gitkeep
-results/checkpoints/*.pt
-!results/checkpoints/small/
+results/checkpoints/*_large.pt
 *.ipynb_checkpoints
