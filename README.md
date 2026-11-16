@@ -15,7 +15,7 @@ $$u_t = D\,u_{xx} + \rho u - \beta u^2,\qquad x\in[0,2\pi)\ \text{periodic},$$
 
 acting on the real coefficient vector $\mathbf a=(a_0,\mathrm{Re}\,a_1,\mathrm{Im}\,a_1,\mathrm{Re}\,a_2,\mathrm{Im}\,a_2)$:
 
-1. standardise $\mathbf z=(\mathbf a-\mu)/\sigma$ and embed with $S(\mathbf z)=\bigotimes_j R_y(\alpha_j z_j)=e^{-iH_{\rm emb}}$, $H_{\rm emb}=\tfrac12\sum_j\alpha_j z_j Y_j$;
+1. standardise $\mathbf z=(\mathbf a-\mu)/\sigma$ and embed with $S(\mathbf z)=\bigotimes_j R_y(\alpha_j z_j)=e^{-iH_{\mathrm{emb}}}$, $H_{\mathrm{emb}}=\tfrac12\sum_j\alpha_j z_j Y_j$;
 2. evolve with the custom Hamiltonian $H_\theta=\sum_j h_jZ_j+\sum_j g_jX_j+\sum_{(j,k)\in E}J_{jk}Z_jZ_k$, $U_\theta=e^{-iH_\theta\tau}$, $\tau=c\,\Delta t$ (exact `matrix_exp` or first-order Trotter with $L$ steps; optional data re-uploading);
    the coupling graph $E$ is derived from the Galerkin convolution (pairs with $\partial^2 f/\partial a_j\partial a_k\neq0$);
 3. measure $\langle Z_j\rangle$ and $\langle Z_jZ_k\rangle$, decode $G=D_\eta(\mathbf m)$ and update $\hat{\mathbf a}(t+\Delta t)=\mathbf a(t)+\Delta t\,G$;
