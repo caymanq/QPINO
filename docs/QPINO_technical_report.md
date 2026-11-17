@@ -16,6 +16,7 @@ date: "November 2026"
 * **Design pitfalls found:** (i) τ = cΔt with a derivative readout makes the model fail to transfer across Δt (one-step error 0.49–0.56 at Δt = 0.05 / 0.2), while the τ-free HEA transfers. (ii) The default physics-loss curriculum switches the PDE term on too late to matter. Applied from epoch 0 with the true physics, it cuts low-data rollout error from 0.28 to 0.11.
 * **JHU COVID-19 (exploratory, I-10 transect, train Mar 1–Jun 16, validate Jun 17–30, test July 2020):** M = 2 leaves 38 % (July) to 63 % (train) of the field unresolved, and the periodic wrap is artificial, so this experiment is exploratory. No learned model beats persistence for next-day prediction (QPINO increment error 1.13 ± 0.09; linear trend 0.95). For the 31-day rollout the best methods are the fitted 3-parameter Fisher–KPP models (field RMSE 18.0 Galerkin / 16.9 full grid vs persistence 19.7 cases/100k/day). The QPINO (21.3 ± 1.4) and the classical MLP (22.3 ± 2.8) are worse than persistence.
 * Fitted COVID parameters: ρ = 0.035 /day, β = 0.104 /day, D = 1.5e-3 (528 km²/day), with **D unidentifiable** below ~1e-2.
+* **Extension (§14): M = 4 (9 qubits), mirrored boundary, λ_PDE = 0.01, re-uploading R = 1–3.** Mirroring removes the wrap jump but does not reduce the truncation error (M=4 mirrored July 0.389 vs M=2 periodic 0.377). On COVID July the QPINO 31-day rollout improves to 19.35 ± 0.90 (old 21.3), which is about equal to persistence (19.65) and still behind the linear trend (17.94) and the Galerkin ODE (18.00). The best learned model is the HEA (17.58 ± 0.21). On synthetic data, M = 4 is harder for every learned model (D rollout 0.082 vs 0.043). λ_PDE ≤ 0.01 has no measurable effect, and re-uploading gives no resolvable gain. A mirrored-normalisation bug was found and fixed, and the affected runs were rerun (§14.8).
 * **No quantum advantage** is shown or claimed (§10).
 
 # 2. The Fisher–KPP model and its M = 2 Galerkin truncation
@@ -270,8 +271,183 @@ Decouple τ from Δt or decode the state directly. Use a physics loss from epoch
 | 10 | `fig10_frequency_spectrum.png` | coefficient-space spectra of trained R=1,2,3 models; accessible frequency counts |
 | 11 | `fig11_ablations.png` | graph, Trotter, τ, re-upload/readout/α, loss-weight ablations |
 | 12 | `fig12_runtime_resources.png` | simulation cost vs qubits, parameters/time, shot sensitivity |
+| 4d | `fig04d_coupling_graphs_m4.png` | M=4 (9-qubit) structured / triad / NN graphs |
+| 8b | `fig08b_synthetic_m4.png` | synthetic M=4 rollouts vs old M=2 |
+| 13 | `fig13_truncation_boundary_m4.png` | truncation vs M, periodic vs mirrored boundary |
+| 14 | `fig14_covid_m4_mirror.png` | July 2020 at M=4 mirrored: rollout error by day, observed vs QPINO field |
+| 15 | `fig15_reupload_sweep.png` | re-uploading R=1,2,3 for M=2 and M=4: accuracy and cost |
+| 16 | `fig16_lambda_sweep_m4.png` | λ_PDE ∈ {0, 0.001, 0.01} on the new configs |
 
 All figures also exist as PDF.
+
+# 14. Extension: M = 4 (9 qubits), mirrored boundary, data-dominated loss, re-uploading sweep
+
+These are **new options added alongside** the M = 2 periodic results (§§7–10 are unchanged).
+Configuration: `configs/m4_mirror.yaml`. Runner: `experiments/m4_experiments.py` (one run per process), `experiments/m4_scheduler.py`.
+Tables: `docs/results_tables_m4.md`. Raw JSONs: `results/metrics/m4/`.
+
+## 14.1 Method changes
+
+* **General-M Galerkin.** `src/galerkin.py` infers M from the vector length 2M+1. M = 2 keeps its explicit equations. M = 4 has its own explicit expansion, derived with sympy, with $q_k=(u_M^2)_k$ and $\dot a_k=(\rho-Dk^2)a_k-\beta q_k$:
+  $q_0=a_0^2+2\sum_{k=1}^4(b_k^2+c_k^2)$,
+  $q^{b}_1=2(a_0b_1+b_1b_2+b_2b_3+b_3b_4+c_1c_2+c_2c_3+c_3c_4)$,
+  $q^{c}_1=2(a_0c_1+b_1c_2-b_2c_1+b_2c_3-b_3c_2+b_3c_4-b_4c_3)$,
+  $q^{b}_2=2a_0b_2+b_1^2-c_1^2+2(b_1b_3+b_2b_4+c_1c_3+c_2c_4)$,
+  $q^{c}_2=2(a_0c_2+b_1c_1+b_1c_3+b_2c_4-b_3c_1-b_4c_2)$,
+  $q^{b}_3=2(a_0b_3+b_1b_2+b_1b_4-c_1c_2+c_1c_4)$,
+  $q^{c}_3=2(a_0c_3+b_1c_2+b_1c_4+b_2c_1-b_4c_1)$,
+  $q^{b}_4=2a_0b_4+2b_1b_3+b_2^2-2c_1c_3-c_2^2$,
+  $q^{c}_4=2(a_0c_4+b_1c_3+b_2c_2+b_3c_1)$.
+  Any other M uses the convolution form.
+* **M = 4 coupling graph** (Hessian of the RHS, Fig. 4d): 34 of the 36 pairs. Only $(b_3,c_3)$ and $(b_4,c_4)$ are absent, because $b_kc_k$ appears only through $a_k^2\to$ mode $2k$, which is resolved only for $k\le2$. As at M = 2, the "structured" graph is nearly complete, so it is only weakly selective. The triad graph has 26 edges.
+* **Circuit size.** 9 qubits with the same Ry embedding and $H_\theta$ family. Readout is 9 ⟨Z⟩ + 36 ⟨ZZ⟩ = 45 features.
+* **Parameter counts.**
+  * QPINO D: 476 (h 9, g 9, J 34, α 9, c 1, linear decoder 45→9 = 414).
+  * F: 442.
+  * C (HEA, 2 layers): 459.
+  * B (MLP 9-14-14-9): 485. Its width was chosen to match D.
+* **Speed (numerically identical).**
+  * $U$ is built once per optimiser step and reused across the one-step and all rollout calls.
+  * The exact exponential uses eigh with an exact Daleckii–Krein backward (`exact_eigh`) instead of `matrix_exp`. The two agree to 3.6e-14 in U and 3e-13 (relative) in gradients, including a fully degenerate spectrum (test below).
+* **Mirrored boundary.** The transect is reflected evenly, $[u,\mathrm{reverse}(u)]$ on 64 points (domain 2L), so there is no LA↔Jacksonville jump. All Im $a_k$ are then exactly 0, and the Galerkin dynamics preserve evenness. **Consequence:** at M = 4 only 5 of the 9 coefficients (and qubits) carry data. The 4 Im qubits always receive angle 0, and the model must learn to output Im ≈ 0 (max |Im| in July rollouts stays ≤ 5e-3). Errors are measured on the original 32 bins.
+* **Loss.** Data-dominated: λ_PDE = 0.01 (previously 0.1), with the same ramp (20→60 % of epochs). λ_roll = 0.5, 1,500 epochs, and the same selection window as before.
+
+**Layers currently used** (default, every table unless R is stated):
+
+* QPINO: R = 1, i.e. one Ry embedding followed by one exact $e^{-iH_\theta\tau}$ block, with no Trotter layers. Trotter L = 4 is used only in the ablation and depth counts.
+* HEA: 2 layers.
+* Classical MLP: 2 hidden layers.
+* Decoder: linear.
+* The R sweep re-uploads as $W_R S(z)\cdots W_1S(z)$.
+
+## 14.2 Verification (27/27 tests pass; 8 new in `tests/test_galerkin_m4.py`)
+| check | result |
+|---|---|
+| M=4 conjugate symmetry of the RHS / integrated drift / real↔complex round-trip | 5.6e-17 / 1.7e-18 / 0 |
+| M=4 explicit vs convolution / vs N=64 spectral projection; general code vs M=2 explicit | 4.4e-16 / 1.3e-15; 4.4e-16 |
+| M=4 projected residual order (forward / trapezoid / midpoint) | 1.00 / 2.00 / 2.00 |
+| full PDE residual (trapezoid) of an accurate solution projected to M=2 vs M=4 | 8.1e-3 vs 4.1e-4 (×19.6 smaller; plateaus with dt as expected, truncation-limited) |
+| mirror: max Im a_k / wrap jump / Im after integrating an even IC | 9e-17 / 0 / 0 |
+| torch vs PennyLane `default.qubit` at **9 qubits** (exact R=1, R=2 re-upload, Trotter L=2) | 1.7e-14, 3.1e-14, 3.8e-15 |
+| eigh-expm vs matrix_exp: U / gradients / dτ / degenerate spectrum | 3.6e-14 / 3.0e-13 / 0 / 3.6e-12 (rel.) |
+
+## 14.3 Truncation error of the I-10 field (Fig. 13; mean rel. L2 on the 32 bins)
+| M | periodic train | periodic July | mirror train | mirror July |
+|---|---|---|---|---|
+| 2 | 0.627 | 0.377 | 0.688 | 0.412 |
+| 4 | 0.543 | 0.323 | 0.632 | 0.389 |
+| 8 | 0.383 | 0.207 | 0.555 | 0.314 |
+
+Mirroring removes the wrap jump (23 % of the field maximum in training, 14 % in July). However, it makes the projection **worse** at equal M. The even extension has period 2L, so mode k has wavelength 2L/k: M = 4 mirrored resolves wavelengths 7470, 3735, 2490 and 1868 km, which is coarser than M = 4 periodic (down to 934 km). It uses only 5 real degrees of freedom. M = 4 mirrored is about as good as M = 2 periodic (July 0.389 vs 0.377). The field's localized county-cluster structure, not the boundary jump, dominates the truncation error.
+
+Fitted Fisher–KPP parameters in each representation (same weighted RK4 one-step fit):
+
+| representation | D | ρ | β | fit loss |
+|---|---|---|---|---|
+| M2 periodic | 1.49e-3 (528 km²/day) | 0.0352 /day | 0.104 | 0.991 |
+| M2 mirror | 6.2e-4 (873 km²/day) | 0.0329 /day | 0.083 | 0.592 |
+| M4 periodic | 1.07e-3 (377 km²/day) | 0.0463 /day | 0.143 | 0.982 |
+| M4 mirror | 1.98e-3 (2,802 km²/day) | 0.0388 /day | 0.114 | 0.546 |
+
+In km²/day, D is not comparable across boundaries, because the mirrored domain is 2L.
+
+## 14.4 JHU July 2020: old (M=2 periodic, λ_PDE=0.1) vs new (M=4 mirror, λ_PDE=0.01)
+All values are mean ± std over 3 seeds. RMSE is the field RMSE in cases/100k/day against the observed 32-bin field.
+
+| model | old 1-step incr. err | old 31-day rollout RMSE | new 1-step incr. err | new 1-step RMSE | new 31-day rollout RMSE | new params |
+|---|---|---|---|---|---|---|
+| Persistence | 1.000 | 19.71 | 1.000 | 14.03 | 19.65 | 0 |
+| Linear trend | 0.951 | 18.42 | 0.948 | 14.03 | 17.94 | 0 |
+| A Galerkin ODE (fitted) | 1.025 | 18.01 | 1.038 | 14.04 | 18.00 | 3 |
+| B MLP | 1.21 ± 0.03 | 22.3 ± 2.8 | 1.39 ± 0.12 | 14.15 | 29.1 ± 4.5 | 485 |
+| C Ry + HEA | 1.19 ± 0.07 | 21.5 ± 1.6 | 1.16 ± 0.09 | 14.07 | **17.58 ± 0.21** | 459 |
+| **D QPINO** | 1.13 ± 0.09 | 21.3 ± 1.4 | 1.22 ± 0.01 | 14.07 | 19.35 ± 0.90 | 476 |
+| E QPINO, no physics | 1.13 ± 0.09 | 21.4 ± 1.4 | 1.22 ± 0.01 | 14.07 | 20.79 ± 2.08 | 476 |
+| F QPINO, no ZZ | 1.21 ± 0.09 | 21.8 ± 1.9 | 1.44 ± 0.10 | 14.13 | 19.71 ± 1.18 | 442 |
+
+Projection floor (the observed field's own M=4 mirrored projection): 13.93. Other representations, untrained references (rollout RMSE: persistence / linear trend / A):
+
+* M2 mirror: 20.02 / 16.67 / 18.11.
+* M4 periodic: 19.78 / 23.84 / 17.68.
+
+Interpretation:
+
+* **One day ahead:** still **no learned model beats persistence** (every increment error > 1). The linear trend is again marginally better (0.948).
+* **31 days:**
+  * In the new representation the QPINO D improves from 21.3 to 19.35. That is about equal to persistence (19.65) but still worse than the linear trend (17.94) and the Galerkin ODE (18.00).
+  * The generic HEA (C) is the best learned model, at 17.58 ± 0.21, slightly better than A and the linear trend. This is one cell among many, with 3 seeds.
+  * The MLP got worse (29.1; it extrapolates poorly over 31 days).
+  * With 3 seeds, D vs E vs F are within about 1 std of each other, so neither the ZZ couplings nor the weak physics loss give a resolvable benefit on this data.
+* The mirrored M=2 QPINO (R=1, §14.6) reaches 18.34 ± 0.29, also close to A.
+
+## 14.5 Synthetic Fisher–KPP at M = 4 (12 unseen ICs, 40 steps; error vs the M=4 projection of the full-PDE solution)
+| model | old M=2 1-step incr. | old M=2 rollout | new M=4 1-step incr. | new M=4 rollout | new rollout field rel. L2 vs full PDE | params |
+|---|---|---|---|---|---|---|
+| Persistence | 1.000 | 0.686 | 1.000 | 0.686 | 0.685 | 0 |
+| A Galerkin ODE (true D, ρ, β) | 0.0011 | 0.0004 | 3.8e-5 | 6.5e-6 | 1.1e-4 | 3 |
+| B MLP | 0.047 ± 0.010 | 0.0145 ± 0.003 | 0.135 ± 0.056 | **0.034 ± 0.007** | 0.036 | 485 |
+| C HEA | 0.086 ± 0.005 | 0.032 ± 0.004 | **0.104 ± 0.023** | 0.073 ± 0.011 | 0.079 | 459 |
+| D QPINO | 0.100 ± 0.017 | 0.043 ± 0.011 | 0.147 ± 0.014 (n=2) | 0.082 ± 0.007 (n=2) | 0.095 | 476 |
+| E no physics | 0.100 ± 0.017 | 0.044 ± 0.011 | 0.147 ± 0.014 (n=2) | 0.082 ± 0.007 (n=2) | 0.095 | 476 |
+| F no ZZ | 0.309 ± 0.019 | 0.134 ± 0.030 | 0.407 ± 0.007 (n=2) | 0.170 ± 0.012 (n=2) | 0.177 | 442 |
+
+* At M = 4 the Galerkin system itself is far more accurate: A's rollout error is 6.5e-6, and its field error against the full PDE is 1.1e-4 (vs 3.2e-3 at M = 2).
+* The learned operators find the 9-D map **harder**:
+  * D's rollout error doubles (0.043 → 0.082).
+  * Removing ZZ still costs about 2× (F 0.170), so entanglement remains necessary.
+  * D remains worse than the classical MLP and the generic HEA of equal size.
+* No quantum advantage is shown.
+
+## 14.6 λ_PDE sweep (QPINO D, R=1; λ=0 is model E)
+| regime | λ_PDE = 0 | 0.001 | 0.01 |
+|---|---|---|---|
+| synthetic M=4: rollout rel. L2 (n=2) | 0.08228 | 0.08227 | 0.08227 |
+| COVID M=4 mirror: rollout RMSE | 20.79 ± 2.08 | 19.39 ± 0.88 | 19.35 ± 0.90 |
+| COVID M=4 mirror: 1-step incr. | 1.221 | 1.227 | 1.223 |
+
+* **Synthetic:** with λ_PDE ≤ 0.01 the physics term does not measurably change the trained model. The differences appear in the 5th decimal: λ·L_PDE ≈ 3e-4 against a data loss ≈ 0.5.
+* **COVID:** any non-zero weight (0.001 or 0.01) gives a slightly better and more consistent rollout than λ = 0 (19.4 vs 20.8 ± 2.1), but the difference is about 1 std.
+* The data-dominated setting Cayman asked for therefore behaves as a near-pure data-driven model. The low-data experiment in §9.2 shows physics only helps strongly when λ ≈ 1 and applied early.
+
+## 14.7 Re-uploading sweep R ∈ {1, 2, 3} (QPINO D, λ_PDE = 0.01; Fig. 15)
+| regime | M | R=1 | R=2 | R=3 |
+|---|---|---|---|---|
+| synthetic rollout rel. L2 | 2 | 0.044 ± 0.011 | 0.039 ± 0.009 | 0.042 ± 0.015 |
+| synthetic rollout rel. L2 | 4 | 0.082 ± 0.007 (n=2) | 0.093 ± 0.006 | 0.069 ± 0.013 (n=2) |
+| COVID mirror rollout RMSE | 2 | 18.34 ± 0.29 | 19.32 ± 0.75 | 18.49 ± 2.09 |
+| COVID mirror rollout RMSE | 4 | 19.35 ± 0.90 | 19.70 ± 0.60 | 18.77 ± 1.71 |
+| COVID mirror 1-step incr. | 2 | 1.20 | 1.12 | 1.19 |
+| COVID mirror 1-step incr. | 4 | 1.22 | 1.16 | 1.18 |
+| params | 2 / 4 | 105 / 476 | 124 / 528 | 143 / 580 |
+
+**Runtime per R.** All runs used 1,500 epochs on CPU, with 6–7 jobs sharing the 8-core box, so absolute numbers are inflated by contention.
+
+| configuration | threads | R=1 | R=2 | R=3 |
+|---|---|---|---|---|
+| COVID M=4 mirror, s/epoch | 1 | 0.26 | 0.63 | 0.84 |
+| COVID M=4 mirror, s/run | 1 | 396 | 945 | 1,255 |
+| COVID M=2 mirror, s/epoch | 1 | 0.009 | 0.02 | 0.04 |
+| COVID M=2 mirror, s/run | 1 | 13 | 34 | 53 |
+| synthetic M=4, s/epoch | R=1: 1; R=2, 3: 2 | 0.85–2.1 | 2.45 | 3.17 |
+| synthetic M=2, s/epoch | R=1: 1; R=2, 3: 2 | 0.03 | 0.13–0.30 | 0.16–0.32 |
+
+Uncontended single-thread benchmarks on the box (synthetic M=4): R=1 1.02 s/epoch and R=3 6.03 s/epoch. COVID M=4 mirror R=1: 0.41 s/epoch.
+
+* No R gives a resolvable accuracy gain: all differences are within about 1–1.5 std at 2–3 seeds. The only exception is a possible small gain for synthetic M=4 R=3 (0.069 vs 0.082, n=2).
+* Cost grows roughly linearly in R per state evaluation, plus the per-layer Ry re-application.
+
+## 14.8 Bug found and fixed during this extension (superseded runs)
+The first batch of **COVID mirrored runs** (29 JSONs, M = 2 and M = 4) had a normalisation bug. The zero-variance Im components were meant to get normal-scale normalisation, but the detection test (`s_inc < 1e-9`) never fired. `make_norm` adds $10^{-3}\max|\Delta a|$ over *all* components, so those inputs were standardised with σ = 1e-8 and a loss scale about 100× too small. Tiny spurious Im outputs were amplified into large rotation angles: training data loss *rose* 10–100× during training, and July rollouts were unstable (e.g. D 28.2 ± 3.2, E 28.9 ± 9.6). The detection now uses the training range of the coefficients themselves. Every affected run was moved, not deleted, to `results/metrics/m4/superseded_mirror_bug/` and rerun. All mirrored numbers above come from the fixed reruns. Synthetic and periodic runs have no zero-variance components and were not affected.
+
+## 14.9 Trimmed cells and caveats specific to this extension
+
+* **Trimmed for compute** (`results/metrics/m4/TRIMMED.md`): synthetic M=4 seed 2 for D, E, F, D(λ=0.001) and D R=3, so those cells have n = 2. Everything else has 3 seeds. Nothing in the COVID grid was trimmed.
+* **Mirroring halves the information per qubit.** 4 of the 9 M=4 qubits always receive angle 0, so the "9-qubit" COVID model is effectively a 5-input model with 4 ancilla-like qubits.
+* **D is weakly identified.** The fitted D differs by up to 7× in km²/day across representations.
+* **Checkpoints are local only.** The 9-qubit checkpoints (`results/checkpoints/m4/`, 70–110 MB each because they store dense 512×512 operator buffers) are gitignored and were not pushed.
+* **Contention.** Runtimes were measured under contention, and the thread count differs between the synthetic R=1 and R≥2 runs (see the runtime table).
+* **Uncorrected comparisons.** C (HEA) being best on COVID July is one cell of a large grid, with no multiple-comparison correction.
+
 
 ## Selected figures
 
@@ -288,3 +464,15 @@ All figures also exist as PDF.
 ![Fig. 11 — ablations](../results/figures/fig11_ablations.png)
 
 ![Fig. 12 — runtime and resources](../results/figures/fig12_runtime_resources.png)
+
+![Fig. 13 — truncation error, periodic vs mirrored boundary, M=2/4](../results/figures/fig13_truncation_boundary_m4.png)
+
+![Fig. 14 — JHU July 2020 at M=4 mirrored](../results/figures/fig14_covid_m4_mirror.png)
+
+![Fig. 8b — synthetic M=4](../results/figures/fig08b_synthetic_m4.png)
+
+![Fig. 15 — re-uploading sweep](../results/figures/fig15_reupload_sweep.png)
+
+![Fig. 16 — lambda_PDE sweep](../results/figures/fig16_lambda_sweep_m4.png)
+
+![Fig. 4d — M=4 coupling graphs](../results/figures/fig04d_coupling_graphs_m4.png)

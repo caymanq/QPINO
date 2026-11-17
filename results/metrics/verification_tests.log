@@ -2,33 +2,41 @@
 platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0 -- /usr/bin/python3
 cachedir: .pytest_cache
 rootdir: /workspace/QPINO
-collecting ... collected 19 items
+collecting ... collected 27 items
 
-tests/test_galerkin.py::test_fourier_roundtrip PASSED                    [  5%]
-tests/test_galerkin.py::test_galerkin_equations_vs_projection PASSED     [ 10%]
-tests/test_galerkin.py::test_conjugate_symmetry PASSED                   [ 15%]
-tests/test_galerkin.py::test_solver_linear_modes PASSED                  [ 21%]
-tests/test_galerkin.py::test_solver_logistic PASSED                      [ 26%]
-tests/test_galerkin.py::test_solver_self_convergence PASSED              [ 31%]
-tests/test_galerkin.py::test_galerkin_integrator_agreement PASSED        [ 36%]
-tests/test_galerkin.py::test_truncation_error_decreases_with_M PASSED    [ 42%]
-tests/test_physics_residual.py::test_galerkin_residual_converges PASSED  [ 47%]
-tests/test_physics_residual.py::test_full_pde_residual_converges PASSED  [ 52%]
-tests/test_quantum.py::test_embedding_equals_ry_product PASSED           [ 57%]
-tests/test_quantum.py::test_all_circuits_unitary PASSED                  [ 63%]
-tests/test_quantum.py::test_trotter_converges_first_order PASSED         [ 68%]
-tests/test_quantum.py::test_torch_matches_pennylane PASSED               [ 73%]
-tests/test_quantum.py::test_measurement_gradcheck PASSED                 [ 78%]
-tests/test_quantum.py::test_gradients_reach_all_parameters PASSED        [ 84%]
-tests/test_quantum.py::test_identity_at_zero_dt PASSED                   [ 89%]
-tests/test_quantum.py::test_fourier_spectrum_degree PASSED               [ 94%]
+tests/test_galerkin.py::test_fourier_roundtrip PASSED                    [  3%]
+tests/test_galerkin.py::test_galerkin_equations_vs_projection PASSED     [  7%]
+tests/test_galerkin.py::test_conjugate_symmetry PASSED                   [ 11%]
+tests/test_galerkin.py::test_solver_linear_modes PASSED                  [ 14%]
+tests/test_galerkin.py::test_solver_logistic PASSED                      [ 18%]
+tests/test_galerkin.py::test_solver_self_convergence PASSED              [ 22%]
+tests/test_galerkin.py::test_galerkin_integrator_agreement PASSED        [ 25%]
+tests/test_galerkin.py::test_truncation_error_decreases_with_M PASSED    [ 29%]
+tests/test_galerkin_m4.py::test_m4_conjugate_symmetry PASSED             [ 33%]
+tests/test_galerkin_m4.py::test_m4_explicit_vs_convolution_vs_projection PASSED [ 37%]
+tests/test_galerkin_m4.py::test_m4_coupling_graph PASSED                 [ 40%]
+tests/test_galerkin_m4.py::test_m4_projected_residual_order PASSED       [ 44%]
+tests/test_galerkin_m4.py::test_m4_full_residual PASSED                  [ 48%]
+tests/test_galerkin_m4.py::test_mirror_boundary_even PASSED              [ 51%]
+tests/test_galerkin_m4.py::test_torch_matches_pennylane_9_qubits PASSED  [ 55%]
+tests/test_galerkin_m4.py::test_eigh_expm_matches_matrix_exp PASSED      [ 59%]
+tests/test_physics_residual.py::test_galerkin_residual_converges PASSED  [ 62%]
+tests/test_physics_residual.py::test_full_pde_residual_converges PASSED  [ 66%]
+tests/test_quantum.py::test_embedding_equals_ry_product PASSED           [ 70%]
+tests/test_quantum.py::test_all_circuits_unitary PASSED                  [ 74%]
+tests/test_quantum.py::test_trotter_converges_first_order PASSED         [ 77%]
+tests/test_quantum.py::test_torch_matches_pennylane PASSED               [ 81%]
+tests/test_quantum.py::test_measurement_gradcheck PASSED                 [ 85%]
+tests/test_quantum.py::test_gradients_reach_all_parameters PASSED        [ 88%]
+tests/test_quantum.py::test_identity_at_zero_dt PASSED                   [ 92%]
+tests/test_quantum.py::test_fourier_spectrum_degree PASSED               [ 96%]
 tests/test_quantum.py::test_training_loop_smoke PASSED                   [100%]
 
 =============================== warnings summary ===============================
-tests/test_quantum.py::test_all_circuits_unitary
-  /workspace/QPINO/tests/test_quantum.py:48: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+tests/test_galerkin_m4.py::test_torch_matches_pennylane_9_qubits
+  /workspace/QPINO/tests/test_galerkin_m4.py:124: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
   Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
-    errs["reupload3_state_norm"] = float((psi.abs().pow(2).sum(1) - 1).abs().max())
+    pl = np.array([q([ang[i]] * R, hps, m.layers[0].edges, float(m.tau(0.6))) for i in range(2)])
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======================== 19 passed, 1 warning in 4.56s =========================
+======================== 27 passed, 1 warning in 11.40s ========================

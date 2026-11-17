@@ -44,7 +44,7 @@ docs/                       abstract, technical report, result tables
 
 ```bash
 pip install -r requirements.txt
-python -m pytest -v tests                      # 19 verification tests (~10 s)
+python -m pytest -v tests                      # 27 verification tests (~15 s)
 cd experiments
 python synthetic_validation.py                 # ~15 min on 4 CPU threads
 python covid_training.py                       # downloads JHU CSSE data (~30 MB) on first run, ~10 min
@@ -59,3 +59,33 @@ Simulation is exact statevector (complex128) in PyTorch for speed; `tests/test_q
 ## Headline results (see the report for details and caveats)
 
 See `docs/QPINO_technical_report.md`, Section 8. No quantum advantage is claimed: everything here is classical simulation of a 5-qubit circuit.
+
+## Extension: M = 4 (9 qubits), mirrored boundary, data-dominated loss, re-uploading (report §14)
+
+New options added alongside the M = 2 results above (`configs/m4_mirror.yaml`):
+
+* General-M Galerkin code (explicit M = 4 equations; 34-of-36-edge coupling graph), 9-qubit QPINO with the same Ry embedding and Hamiltonian family, checked against PennyLane at 9 qubits.
+* Mirrored (even, domain 2L) I-10 boundary. It removes the wrap jump but does not reduce truncation error: July rel. L2 is 0.389 for M=4 mirrored vs 0.377 for M=2 periodic and 0.323 for M=4 periodic.
+* Loss λ_PDE = 0.01 (ramp unchanged), with a sweep over {0, 0.001, 0.01}, and data re-uploading R ∈ {1, 2, 3} for M = 2 and M = 4.
+* July 2020, 31-day rollout field RMSE (cases/100k/day), M=4 mirrored:
+
+  | model | rollout RMSE |
+  |---|---|
+  | persistence | 19.65 |
+  | linear trend | 17.94 |
+  | Galerkin ODE A | 18.00 |
+  | QPINO D | 19.35 ± 0.90 |
+  | HEA C | 17.58 ± 0.21 |
+  | MLP B | 29.1 ± 4.5 |
+
+  No learned model beats persistence one day ahead.
+* Synthetic M = 4, 40-step rollout: D 0.082, F (no ZZ) 0.170, HEA 0.073, MLP 0.034, Galerkin ODE 6.5e-6.
+
+Reproduce (each line is one run; `experiments/m4_scheduler.py` runs `results/metrics/m4/jobs*.txt` in parallel):
+
+```bash
+python experiments/boundary_truncation.py
+python experiments/m4_experiments.py --regime covid --M 4 --boundary mirror --baselines
+python experiments/m4_experiments.py --regime covid --M 4 --boundary mirror --model D --R 1 --seed 0
+python experiments/m4_tables.py && python experiments/make_m4_figures.py
+```
