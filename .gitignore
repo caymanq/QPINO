@@ -10,3 +10,4 @@ results/checkpoints/*_large.pt
 results/checkpoints/m4/
 results/checkpoints/usa2d/
 data/processed/us_grid_density_256x128.npz
+results/checkpoints/usa2d_regional/
