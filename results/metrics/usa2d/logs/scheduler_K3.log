@@ -5,3 +5,12 @@
 22:58:21 launched --K 3 --model F --seed 0
 22:58:36 launched --K 3 --model D --seed 1
 22:58:51 launched --K 3 --model C --seed 1
+22:59:06 launched --K 3 --model B --seed 1
+22:59:21 launched --K 3 --model E --seed 1
+22:59:36 launched --K 3 --model F --seed 1
+22:59:51 launched --K 3 --model D --seed 2
+23:00:06 launched --K 3 --model C --seed 2
+23:00:21 launched --K 3 --model B --seed 2
+23:00:36 launched --K 3 --model E --seed 2
+23:00:51 launched --K 3 --model F --seed 2
+ALL_LAUNCHED

@@ -1,0 +1,4 @@
+/workspace/QPINO/experiments/usa2d_experiments.py:159: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  r["learned_c"] = float(m.c)
+usa2d_K3_D_lam0.01_R1_s0 {'rel_l2': 0.0253, 'rel_l2_increment': 3.4241, 'rollout_rel_l2': 0.121, 'rmse_onestep': 0.1161, 'rmse_rollout': 0.1248, 'rmse_rollout_vs_projection': 0.0467, 'rmse_jul12': 0.1235, 'rmse_jul26': 0.1311, 'train_time_s': 511.1594, 'sec_per_epoch': 0.3408, 'learned_c': 1.307}

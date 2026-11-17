@@ -1,0 +1,1 @@
+usa2d_K3_C_lam0.01_R1_s0 {'rel_l2': 0.033, 'rel_l2_increment': 4.4744, 'rollout_rel_l2': 0.1807, 'rmse_onestep': 0.1161, 'rmse_rollout': 0.128, 'rmse_rollout_vs_projection': 0.0547, 'rmse_jul12': 0.1267, 'rmse_jul26': 0.1404, 'train_time_s': 428.212, 'sec_per_epoch': 0.2855, 'learned_c': 1.0}

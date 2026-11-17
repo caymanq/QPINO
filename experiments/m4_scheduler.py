@@ -7,7 +7,7 @@ SCRIPT = os.environ.get("SCRIPT", "m4_experiments.py")
 LOG = os.environ.get("LOGDIR", "../results/metrics/m4/logs")
 jobs = [l.strip() for l in open(os.environ.get("JOBS", "../results/metrics/m4/jobs.txt")) if l.strip()]
 def name(a): return a.replace("-", "").replace(" ", "_")
-def running(): return int(subprocess.run("pgrep -fc -E '^python3 (m4|usa2d)_experiments.py'", shell=True, capture_output=True, text=True).stdout.strip() or 0)
+def running(): return int(subprocess.run("pgrep -fc '^python3 (m4|usa2d)_experiments.py'", shell=True, capture_output=True, text=True).stdout.strip() or 0)
 def free_mb(): return int(open("/proc/meminfo").read().split("MemAvailable:")[1].split()[0]) // 1024
 for a in jobs:
     log = f"{LOG}/{name(a)}.log"
