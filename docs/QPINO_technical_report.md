@@ -18,6 +18,8 @@ date: "November 2026"
 * **JHU COVID-19, July 2020, cosine M = 8, λ_PDE = 0.01, 3 seeds.** No learned model beats persistence one day ahead (all increment errors > 1). For the 31-day rollout the 3-parameter Galerkin ODE A is best (17.80 cases/100k/day vs persistence 19.14). QPINO D gets 19.98 ± 2.70, HEA C 20.42 ± 1.67, MLP B 19.45 ± 4.44 and D without ZZ 21.39 ± 2.50. Seed spread is large. With 5 qubits (cosine M = 4), D reaches 18.47 ± 1.51 (earlier M = 2 periodic: 21.33 ± 1.38). Re-uploading R = 1/2/3 gives 19.98 / 19.32 / 20.96, at 446 / 897 / 1419 s per run.
 * **Synthetic Neumann Fisher–KPP, cosine M = 8.** 40-step rollout rel. L2: A 2.3e-8, MLP 0.019, HEA 0.058, QPINO D 0.067, D without physics loss 0.066 (2 seeds), D without ZZ 0.112 (2 seeds). The couplings matter; the small physics weight has no resolvable effect.
 
+* **2D contiguous USA (§16), 3×3 real 2D cosine modes on the land mask (9 qubits), JHU field Mar 15–Jul 26 2020.** The truncation floor is 0.116 RMSE in u for July. Against the projected field, the July rollout errors are: linear trend 0.013, Galerkin ODE A 0.026, MLP 0.026, persistence 0.063, QPINO D 0.069 ± 0.016, HEA 0.073, D without ZZ 0.102. The 16-qubit 4×4 runs were not trained: the estimated runtime is 35–90 h per run. Map figures: Fig. 18 and Fig. 19.
+
 **Earlier complex-Fourier variant (kept; §§2, 5.3, 7–9, 14).** Re/Im Fourier coefficients on separate qubits, periodic or mirrored, M = 2 or 4:
 
 
@@ -601,6 +603,104 @@ Fig. 17 (`results/figures/fig17_cosine_basis.png|pdf`) has six panels:
 
 
 ![Fig. 17](../results/figures/fig17_cosine_basis.png)
+
+# 16. 2D contiguous-USA QPINO (2D real cosine basis on the land mask)
+
+## 16.1 Field, basis and land mask
+
+**Field.** We use the same gridded field as Cayman's PINN study (`/workspace/covid_pinn_hires`): $u=\mathrm{log1p}(\text{cumulative cases per }100\text{k})/\mathrm{log1p}(4800)$ from the JHU CSSE county series, rasterised to 256×128 cells (0.230°×0.203°, ≈20.5×22.5 km, σ = 1 cell spatial smoothing). The field has 17,609 land cells and runs from Mar 15 to Jul 26 2020. **Splits:** train Mar 15–Jun 16, validate Jun 17–30, test Jul 1–26. The one-step forecast starts from the observed previous day; the rollout starts from the observed Jun 30 state. The gridded field starts on Mar 15 (the 1D runs start on Mar 1) and ends on Jul 26. λ_PDE = 0.01 with the same ramp, and 3 seeds.
+
+**Basis.** On the bounding rectangle $[0,L_x]\times[0,L_y]$ ($L_x=5245$ km, $L_y=2875$ km; lengths in units of $L_y/\pi=915$ km):
+$$u(x,y,t)\approx\sum_{k,l=0}^{K-1}b_{kl}(t)\cos\frac{k\pi x}{L_x}\cos\frac{l\pi y}{L_y},$$
+with **one real coefficient $b_{kl}$ per qubit** (index $j=kK+l$). $K=3$ gives 9 qubits and $K=4$ gives 16.
+
+**Land mask, handled honestly.** Ocean, Canada and Mexico cells carry no data, so they get **no weight**. The ocean is not padded with zeros, which would put an artificial coastline jump into every mode.
+* **Projection:** the coefficients are the $L^2(\Omega)$ least-squares projection on the land set $\Omega$, $\mathbf b=G^{-1}\Phi^\top W\mathbf u$, with the land mass matrix $G_{ij}=\langle\phi_i,\phi_j\rangle_\Omega$. $G$ is not diagonal on $\Omega$: cond($G$) = 64 for 3×3 and 668 for 4×4.
+* **Dynamics:** the weak (Galerkin) form of Fisher–KPP on $\Omega$,
+$$G\,\dot{\mathbf b}=-D\,K_\Omega\mathbf b+\rho\,G\mathbf b-\beta\,C_\Omega(\mathbf b,\mathbf b),\qquad (K_\Omega)_{ij}=\langle\nabla\phi_i,\nabla\phi_j\rangle_\Omega,\quad C_{\Omega,i}(\mathbf b,\mathbf b)=\langle\phi_i,(\Phi\mathbf b)^2\rangle_\Omega .$$
+  Its natural boundary condition is **no flux across the coastline and borders**, i.e. a Neumann condition on the land domain itself, not on the rectangle. All integrals use midpoint quadrature on the 256×128 cells (`src/cosine2d_galerkin.py`, dispatched through `galerkin.set_basis("cosine2d")`).
+* **Full rectangle:** with mask ≡ 1 the system reduces exactly to the tensor-product cosine triads $T_{kpq}T_{lrs}$ of §15.
+* **Coupling graph:** the masked tensor $G^{-1}C_\Omega$ is dense, so the Hamiltonian graph is complete (36 edges at 9 qubits).
+* **Same inputs everywhere:** every model uses the same real inputs $\mathbf b$, including persistence, linear trend, A (3 fitted parameters), B (MLP), C (HEA), D (QPINO), E (D without physics loss) and F (D without ZZ). At 9 qubits B, C, D, E and F have 442–485 parameters.
+
+## 16.2 Verification (4 new tests in `tests/test_cosine2d.py`; 37/37 tests pass)
+
+| test | result |
+|---|---|
+| mask ≡ 1: weak-form RHS vs tensor-product cosine triads | 8.5e-14 (3×3), 7.4e-15 (4×4) |
+| mask ≡ 1: weak form vs $L^2$ projection of $D\nabla^2u+\rho u-\beta u^2$ (fine grid) | 3.4e-15 |
+| irregular mask: exact recovery of in-span fields, residual ⟂ basis on land, $D=0$ reaction term = projection of $\rho u-\beta u^2$, torch = numpy | all < 1e-14 |
+| irregular mask: coupling graph complete (36 edges); 9-qubit QPINO torch vs PennyLane | 2.9e-14 |
+
+## 16.3 Results
+
+### T12. Truncation error of the 2D real cosine basis on the land mask
+
+| modes | qubits | rel. L2 train | rel. L2 val | rel. L2 July | RMSE train | RMSE July | cond(G) |
+|---|---|---|---|---|---|---|---|
+| 3×3 | 9 | 0.372 | 0.213 | 0.165 | 0.1378 | 0.1157 | 64 |
+| 4×4 | 16 | 0.338 | 0.196 | 0.153 | 0.1238 | 0.1073 | 668 |
+
+### T13. July 2020 RMSE (u, land cells)
+
+| modes | model | params | 1-step incr. rel. L2 | 1-step RMSE | rollout RMSE Jul 1–26 | Jul 12 | Jul 26 | rollout RMSE vs projection | s/epoch |
+|---|---|---|---|---|---|---|---|---|---|
+| 3×3 | truncation floor | – | 0 | 0.1157 | 0.1157 | 0.1188 | 0.1014 | 0 | – |
+| 3×3 | Persistence | 0 | 1.000 | 0.1158 | 0.1318 | 0.1285 | 0.1443 | 0.0630 | – |
+| 3×3 | LinearTrend | 0 | 0.566 | 0.1158 | 0.1164 | 0.1190 | 0.1039 | 0.0125 | – |
+| 3×3 | A | 3 | 1.004 | 0.1158 | 0.1186 | 0.1208 | 0.1088 | 0.0258 | – |
+| 3×3 | B | 485 ± 0 | 6.760 ± 2.492 | 0.1164 ± 0.0004 | 0.1188 ± 0.0010 | 0.1202 ± 0.0008 | 0.1112 ± 0.0031 | 0.0263 ± 0.0045 | 0.01 ± 0.00 |
+| 3×3 | C | 459 ± 0 | 5.875 ± 1.079 | 0.1164 ± 0.0003 | 0.1376 ± 0.0109 | 0.1354 ± 0.0125 | 0.1544 ± 0.0114 | 0.0725 ± 0.0196 | 0.30 ± 0.01 |
+| 3×3 | D | 478 ± 0 | 3.939 ± 0.459 | 0.1161 ± 0.0000 | 0.1355 ± 0.0076 | 0.1327 ± 0.0075 | 0.1542 ± 0.0168 | 0.0691 ± 0.0159 | 0.36 ± 0.01 |
+| 3×3 | E | 478 ± 0 | 3.944 ± 0.454 | 0.1161 ± 0.0000 | 0.1344 ± 0.0079 | 0.1328 ± 0.0076 | 0.1459 ± 0.0174 | 0.0667 ± 0.0168 | 0.36 ± 0.01 |
+| 3×3 | F | 442 ± 0 | 6.041 ± 1.269 | 0.1170 ± 0.0005 | 0.1563 ± 0.0249 | 0.1493 ± 0.0163 | 0.1808 ± 0.0426 | 0.1015 ± 0.0369 | 0.36 ± 0.01 |
+| 4×4 | truncation floor | – | 0 | 0.1073 | 0.1073 | 0.1093 | 0.0952 | 0 | – |
+| 4×4 | Persistence | 0 | 1.000 | 0.1073 | 0.1248 | 0.1200 | 0.1410 | 0.0638 | – |
+| 4×4 | LinearTrend | 0 | 0.688 | 0.1073 | 0.1090 | 0.1098 | 0.1013 | 0.0192 | – |
+| 4×4 | A | 3 | 0.722 | 0.1073 | 0.1146 | 0.1143 | 0.1149 | 0.0403 | – |
+| 4×4 | B | 816 ± 0 | 6.587 ± 0.673 | 0.1078 ± 0.0001 | 0.1221 ± 0.0066 | 0.1172 ± 0.0050 | 0.1368 ± 0.0113 | 0.0571 ± 0.0140 | 0.00 ± 0.00 |
+
+Reference without truncation: persistence of the full-resolution Jun 30 field gives rollout RMSE 0.0762 (Jul 12 0.0615, Jul 26 0.1195) and one-step RMSE 0.0098. Every Galerkin model is bounded below by the truncation floor.
+* fitted A (3×3): D = 1.06e-13 (non-dim; 8.84e-08 km²/day), ρ = 0.0315/day, β = 0.0356, K = ρ/β = 0.884, fit loss 1.024
+* fitted A (4×4): D = 1.36e-11 (non-dim; 1.14e-05 km²/day), ρ = 0.0289/day, β = 0.0284, K = ρ/β = 1.015, fit loss 1.016
+
+### 16-qubit (4×4) runtime benchmark (statevector, no dense operators, 1 thread)
+
+| Trotter L | batch | fwd+bwd (s) | est. s/epoch (93 one-step + 609 rollout evaluations) | est. run (1500 epochs) |
+|---|---|---|---|---|
+| 4 | 16 | 4.93 | 216 | 90 h |
+| 1 | 32 | 3.82 | 84 | 35 h |
+
+**Reading the tables.**
+* **The truncation floor dominates.** Three-by-three cosine modes leave 37 % (train) and 17 % (July) of the field unresolved. The July RMSE floor is 0.116 (4×4: 0.107). Persistence of the *full-resolution* Jun 30 field scores 0.076, below every Galerkin model's floor, until about Jul 20. Errors are therefore best compared through the **rollout RMSE against the projected field** (the last error column), which removes the common floor.
+* **On that comparison, 3×3 / 9 qubits:**
+  * the linear trend is best, at 0.0125;
+  * the Galerkin ODE A (0.026) and the MLP B (0.026 ± 0.005) tie;
+  * persistence gets 0.063;
+  * QPINO D gets 0.069 ± 0.016, D without physics loss (E) 0.067 ± 0.017, and the HEA C 0.073 ± 0.020;
+  * D without ZZ couplings (F) is worst, at 0.102 ± 0.037.
+* **Against the full-resolution observed field (July rollout RMSE):** A 0.1186, B 0.1188 ± 0.0010, linear trend 0.1164, persistence 0.1318, D 0.1355 ± 0.0076, C 0.1376 ± 0.0109, F 0.1563 ± 0.0249.
+* **So on the 2D map the QPINO does not beat persistence, the 3-parameter Galerkin ODE or the matched MLP.** The ZZ couplings again help (D vs F). The small physics weight has no measurable effect (D vs E).
+* **One day ahead,** every learned model's increment error is far above 1 (D 3.9, B 6.8). The day-to-day increments of the slowly growing cumulative field are tiny compared with the models' one-step errors. The 31-day errors stay bounded only because the rollouts remain close to the Jun 30 state.
+* **Fitted A:** ρ = 0.031/day and β = 0.036 (K = ρ/β = 0.88 in u). **D collapses to ≈0** (1e-13 non-dimensional; < 1e-4 km²/day). Spatial spread is not identifiable at this resolution of the dynamics, as in the PINN study (PINN D = 0.0008 km²/day).
+
+**4×4 (16 qubits): trimmed by the runtime rule.** A dense 2^16×2^16 unitary needs 68 GB. A statevector Trotter implementation without dense operators (`experiments/bench_16q.py`, batch 16 to 32, 1 thread) costs 3.8–4.9 s per forward+backward. That extrapolates to 84–216 s per epoch and **35–90 h per 1500-epoch run**, far above the ~30 min limit, so D and C at 4×4 were not run. The 4×4 classical references were run: truncation, persistence, linear trend, A, and the MLP (816 parameters, rollout 0.1221 ± 0.0066).
+
+![Fig. 18](../results/figures/fig18_usa2d_qpino_maps.png)
+
+**Fig. 18** shows the observed $u$ for Mar 15, Apr 5, Apr 26, May 17, Jun 7 and Jun 28 2020 (full 256×128 resolution), followed by the QPINO D forecasts for Jul 12 and Jul 26 (9 qubits, 3×3 modes, the median-RMSE seed of 3, rolled out from the observed Jun 30 state). The styling follows Cayman's PINN figure (light YlGnBu, state borders). The forecasts are necessarily as smooth as nine cosine modes allow.
+
+![Fig. 19](../results/figures/fig19_usa2d_july_companion.png)
+
+**Fig. 19** shows Jul 12 (top) and Jul 26 (bottom) as observed, as the 3×3 truncation floor (the projection of the observed field), as the QPINO D forecast and as the Galerkin ODE A forecast. It also shows the July RMSE by day for every model and the 2D truncation error for 3×3 and 4×4.
+
+## 16.4 Caveats
+
+* The rollout starts on Jun 30, not Jun 28 as in the PINN figure. The gridded field ends on Jul 26, so the test window is 26 days.
+* Only $3\times3$ modes were trained, and the floor (0.116) is larger than every learned model's improvement over it. A meaningful 2D forecast needs far more modes than a statevector simulator of one qubit per mode can afford.
+* The weak form imposes no-flux on the staircase land boundary. Mixing across borders (Canada, Mexico) is ignored.
+* A scheduler bug (`pgrep -E`) launched all 15 3×3 jobs at once, with 11 concurrent on 8 cores. The results are unaffected, but the s/epoch values (0.30–0.36) are inflated by about 1.4×. The bug is fixed (`results/metrics/usa2d/NOTES.md`).
+* All circuits are classically simulated. **No quantum advantage** is shown or claimed.
 
 ## Selected figures
 

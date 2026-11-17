@@ -40,7 +40,7 @@ experiments/                synthetic_validation, covid_training, ansatz_compari
                             m4_experiments (general runner, default cosine M=8), m4_scheduler, m4_tables,
                             make_m4_figures, make_cosine_figures, boundary_truncation
 tests/                      verification (pytest): test_galerkin, test_quantum, test_physics_residual,
-                            test_galerkin_m4, test_cosine_galerkin
+                            test_galerkin_m4, test_cosine_galerkin, test_cosine2d
 data/raw/                   JHU CSV files (downloaded, git-ignored)
 data/processed/             I-10 field (npz) and county list (csv)
 results/figures|metrics|checkpoints
@@ -90,6 +90,36 @@ Data: JHU CSSE COVID-19, 32-bin I-10 transect (LA → Jacksonville) with Neumann
 * Re-uploading, cosine M=8 D: R=1/2/3 rollout 19.98 / 19.32 / 20.96; runtime 446 / 897 / 1419 s per run.
 * Synthetic Neumann Fisher–KPP, cosine M=8, 40-step rollout rel. L2: Galerkin ODE A 2.3e-8, MLP B 0.019 ± 0.002, HEA C 0.058 ± 0.024, QPINO D 0.067 ± 0.013, E 0.066 ± 0.023 (2 seeds), F (no ZZ) 0.112 ± 0.031 (2 seeds). The couplings matter; the QPINO does not beat the classical baselines.
 * Fig. 17 (`results/figures/fig17_cosine_basis.png`): truncation error vs basis, COVID rollouts, and forecast maps. Tables: [`docs/results_tables_m4.md`](docs/results_tables_m4.md) (T7–T11). Trimmed cells: `results/metrics/m4/TRIMMED.md`.
+
+## 2D contiguous-USA QPINO (report §16)
+
+This extends the same model to a map of the contiguous USA. The field is u = log1p(cumulative cases/100k)/log1p(4800) on a 256×128 grid with 17,609 land cells (JHU CSSE, Mar 15–Jul 26 2020). The basis is $b_{kl}\cos(k\pi x/L_x)\cos(l\pi y/L_y)$, **one real coefficient per qubit**: 3×3 modes give 9 qubits.
+
+The land mask is handled honestly. Coefficients come from a land-only least-squares projection, and the dynamics are the weak-form Galerkin system on the land domain, with no-flux at the coast and borders as its natural boundary condition. Every model uses the same real inputs.
+
+July 2020 rollout from the observed Jun 30 state, RMSE in u on land cells (3 seeds):
+
+| model (3×3, 9 qubits) | vs observed field | vs projected field |
+|---|---|---|
+| truncation floor | 0.1157 | 0 |
+| persistence | 0.1318 | 0.063 |
+| linear trend | 0.1164 | 0.013 |
+| Galerkin ODE A | 0.1186 | 0.026 |
+| MLP B | 0.1188 ± 0.0010 | 0.026 ± 0.005 |
+| HEA C | 0.1376 ± 0.0109 | 0.073 ± 0.020 |
+| QPINO D | 0.1355 ± 0.0076 | 0.069 ± 0.016 |
+| D, no physics loss (E) | 0.1344 ± 0.0079 | 0.067 ± 0.017 |
+| D, no ZZ (F) | 0.1563 ± 0.0249 | 0.102 ± 0.037 |
+
+The QPINO does not beat persistence, the Galerkin ODE or the MLP on the map. The 16-qubit (4×4) QPINO and HEA were not trained: the estimated runtime is 35–90 h per run (`experiments/bench_16q.py`). Figures: `results/figures/fig18_usa2d_qpino_maps.png` (8 panels: observed Mar 15–Jun 28, QPINO forecasts for Jul 12 and Jul 26) and `fig19_usa2d_july_companion.png` (observed, truncation floor, D and A for July). Tables: [`docs/results_tables_usa2d.md`](docs/results_tables_usa2d.md).
+
+```bash
+cd experiments
+python usa2d_experiments.py --K 3 --baselines            # truncation, persistence, linear trend, A
+python usa2d_experiments.py --K 3 --model D --seed 0     # B, C, D, E, F
+python usa2d_tables.py && python make_usa2d_figures.py
+```
+The 256×128 grid (`data/processed/us_grid_density_256x128.npz`, 26 MB, git-ignored) is copied from the PINN package (`configs/usa2d.yaml: grid_npz`).
 
 ## Earlier complex-Fourier variant: M = 4 (9 qubits), mirrored boundary, data-dominated loss, re-uploading (report §14)
 

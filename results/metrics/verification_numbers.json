@@ -1,4 +1,22 @@
 {
+  "test_rectangle_reduces_to_tensor_product_triads": {
+    "K3": 8.515410598874951e-14,
+    "K4": 7.438494264988549e-15
+  },
+  "test_rectangle_weak_form_equals_projected_strong_form": {
+    "max_err": 3.4416913763379853e-15
+  },
+  "test_masked_projection_and_reaction_terms": {
+    "reconstruct_err": 8.1601392309949e-15,
+    "residual_orthogonality": 8.817165747521116e-15,
+    "reaction_err": 8.992806499463768e-15,
+    "torch_vs_numpy": 2.220446049250313e-16,
+    "cond_G": 40.89270241753564
+  },
+  "test_masked_coupling_graph_complete_and_pennylane": {
+    "n_edges": 36.0,
+    "max_err": 2.8754776337791554e-14
+  },
   "test_triad_tensor_vs_explicit_vs_projection": {
     "M4_einsum_vs_loop": 5.551115123125783e-17,
     "M4_rhs_vs_projection": 6.661338147750939e-16,
