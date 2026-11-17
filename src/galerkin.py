@@ -39,7 +39,7 @@ BASIS = "fourier"   # "fourier" (periodic, 2M+1 real coeffs) or "cosine" (Neuman
 
 def set_basis(name: str):
     global BASIS
-    assert name in ("fourier", "cosine")
+    assert name in ("fourier", "cosine", "cosine2d")
     BASIS = name
 
 
@@ -340,25 +340,41 @@ galerkin_rhs_fourier, field_to_coeffs_fourier = galerkin_rhs, field_to_coeffs
 coupling_hessian_fourier = coupling_hessian
 
 
+from . import cosine2d_galerkin as _c2  # noqa: E402
+
+
 def reconstruct(a, x):  # noqa: F811
+    if BASIS == "cosine2d":
+        return _c2.reconstruct(a, x)
     return _cg.reconstruct(a, x) if BASIS == "cosine" else reconstruct_fourier(a, x)
 
 
 def reconstruct_uxx(a, x):  # noqa: F811
+    """Second derivative (1D) / Laplacian (cosine2d) of the reconstructed field."""
+    if BASIS == "cosine2d":
+        return _c2.reconstruct_lap(a, x)
     return _cg.reconstruct_uxx(a, x) if BASIS == "cosine" else reconstruct_uxx_fourier(a, x)
 
 
 def galerkin_rhs(a, D, rho, beta):  # noqa: F811
+    if BASIS == "cosine2d":
+        return _c2.galerkin_rhs(a, D, rho, beta)
     return _cg.galerkin_rhs(a, D, rho, beta) if BASIS == "cosine" else galerkin_rhs_fourier(a, D, rho, beta)
 
 
 def field_to_coeffs(u, x=None, Mo: int = M):  # noqa: F811
+    if BASIS == "cosine2d":
+        return _c2.field_to_coeffs(u, x)
     return _cg.field_to_coeffs(u, x, Mo) if BASIS == "cosine" else field_to_coeffs_fourier(u, x, Mo)
 
 
 def coupling_hessian(D=0.1, rho=1.0, beta=1.0, Mo: int = M):  # noqa: F811
+    if BASIS == "cosine2d":
+        return _c2.coupling_hessian(Mo)
     return _cg.coupling_hessian(Mo, D, rho, beta) if BASIS == "cosine" else coupling_hessian_fourier(D, rho, beta, Mo)
 
 
 def n_to_M(n: int) -> int:
+    if BASIS == "cosine2d":
+        return n
     return n - 1 if BASIS == "cosine" else (n - 1) // 2

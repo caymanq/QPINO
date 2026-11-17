@@ -1,0 +1,15 @@
+--K 3 --model D --seed 0
+--K 3 --model C --seed 0
+--K 3 --model B --seed 0
+--K 3 --model E --seed 0
+--K 3 --model F --seed 0
+--K 3 --model D --seed 1
+--K 3 --model C --seed 1
+--K 3 --model B --seed 1
+--K 3 --model E --seed 1
+--K 3 --model F --seed 1
+--K 3 --model D --seed 2
+--K 3 --model C --seed 2
+--K 3 --model B --seed 2
+--K 3 --model E --seed 2
+--K 3 --model F --seed 2

@@ -8,3 +8,5 @@ results/checkpoints/*_large.pt
 
 # 9-qubit checkpoints store dense 512x512 operator buffers (70-110 MB each): kept locally only
 results/checkpoints/m4/
+results/checkpoints/usa2d/
+data/processed/us_grid_density_256x128.npz

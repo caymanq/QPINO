@@ -1,0 +1,14 @@
+# 2D contiguous-USA QPINO (report section 16).  Merged over default.yaml by experiments/usa2d_experiments.py.
+grid_npz: /workspace/covid_pinn_hires/data/us_grid_density_256x128.npz   # copied to data/processed/ on first run
+# u = log1p(cumulative cases per 100k) / log1p(4800), 256 x 128 cells (0.230 x 0.203 deg), land mask 17,609 cells
+modes_per_axis: 3          # K: K*K real cosine coefficients b_kl = qubits (3 -> 9, 4 -> 16)
+train_end: "2020-06-16"    # data start Mar 15 2020 (first day of the gridded field)
+val_end: "2020-06-30"
+test_end: "2020-07-26"     # last day of the gridded field; rollout from the observed Jun 30 state
+dt: 1.0
+horizon: 7
+c0: 1.0
+n_colloc: 400              # random land cells used as PDE collocation points
+train:
+  lambda_pde: 0.01
+mlp_hidden: {9: 14, 16: 16}
