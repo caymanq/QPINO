@@ -1,0 +1,7 @@
+09:33:41 launched --model D --seed 0 --flux 1 --curr long --alpha 0
+09:33:56 launched --model D --seed 0 --flux 1 --curr long --alpha 1
+09:34:11 launched --model C --seed 0 --flux 1 --curr long --alpha 0
+09:34:26 launched --model C --seed 0 --flux 1 --curr long --alpha 1
+09:34:41 launched --model B --seed 0 --flux 1 --curr long --alpha 0
+09:34:56 launched --model B --seed 0 --flux 1 --curr long --alpha 1
+ALL_LAUNCHED

@@ -1,0 +1,1 @@
+joint_B_flux1_long_a0_s0 {'rel_l2_increment': 4.3623, 'rollout_rel_l2': 0.268, 'rmse_onestep': 0.0952, 'rmse_rollout': 0.1031, 'rmse_rollout_vs_projection': 0.0404, 'rmse_jul12': 0.1009, 'rmse_jul26': 0.1064, 'pde_violation_rollout': 0.0032} {'epoch': 150, 'stage': 0, 'H': 7} 28

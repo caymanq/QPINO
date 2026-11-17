@@ -1,0 +1,1 @@
+joint_D_flux1_short_a0_s0 {'rel_l2_increment': 3.3964, 'rollout_rel_l2': 0.2563, 'rmse_onestep': 0.0954, 'rmse_rollout': 0.1253, 'rmse_rollout_vs_projection': 0.0818, 'rmse_jul12': 0.122, 'rmse_jul26': 0.1453, 'pde_violation_rollout': 0.006} {'epoch': 585, 'stage': 0, 'H': 7} 1085

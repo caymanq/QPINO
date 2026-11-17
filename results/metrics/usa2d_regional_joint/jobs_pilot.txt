@@ -1,0 +1,6 @@
+--model D --seed 0 --flux 1 --curr long --alpha 0
+--model D --seed 0 --flux 1 --curr long --alpha 1
+--model C --seed 0 --flux 1 --curr long --alpha 0
+--model C --seed 0 --flux 1 --curr long --alpha 1
+--model B --seed 0 --flux 1 --curr long --alpha 0
+--model B --seed 0 --flux 1 --curr long --alpha 1

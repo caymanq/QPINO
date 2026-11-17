@@ -75,11 +75,16 @@ L.append(row("regional Galerkin A (coupled)", [bR["A-regional-coupled"]]) + " �
 for nm in ("D", "B"):
     L.append(row(f"§18 regional {nm} (independent training, flux only in rollout)", a18[nm]) + " – | – |")
 lbl = {"D": "QPINO D", "C": "HEA C", "B": "MLP B"}
+MAIN = {"D": 1.0, "C": 1.0, "B": 0.0}      # step weighting chosen on validation (seed-0 pilot)
+ABL = {"D": 0.0, "C": 1.0, "B": 0.0}       # D ablation grid was launched at alpha=0 before the D pilot finished
 for nm in ("D", "C", "B"):
-    L.append(jrow(f"**§19 {lbl[nm]}: flux in training, 7→14→21 d**", (nm, 1, "long", 0.0)))
-    L.append(jrow(f"§19 {lbl[nm]}: no flux in training, 7→14→21 d", (nm, 0, "long", 0.0)))
-    L.append(jrow(f"§19 {lbl[nm]}: flux in training, 7 d only", (nm, 1, "short", 0.0)))
-    L.append(jrow(f"§19 {lbl[nm]}: no flux in training, 7 d only", (nm, 0, "short", 0.0)))
+    L.append(jrow(f"**§19 {lbl[nm]}: flux in training, 7→14→21 d (α={MAIN[nm]:g}, main)**", (nm, 1, "long", MAIN[nm])))
+    a = ABL[nm]
+    if a != MAIN[nm]:
+        L.append(jrow(f"§19 {lbl[nm]}: flux in training, 7→14→21 d (α={a:g})", (nm, 1, "long", a)))
+    L.append(jrow(f"§19 {lbl[nm]}: no flux in training, 7→14→21 d (α={a:g})", (nm, 0, "long", a)))
+    L.append(jrow(f"§19 {lbl[nm]}: flux in training, 7 d only (α={a:g})", (nm, 1, "short", a)))
+    L.append(jrow(f"§19 {lbl[nm]}: no flux in training, 7 d only (α={a:g})", (nm, 0, "short", a)))
 L = [x for x in L if "| 0 | n/a" not in x]
 L += ["", "Step-weighting pilot (seed 0, flux in training, 7→14→21 d; w_s ∝ s^-α), selected by the validation rollout:", "",
       "| model | α | val rollout RMSE (Jun 17–30) | July rollout RMSE |", "|---|---|---|---|"]
@@ -100,8 +105,8 @@ print(txt)
 grid = lambda B: DD.field_flat(np.asarray(B), NY * NX).reshape(np.asarray(B).shape[:-2] + (NY, NX))  # noqa: E731
 d26, i26 = day["2020-07-26"], int(np.where(dates == pd.Timestamp("2020-07-26"))[0][0])
 med = lambda rows: sorted(rows, key=lambda r: r["rmse_rollout"])[len(rows) // 2]  # noqa: E731
-mainD = [r["coupled"] | {"seed": r["seed"]} for r in runs.get(("D", 1, "long", 0.0), [])]
-mainC = [r["coupled"] | {"seed": r["seed"]} for r in runs.get(("C", 1, "long", 0.0), [])]
+mainD = [r["coupled"] | {"seed": r["seed"]} for r in runs.get(("D", 1, "long", 1.0), [])]
+mainC = [r["coupled"] | {"seed": r["seed"]} for r in runs.get(("C", 1, "long", 1.0), [])]
 mainB = [r["coupled"] | {"seed": r["seed"]} for r in runs.get(("B", 1, "long", 0.0), [])]
 fig = plt.figure(figsize=(22, 8.6))
 gs = fig.add_gridspec(2, 8, width_ratios=[1, 1, 1, 1, 1, 0.04, 0.5, 1.1], wspace=0.08, hspace=0.42)
@@ -134,7 +139,7 @@ for rows, c, ls, l_ in ((a18["D"], "tab:blue", "--", "§18 D"), (a18["B"], "tab:
 ax.set_xlabel("July day"); ax.set_ylabel("RMSE vs regional projection"); ax.set_title("rollout drift away from the 45-mode projection", fontsize=11)
 ax.legend(fontsize=7, frameon=False, ncol=2)
 ax = fig.add_subplot(gs[1, 7])
-for rr, c in ((runs.get(("D", 1, "long", 0.0), []), "tab:blue"), (runs.get(("B", 1, "long", 0.0), []), "tab:orange")):
+for rr, c in ((runs.get(("D", 1, "long", 1.0), []), "tab:blue"), (runs.get(("B", 1, "long", 0.0), []), "tab:orange")):
     for r_ in rr:
         h = r_["history"]; ax.semilogy(h["epoch"], h["val"], color=c, lw=0.8, alpha=0.8)
 for x in (300, 600):
