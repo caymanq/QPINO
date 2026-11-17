@@ -114,7 +114,9 @@ def evaluate(m):
             A, idx = Dd["A"], Dd["idx"]
             one = m(torch.tensor(A[idx - 1]), dt).numpy()
             roll = m.rollout(torch.tensor(A[Dd["i_jun30"]][None]), dt, len(idx))[0].numpy()
-            return covid_metrics(one, roll)
+            r = covid_metrics(one, roll)
+            r["pred_onestep"], r["pred_rollout"] = one.tolist(), roll.tolist()
+            return r
         S = len(Dd["test"][0]) - 1
         ds = make_dataset(Dd["test"], 1)
         pred = m(ds["a_n"], dt)
@@ -124,10 +126,11 @@ def evaluate(m):
         true = np.stack([T[1:S + 1] for T in Dd["test"]])
         uf = np.stack([u_[1:S + 1] for u_ in Dd["U_test"]])
         r.update(ev.rollout_metrics(roll, true, X_C, uf, Dd["x"]))
+        r["pred_rollout_test0"] = roll[0].numpy().tolist()
         keep = ["rel_l2", "rel_l2_increment", "rollout_rel_l2", "rollout_final_rel_l2",
                 "rollout_field_rel_l2_vs_truncated", "rollout_field_rel_l2_vs_observed",
                 "rollout_positivity_violation_frac", "rollout_finite", "pde_residual_rms_trapezoid",
-                "galerkin_residual_rms_trapezoid", "rollout_rel_by_step"]
+                "galerkin_residual_rms_trapezoid", "rollout_rel_by_step", "pred_rollout_test0"]
         return {k: r[k] for k in keep if k in r}
 
 

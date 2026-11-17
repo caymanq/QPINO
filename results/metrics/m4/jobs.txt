@@ -1,0 +1,66 @@
+--regime synthetic --M 4 --model D --R 3 --seed 0
+--regime synthetic --M 4 --model D --R 3 --seed 1
+--regime synthetic --M 4 --model D --R 3 --seed 2
+--regime synthetic --M 4 --model D --R 2 --seed 0
+--regime covid --M 4 --boundary mirror --model D --R 3 --seed 0
+--regime synthetic --M 4 --model D --R 2 --seed 1
+--regime covid --M 4 --boundary mirror --model D --R 3 --seed 1
+--regime synthetic --M 4 --model D --R 2 --seed 2
+--regime covid --M 4 --boundary mirror --model D --R 3 --seed 2
+--regime synthetic --M 4 --model D --seed 0
+--regime synthetic --M 4 --model E --seed 0
+--regime synthetic --M 4 --model F --seed 0
+--regime synthetic --M 4 --model D --lambda_pde 0.001 --seed 0
+--regime synthetic --M 4 --model D --seed 1
+--regime synthetic --M 4 --model E --seed 1
+--regime synthetic --M 4 --model F --seed 1
+--regime synthetic --M 4 --model D --lambda_pde 0.001 --seed 1
+--regime synthetic --M 4 --model D --seed 2
+--regime synthetic --M 4 --model E --seed 2
+--regime synthetic --M 4 --model F --seed 2
+--regime synthetic --M 4 --model D --lambda_pde 0.001 --seed 2
+--regime covid --M 4 --boundary mirror --model D --R 2 --seed 0
+--regime covid --M 4 --boundary mirror --model D --seed 0
+--regime covid --M 4 --boundary mirror --model E --seed 0
+--regime covid --M 4 --boundary mirror --model F --seed 0
+--regime covid --M 4 --boundary mirror --model C --seed 0
+--regime covid --M 4 --boundary mirror --model B --seed 0
+--regime covid --M 4 --boundary mirror --model D --lambda_pde 0.001 --seed 0
+--regime covid --M 4 --boundary mirror --model D --R 2 --seed 1
+--regime covid --M 4 --boundary mirror --model D --seed 1
+--regime covid --M 4 --boundary mirror --model E --seed 1
+--regime covid --M 4 --boundary mirror --model F --seed 1
+--regime covid --M 4 --boundary mirror --model C --seed 1
+--regime covid --M 4 --boundary mirror --model B --seed 1
+--regime covid --M 4 --boundary mirror --model D --lambda_pde 0.001 --seed 1
+--regime covid --M 4 --boundary mirror --model D --R 2 --seed 2
+--regime covid --M 4 --boundary mirror --model D --seed 2
+--regime covid --M 4 --boundary mirror --model E --seed 2
+--regime covid --M 4 --boundary mirror --model F --seed 2
+--regime covid --M 4 --boundary mirror --model C --seed 2
+--regime covid --M 4 --boundary mirror --model B --seed 2
+--regime covid --M 4 --boundary mirror --model D --lambda_pde 0.001 --seed 2
+--regime synthetic --M 4 --model C --seed 0
+--regime synthetic --M 4 --model B --seed 0
+--regime synthetic --M 2 --model D --R 1 --seed 0
+--regime covid --M 2 --boundary mirror --model D --R 1 --seed 0
+--regime synthetic --M 2 --model D --R 2 --seed 0
+--regime covid --M 2 --boundary mirror --model D --R 2 --seed 0
+--regime synthetic --M 2 --model D --R 3 --seed 0
+--regime covid --M 2 --boundary mirror --model D --R 3 --seed 0
+--regime synthetic --M 4 --model C --seed 1
+--regime synthetic --M 4 --model B --seed 1
+--regime synthetic --M 2 --model D --R 1 --seed 1
+--regime covid --M 2 --boundary mirror --model D --R 1 --seed 1
+--regime synthetic --M 2 --model D --R 2 --seed 1
+--regime covid --M 2 --boundary mirror --model D --R 2 --seed 1
+--regime synthetic --M 2 --model D --R 3 --seed 1
+--regime covid --M 2 --boundary mirror --model D --R 3 --seed 1
+--regime synthetic --M 4 --model C --seed 2
+--regime synthetic --M 4 --model B --seed 2
+--regime synthetic --M 2 --model D --R 1 --seed 2
+--regime covid --M 2 --boundary mirror --model D --R 1 --seed 2
+--regime synthetic --M 2 --model D --R 2 --seed 2
+--regime covid --M 2 --boundary mirror --model D --R 2 --seed 2
+--regime synthetic --M 2 --model D --R 3 --seed 2
+--regime covid --M 2 --boundary mirror --model D --R 3 --seed 2

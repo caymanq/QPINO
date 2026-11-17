@@ -1,0 +1,6 @@
+--regime synthetic --M 4 --model D --R 3 --seed 0
+--regime synthetic --M 4 --model D --R 3 --seed 1
+--regime synthetic --M 4 --model D --R 3 --seed 2
+--regime synthetic --M 4 --model D --R 2 --seed 0
+--regime synthetic --M 4 --model D --R 2 --seed 1
+--regime synthetic --M 4 --model D --R 2 --seed 2
