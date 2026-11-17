@@ -1,0 +1,1 @@
+joint_C_flux1_short_a1_s0 {'rel_l2_increment': 2.7214, 'rollout_rel_l2': 0.381, 'rmse_onestep': 0.0952, 'rmse_rollout': 0.1121, 'rmse_rollout_vs_projection': 0.0597, 'rmse_jul12': 0.1092, 'rmse_jul26': 0.1243, 'pde_violation_rollout': 0.005} {'epoch': 155, 'stage': 0, 'H': 7} 841

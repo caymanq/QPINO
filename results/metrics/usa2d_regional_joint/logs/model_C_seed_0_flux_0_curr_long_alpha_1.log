@@ -1,0 +1,1 @@
+joint_C_flux0_long_a1_s0 {'rel_l2_increment': 3.0402, 'rollout_rel_l2': 0.2998, 'rmse_onestep': 0.0953, 'rmse_rollout': 0.1263, 'rmse_rollout_vs_projection': 0.0833, 'rmse_jul12': 0.1169, 'rmse_jul26': 0.1602, 'pde_violation_rollout': 0.0075} {'epoch': 310, 'stage': 1, 'H': 14} 1012

@@ -14,3 +14,12 @@
 10:14:04 launched --model C --seed 0 --flux 0 --curr long --alpha 1
 10:14:19 launched --model C --seed 0 --flux 1 --curr short --alpha 1
 10:14:34 launched --model C --seed 0 --flux 0 --curr short --alpha 1
+10:28:30 launched --model C --seed 1 --flux 0 --curr long --alpha 1
+10:28:45 launched --model C --seed 1 --flux 1 --curr short --alpha 1
+10:29:00 launched --model C --seed 1 --flux 0 --curr short --alpha 1
+10:30:35 launched --model C --seed 2 --flux 0 --curr long --alpha 1
+10:31:10 launched --model C --seed 2 --flux 1 --curr short --alpha 1
+10:31:25 launched --model C --seed 2 --flux 0 --curr short --alpha 1
+10:31:40 launched --model D --seed 1 --flux 1 --curr long --alpha 1
+10:31:55 launched --model D --seed 2 --flux 1 --curr long --alpha 1
+ALL_LAUNCHED
