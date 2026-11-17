@@ -1,0 +1,48 @@
+--regime covid --M 8 --boundary cosine --model D --R 3 --seed 0
+--regime covid --M 8 --boundary cosine --model D --R 3 --seed 1
+--regime covid --M 8 --boundary cosine --model D --R 3 --seed 2
+--regime covid --M 8 --boundary cosine --model D --seed 0
+--regime covid --M 8 --boundary cosine --model E --seed 0
+--regime covid --M 8 --boundary cosine --model F --seed 0
+--regime covid --M 8 --boundary cosine --model C --seed 0
+--regime covid --M 8 --boundary cosine --model B --seed 0
+--regime covid --M 8 --boundary cosine --model D --seed 1
+--regime covid --M 8 --boundary cosine --model E --seed 1
+--regime covid --M 8 --boundary cosine --model F --seed 1
+--regime covid --M 8 --boundary cosine --model C --seed 1
+--regime covid --M 8 --boundary cosine --model B --seed 1
+--regime covid --M 8 --boundary cosine --model D --seed 2
+--regime covid --M 8 --boundary cosine --model E --seed 2
+--regime covid --M 8 --boundary cosine --model F --seed 2
+--regime covid --M 8 --boundary cosine --model C --seed 2
+--regime covid --M 8 --boundary cosine --model B --seed 2
+--regime covid --M 8 --boundary cosine --model D --R 2 --seed 0
+--regime covid --M 4 --boundary cosine --model D --seed 0
+--regime covid --M 4 --boundary cosine --model C --seed 0
+--regime covid --M 8 --boundary cosine --model D --R 2 --seed 1
+--regime covid --M 4 --boundary cosine --model D --seed 1
+--regime covid --M 4 --boundary cosine --model C --seed 1
+--regime covid --M 8 --boundary cosine --model D --R 2 --seed 2
+--regime covid --M 4 --boundary cosine --model D --seed 2
+--regime covid --M 4 --boundary cosine --model C --seed 2
+--regime synthetic --M 8 --boundary cosine --model D --seed 0
+--regime synthetic --M 8 --boundary cosine --model C --seed 0
+--regime synthetic --M 8 --boundary cosine --model B --seed 0
+--regime synthetic --M 4 --boundary cosine --model D --seed 0
+--regime synthetic --M 4 --boundary cosine --model C --seed 0
+--regime synthetic --M 8 --boundary cosine --model D --seed 1
+--regime synthetic --M 8 --boundary cosine --model C --seed 1
+--regime synthetic --M 8 --boundary cosine --model B --seed 1
+--regime synthetic --M 4 --boundary cosine --model D --seed 1
+--regime synthetic --M 4 --boundary cosine --model C --seed 1
+--regime synthetic --M 8 --boundary cosine --model D --seed 2
+--regime synthetic --M 8 --boundary cosine --model C --seed 2
+--regime synthetic --M 8 --boundary cosine --model B --seed 2
+--regime synthetic --M 4 --boundary cosine --model D --seed 2
+--regime synthetic --M 4 --boundary cosine --model C --seed 2
+--regime synthetic --M 8 --boundary cosine --model E --seed 0
+--regime synthetic --M 8 --boundary cosine --model F --seed 0
+--regime synthetic --M 8 --boundary cosine --model E --seed 1
+--regime synthetic --M 8 --boundary cosine --model F --seed 1
+--regime synthetic --M 8 --boundary cosine --model E --seed 2
+--regime synthetic --M 8 --boundary cosine --model F --seed 2

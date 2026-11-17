@@ -89,3 +89,4 @@
 20:24:40 launched --regime covid --M 4 --boundary mirror --model D --lambda_pde 0.001 --seed 2
 20:24:55 launched --regime synthetic --M 4 --model B --seed 2
 ALL_LAUNCHED
+21:34:45 launched --regime covid --M 8 --boundary cosine --model D --R 3 --seed 0

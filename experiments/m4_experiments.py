@@ -27,7 +27,7 @@ OVR = yaml.safe_load(open(os.path.join(ROOT, "configs", "m4_mirror.yaml")))
 p = argparse.ArgumentParser()
 p.add_argument("--regime", choices=["covid", "synthetic"], required=True)
 p.add_argument("--M", type=int, default=OVR["galerkin_M"])
-p.add_argument("--boundary", choices=["periodic", "mirror"], default="periodic")
+p.add_argument("--boundary", choices=["periodic", "mirror", "cosine"], default="periodic")
 p.add_argument("--model", default="D")
 p.add_argument("--seed", type=int, default=0)
 p.add_argument("--lambda_pde", type=float, default=OVR["train"]["lambda_pde"])
@@ -35,7 +35,11 @@ p.add_argument("--R", type=int, default=1)
 p.add_argument("--epochs", type=int, default=C["train"]["epochs"])
 p.add_argument("--baselines", action="store_true")
 args = p.parse_args()
-n = 2 * args.M + 1
+COS = args.boundary == "cosine"          # Neumann cosine basis: M+1 real coefficients = qubits
+if COS:
+    gk.set_basis("cosine")
+from src import cosine_galerkin as cg  # noqa: E402
+n = args.M + 1 if COS else 2 * args.M + 1
 OUT = os.path.join(MET, "m4"); os.makedirs(OUT, exist_ok=True)
 cfg_name = f"{args.regime}_M{args.M}_{args.boundary}"
 
@@ -49,7 +53,10 @@ def covid_data():
     dates = pd.to_datetime(Z["dates"])
     tr, va, te = pp.split_indices(dates, CC["train_end"], CC["val_end"], CC["test_end"])
     N = u.shape[1]
-    if args.boundary == "mirror":
+    if COS:
+        x_obs = cg.grid(N)
+        A = cg.field_to_coeffs(u, x_obs, args.M)
+    elif args.boundary == "mirror":
         xg = gk.uniform_grid(2 * N, 0.5)
         A = gk.field_to_coeffs(pp.mirror_extend(u), xg, args.M)
         A[:, 2::2] = 0.0                 # even extension: Im a_k = 0 exactly (round-off ~1e-17 removed)
@@ -60,14 +67,18 @@ def covid_data():
     idx = np.arange(va[-1] + 1, te[-1] + 1)
     return dict(A=A, u=u, x_obs=x_obs, S=float(Z["scale_S"]), dt=CC["dt"], H=CC["horizon"], c0=CC["c0"],
                 train=[A[tr[0]:tr[-1] + 1]], val=[A[tr[-1]:va[-1] + 1]], idx=idx, i_jun30=va[-1],
-                u_obs=u[te], L_km=3735.0 * (2 if args.boundary == "mirror" else 1))
+                u_obs=u[te], L_km=3735.0 * (2 if args.boundary in ("mirror", "cosine") else 1))
 
 
 def synthetic_data():
     S = C["synthetic"]
     n_tot = S["n_train"] + S["n_val"] + S["n_test"]
-    t, x, U = fk.generate_trajectories(n_tot, S["D"], S["rho"], S["beta"], S["dt"], S["n_steps"],
-                                       N=S["N"], seed=S["data_seed"])
+    if COS:   # synthetic Neumann (no-flux) Fisher-KPP on [0, pi], even-extension spectral solver
+        t, x, U = cg.generate_neumann_trajectories(n_tot, S["D"], S["rho"], S["beta"], S["dt"], S["n_steps"],
+                                                   N=S["N"], seed=S["data_seed"])
+    else:
+        t, x, U = fk.generate_trajectories(n_tot, S["D"], S["rho"], S["beta"], S["dt"], S["n_steps"],
+                                           N=S["N"], seed=S["data_seed"])
     A = [gk.field_to_coeffs(u_, x, args.M) for u_ in U]
     i1, i2 = S["n_train"], S["n_train"] + S["n_val"]
     return dict(t=t, x=x, U=U, train=A[:i1], val=A[i1:i2], test=A[i2:], U_test=U[i2:], dt=S["dt"],
@@ -186,7 +197,7 @@ if "lambda_pde" in spec:
     tcfg["lambda_pde"] = spec.pop("lambda_pde")
 set_seed(args.seed)
 if spec.get("kind") == "mlp":
-    m = MLPOperator(norm, OVR["mlp"]["hidden"] if args.M == 4 else C["mlp"]["hidden"], C["mlp"]["depth"], args.seed, n)
+    m = MLPOperator(norm, OVR["mlp"]["hidden"] if n == 9 else C["mlp"]["hidden"], C["mlp"]["depth"], args.seed, n)
 else:
     mcfg.update(spec)
     m = QPINO(norm, c0=Dd["c0"], seed=args.seed, n=n, **mcfg)
