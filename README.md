@@ -7,32 +7,40 @@ This project asks whether a physics-informed quantum neural operator (Q-PINO) ca
 - [Abstract (PDF)](docs/QPINO_Abstract.pdf), APS Four Corners 2026
 - [Technical report](docs/QPINO_technical_report.md) ([PDF](docs/QPINO_technical_report.pdf)) and [all result tables](docs/results_tables.md)
 
-## What is implemented
+## What is implemented (default model: real cosine / Neumann basis)
 
-A 5-qubit QPINO that learns the one-step evolution operator of the **M = 2 Fourier–Galerkin truncation** of
+The default QPINO (`configs/default.yaml`: `galerkin.basis: cosine`, `M: 8`) learns the one-step evolution operator of the **real cosine (Neumann, no-flux) Galerkin truncation** of
 
-$$u_t = D\,u_{xx} + \rho u - \beta u^2,\qquad x\in[0,2\pi)\ \text{periodic},$$
+$$u_t = D\,u_{xx} + \rho u - \beta u^2,\qquad u_x=0\ \text{at both ends},\qquad u=\sum_{k=0}^{M}b_k\cos(k\pi s/L),$$
 
-acting on the real coefficient vector $\mathbf a=(a_0,\mathrm{Re}\,a_1,\mathrm{Im}\,a_1,\mathrm{Re}\,a_2,\mathrm{Im}\,a_2)$:
+$$\dot b_k=(\rho-Dk^2)\,b_k-\beta\sum_{p,q}T_{kpq}b_pb_q,\qquad T_{kpq}=\tfrac12\big[\delta_{|p-q|,k}+\delta_{p+q,k}\big].$$
 
-1. standardise $\mathbf z=(\mathbf a-\mu)/\sigma$ and embed with $S(\mathbf z)=\bigotimes_j R_y(\alpha_j z_j)=e^{-iH_{\mathrm{emb}}}$, $H_{\mathrm{emb}}=\tfrac12\sum_j\alpha_j z_j Y_j$;
-2. evolve with the custom Hamiltonian $H_\theta=\sum_j h_jZ_j+\sum_j g_jX_j+\sum_{(j,k)\in E}J_{jk}Z_jZ_k$, $U_\theta=e^{-iH_\theta\tau}$, $\tau=c\,\Delta t$ (exact `matrix_exp` or first-order Trotter with $L$ steps; optional data re-uploading);
-   the coupling graph $E$ is derived from the Galerkin convolution (pairs with $\partial^2 f/\partial a_j\partial a_k\neq0$);
-3. measure $\langle Z_j\rangle$ and $\langle Z_jZ_k\rangle$, decode $G=D_\eta(\mathbf m)$ and update $\hat{\mathbf a}(t+\Delta t)=\mathbf a(t)+\Delta t\,G$;
-4. train on data + full reconstructed-field Fisher–KPP residual (projected Galerkin residual reported separately) + multi-step rollout + regularisation.
+The classical data fed to the circuit are **only real Galerkin coefficients, one real coefficient per mode on one qubit** (M = 8 → 9 qubits; M = 4 → 5 qubits):
 
-Baselines: persistence, linear trend, A (classical Galerkin ODE), B (MLP), C (same embedding + hardware-efficient ansatz), D (QPINO), E (D without physics loss), F (D without $ZZ$ couplings).
+1. standardise $\mathbf z=(\mathbf b-\mu)/\sigma$ and embed with $S(\mathbf z)=\bigotimes_j R_y(\alpha_j z_j)=e^{-iH_{\mathrm{emb}}}$, $H_{\mathrm{emb}}=\tfrac12\sum_j\alpha_j z_j Y_j$;
+2. evolve with the custom Hamiltonian $H_\theta=\sum_j h_jZ_j+\sum_j g_jX_j+\sum_{(j,k)\in E}J_{jk}Z_jZ_k$, $U_\theta=e^{-iH_\theta\tau}$, $\tau=c\,\Delta t$ (exact eigh-based exponential or Trotter; optional data re-uploading $W_RS\cdots W_1S$);
+   $E$ comes from the non-zero triad entries (for the cosine basis every pair couples, so $E$ is complete: 36 edges at M = 8);
+3. measure $\langle Z_j\rangle$ and $\langle Z_jZ_k\rangle$, decode $G=D_\eta(\mathbf m)$ and update $\hat{\mathbf b}(t+\Delta t)=\mathbf b(t)+\Delta t\,G$;
+4. train on a data-dominated loss: data + rollout + regularisation + $\lambda_{\mathrm{PDE}}=0.01$ × (full reconstructed-field Fisher–KPP residual, ramped).
+
+Baselines, all on the same real cosine inputs: persistence, linear trend, A (classical cosine Galerkin ODE, 3 fitted parameters), B (MLP), C (same embedding + hardware-efficient ansatz), D (QPINO), E (D without physics loss), F (D without $ZZ$ couplings). B, C, D, E and F have matched parameter counts (442–485 at M = 8).
+
+**Earlier complex-Fourier variant (kept, not the main model).** The first version used a periodic complex-Fourier basis with Re/Im coefficients on separate qubits, $(a_0,\mathrm{Re}\,a_1,\mathrm{Im}\,a_1,\dots)$, at M = 2 (5 qubits) and M = 4 (9 qubits), periodic or even-mirrored. All of its results are kept (report §§2, 7–9, 14).
 
 ## Layout
 
 ```text
 configs/default.yaml        all hyper-parameters
-src/                        data_loader, preprocessing (I-10 transect), fisher_kpp (reference solver), galerkin (M=2),
+src/                        data_loader, preprocessing (I-10 transect), fisher_kpp (reference solver), galerkin (basis dispatch; complex Fourier, general M),
+                            cosine_galerkin (default real cosine/Neumann basis),
                             quantum_embedding, custom_ansatz, qpino, losses, training, evaluation, visualization,
                             pennylane_circuits (PennyLane reference circuits, verified equal to the torch simulator)
 experiments/                synthetic_validation, covid_training, ansatz_comparison, physics_loss_ablation,
-                            scalability, make_figures, make_tables
-tests/                      Phase-12 verification (pytest): test_galerkin, test_quantum, test_physics_residual
+                            scalability, make_figures, make_tables (earlier complex-Fourier variant);
+                            m4_experiments (general runner, default cosine M=8), m4_scheduler, m4_tables,
+                            make_m4_figures, make_cosine_figures, boundary_truncation
+tests/                      verification (pytest): test_galerkin, test_quantum, test_physics_residual,
+                            test_galerkin_m4, test_cosine_galerkin
 data/raw/                   JHU CSV files (downloaded, git-ignored)
 data/processed/             I-10 field (npz) and county list (csv)
 results/figures|metrics|checkpoints
@@ -44,25 +52,47 @@ docs/                       abstract, technical report, result tables
 
 ```bash
 pip install -r requirements.txt
-python -m pytest -v tests                      # 27 verification tests (~15 s)
+python -m pytest -v tests                      # all verification tests
 cd experiments
-python synthetic_validation.py                 # ~15 min on 4 CPU threads
-python covid_training.py                       # downloads JHU CSSE data (~30 MB) on first run, ~10 min
-python ansatz_comparison.py                    # ablations (~1.5 h)
-python physics_loss_ablation.py                # (~1 h)
-python scalability.py                          # runtime, resources, shots
-python make_figures.py && python make_tables.py
+# default model: real cosine / Neumann basis, M = 8 (9 qubits); M = 4 gives 5 qubits
+python boundary_truncation.py                  # truncation errors (cosine and complex Fourier)
+python m4_experiments.py --regime covid --baselines                 # persistence, linear trend, A (cosine M=8)
+python m4_experiments.py --regime covid --model D --seed 0          # one run (B, C, D, E, F; --R 2/3 for re-uploading)
+python m4_experiments.py --regime synthetic --model D --seed 0      # synthetic Neumann Fisher-KPP
+JOBS=../results/metrics/m4/jobs_cosine.txt python m4_scheduler.py   # the full cosine grid, resumable
+python m4_tables.py && python make_cosine_figures.py
+# earlier complex-Fourier variant: --boundary periodic|mirror --M 2|4, and
+# synthetic_validation.py, covid_training.py, ansatz_comparison.py, physics_loss_ablation.py, make_figures.py
 ```
 
-Simulation is exact statevector (complex128) in PyTorch for speed; `tests/test_quantum.py::test_torch_matches_pennylane` checks it against PennyLane `default.qubit` to 1e-10. Seeds are fixed (`configs/default.yaml`).
+Simulation is exact statevector (complex128) in PyTorch; it is checked against PennyLane `default.qubit` at 5 and 9 qubits (max diff 5e-15 for the 9-qubit cosine QPINO). Seeds are fixed.
 
-## Headline results (see the report for details and caveats)
+## Headline results, default model (report §15; all classical simulation, no quantum advantage claimed)
 
-See `docs/QPINO_technical_report.md`, Section 8. No quantum advantage is claimed: everything here is classical simulation of a 5-qubit circuit.
+Data: JHU CSSE COVID-19, 32-bin I-10 transect (LA → Jacksonville) with Neumann boundaries. Train Mar 1–Jun 16 2020, validate Jun 17–30, test July 2020 (one-step and a 31-day rollout). λ_PDE = 0.01, 3 seeds.
 
-## Extension: M = 4 (9 qubits), mirrored boundary, data-dominated loss, re-uploading (report §14)
+* Truncation error (mean rel. L2, train / July): cosine M=4 0.632 / 0.389, cosine M=8 0.555 / 0.314. Earlier complex-Fourier M=2 periodic: 0.627 / 0.377.
+* July 2020, cosine M=8 (9 qubits), field RMSE in cases/100k/day:
 
-New options added alongside the M = 2 results above (`configs/m4_mirror.yaml`):
+  | model | 1-step incr. error | 31-day rollout RMSE |
+  |---|---|---|
+  | persistence | 1.000 | 19.14 |
+  | linear trend | 1.063 | 22.32 |
+  | Galerkin ODE A | 1.037 | 17.80 |
+  | MLP B | 1.31 ± 0.06 | 19.45 ± 4.44 |
+  | HEA C | 1.17 ± 0.02 | 20.42 ± 1.67 |
+  | QPINO D | 1.17 ± 0.06 | 19.98 ± 2.70 |
+  | D, no physics loss (E) | 1.17 ± 0.06 | 20.49 ± 1.72 |
+  | D, no ZZ (F) | 1.27 ± 0.08 | 21.39 ± 2.50 |
+
+  No learned model beats persistence one day ahead, and none beats the 3-parameter Galerkin ODE over 31 days. Seed spread is large.
+* With 5 qubits, cosine M=4 gives QPINO D 18.47 ± 1.51 and HEA C 19.30 ± 0.50, against 21.33 / 21.45 for the earlier M=2 periodic complex-Fourier runs.
+* Re-uploading, cosine M=8 D: R=1/2/3 rollout 19.98 / 19.32 / 20.96; runtime 446 / 897 / 1419 s per run.
+SYNTH_LINE
+
+## Earlier complex-Fourier variant: M = 4 (9 qubits), mirrored boundary, data-dominated loss, re-uploading (report §14)
+
+Kept for reference. These runs use Re/Im complex-Fourier coefficients (`--boundary periodic|mirror`, `configs/m4_mirror.yaml`):
 
 * General-M Galerkin code (explicit M = 4 equations; 34-of-36-edge coupling graph), 9-qubit QPINO with the same Ry embedding and Hamiltonian family, checked against PennyLane at 9 qubits.
 * Mirrored (even, domain 2L) I-10 boundary. It removes the wrap jump but does not reduce truncation error: July rel. L2 is 0.389 for M=4 mirrored vs 0.377 for M=2 periodic and 0.323 for M=4 periodic.

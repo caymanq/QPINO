@@ -37,8 +37,8 @@ Projection floor (observed field's own cosine M=8 projection): 11.42. Previous b
 
 | model | COVID cosine M=4 rollout RMSE | COVID cosine M=4 1-step incr. | COVID M=2 periodic rollout RMSE (old λ0.1) | synthetic cosine M=4 rollout rel. L2 (Neumann data) | synthetic M=2 periodic rollout (old λ0.1; periodic data) |
 |---|---|---|---|---|---|
-| D | 18.47 ± 1.51 | 1.231 ± 0.008 | 21.33 ± 1.38 | 0.0296 ± 0.0006 (n=2) | 0.0434 ± 0.0110 |
-| C | 19.30 ± 0.50 | 1.172 ± 0.046 | 21.45 ± 1.55 | 0.0420 ± 0.0036 (n=2) | 0.0324 ± 0.0043 |
+| D | 18.47 ± 1.51 | 1.231 ± 0.008 | 21.33 ± 1.38 | 0.0303 ± 0.0010 | 0.0434 ± 0.0110 |
+| C | 19.30 ± 0.50 | 1.172 ± 0.046 | 21.45 ± 1.55 | 0.0346 ± 0.0109 | 0.0324 ± 0.0043 |
 | Persistence / LinearTrend / A (COVID cosine M=4) | 19.65 / 17.94 / 18.00 | | | | |
 
 ## T10. Synthetic Neumann Fisher–KPP, cosine M=8 (12 unseen ICs, 40 steps)
@@ -48,8 +48,8 @@ Projection floor (observed field's own cosine M=8 projection): 11.42. Previous b
 | Persistence | 1.00e+00 | 7.24e-01 | 7.23e-01 | 0 | – |
 | A | 2.80e-07 | 2.31e-08 | 1.00e-06 | 3 | – |
 | B | 0.0373 ± 0.0037 | 0.0194 ± 0.0021 | 0.0182 ± 0.0025 | 485 | 0.01 |
-| C | n/a | n/a | n/a | n/a | n/a |
-| D | n/a | n/a | n/a | n/a | n/a |
+| C | 0.0570 ± 0.0139 | 0.0577 ± 0.0238 | 0.0553 ± 0.0251 | 459 | 0.92 |
+| D | 0.0996 ± 0.0208 | 0.0672 ± 0.0128 | 0.0610 ± 0.0103 | 478 | 0.95 |
 | E | n/a | n/a | n/a | n/a | n/a |
 | F | n/a | n/a | n/a | n/a | n/a |
 
