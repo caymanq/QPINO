@@ -858,6 +858,108 @@ Rollout from the observed Jun 30 state, RMSE in u vs the full-resolution observe
 * All circuits are classically simulated. **No quantum advantage** is shown or claimed.
 
 
+# 19. Joint regional training: interface flux inside the training rollouts and a long-rollout curriculum
+
+§18 trained each regional QPINO on its own and added the classical interface flux only at rollout time. The July rollouts then drifted away from the 45-mode projection: RMSE vs projection was 0.095 for the regional D. Here we change two things and keep the circuit architecture unchanged (Ry embedding of the 9 real Galerkin coefficients, custom $H_\theta$, one 9-qubit circuit per region, never entangled across regions):
+
+1. **Flux in training.** The 5 regional models are trained *jointly*: every training rollout step is $B^{t+1}_r=\mathcal N_r(B^t_r)+\Delta t\,S_r(B^t)$, so neighbour states feed the classical flux at every step. Gradients from region s's loss reach region r's parameters through $S$ whenever r and s share faces. With the flux off, the joint loss separates into 5 independent regional problems.
+2. **Long rollout windows in the loss.** We use a curriculum of 7 → 14 → 21-day windows (300 epochs each, 900 total). The "short" control keeps 7-day windows (the §18 rollout length) for the same 900 epochs. Each epoch draws 32 random windows. Step weights are $w_s\propto s^{-\alpha}$, normalised to mean 1.
+
+**Selection on the validation window.** Every 5 epochs we score the 14-day rollout from the observed Jun 16 state over Jun 17–30. The best checkpoint from epoch 150 onward is kept, so the *training horizon* (curriculum stage) is chosen on validation. The selection window is identical for every curriculum. The step weighting α ∈ {0, 1} was chosen per model family on a seed-0 pilot (flux on, 7→14→21): α = 1 for D (validation 0.1134 vs 0.1135, effectively a tie) and for C (0.1116 vs 0.1143), and α = 0 for B (0.1105 vs 0.1115). The D ablation grid had already been launched at α = 0 before the D pilot finished. The D ablation is therefore internally consistent at α = 0, and T16 lists the α = 1 main row separately. λ_PDE = 1e-4 throughout. The pointwise regional Fisher–KPP residual is logged every 5 epochs on train one-step predictions and on the validation rollout, and is reported on the July rollout.
+
+**Tests first** (`tests/test_regional_training.py`, 2 new; **46/46 tests pass**):
+
+* *Flux gradients.* In a joint rollout with a 9-qubit QPINO in region 0 and MLPs elsewhere, a loss on one region gives non-zero gradients to its neighbour's parameters with the flux on (0.24) and exactly zero with the flux off. A central finite difference matches autograd (relative error 1.5e-8).
+* *Rollout loss.* The step-weighted joint rollout loss equals a manual numpy rollout (model calls plus the numpy flux) to 1.8e-15. The flux-off joint rollout equals independent regional models exactly.
+
+## 19.1 Results (3 seeds; same splits and metrics as §16–§18; coupled rollout from Jun 30)
+
+### T16. Joint regional training, July 2020
+
+Rollout from the observed Jun 30 state (coupled rollout for every row), RMSE in u vs the observed full-resolution field; 'vs floor' = against the regional 45-mode projection of the observed field (the 0.0949 floor itself is the projection's error vs observed). PDE violation = pointwise regional Fisher–KPP residual (u/day, interface flux excluded). λ_PDE = 1e-4. 'selected' = training horizon and epoch of the validation-selected checkpoint per seed.
+
+| model | seeds | 1-step RMSE | rollout RMSE | Jul 12 | Jul 26 | rollout vs floor | vs floor, Jul 26 | PDE viol. rollout | PDE viol. train 1-step | selected (H@epoch) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| regional truncation floor | 1 | 0.0949 | 0.0949 | 0.0961 | 0.0840 | 0.0000 | 0.0000 | 0.0027 | – | – |
+| regional persistence | 1 | 0.0950 | 0.1149 | 0.1086 | 0.1350 | 0.0649 | 0.1057 | 0.0036 | – | – |
+| regional linear trend | 1 | 0.0949 | 0.0972 | 0.0971 | 0.0919 | 0.0211 | 0.0373 | 0.0020 | – | – |
+| regional Galerkin A (coupled) | 1 | 0.0949 | 0.0997 | 0.0986 | 0.0979 | 0.0307 | 0.0503 | 0.0002 | – | – |
+| §18 regional D (independent training, flux only in rollout) | 3 | 0.0960 ± 0.0003 | 0.1348 ± 0.0139 | 0.1279 ± 0.0171 | 0.1705 ± 0.0151 | 0.0949 ± 0.0192 | 0.1481 ± 0.0173 | 0.0111 ± 0.0014 | – | – |
+| §18 regional B (independent training, flux only in rollout) | 3 | 0.0961 ± 0.0003 | 0.1311 ± 0.0251 | 0.1191 ± 0.0170 | 0.1698 ± 0.0533 | 0.0870 ± 0.0354 | 0.1447 ± 0.0606 | 0.0080 ± 0.0016 | – | – |
+| **§19 QPINO D: flux in training, 7→14→21 d (α=1, main)** | 3 | 0.0953 ± 0.0002 | 0.1328 ± 0.0083 | 0.1253 ± 0.0091 | 0.1659 ± 0.0104 | 0.0925 ± 0.0122 | 0.1429 ± 0.0121 | 0.0068 ± 0.0005 | 0.0080 ± 0.0000 | 7d@150, 7d@175, 7d@155 |
+| §19 QPINO D: flux in training, 7→14→21 d (α=0) | 3 | 0.0953 ± 0.0001 | 0.1303 ± 0.0038 | 0.1245 ± 0.0050 | 0.1607 ± 0.0078 | 0.0893 ± 0.0056 | 0.1370 ± 0.0092 | 0.0071 ± 0.0006 | 0.0080 ± 0.0001 | 21d@885, 14d@395, 7d@185 |
+| §19 QPINO D: no flux in training, 7→14→21 d (α=0) | 3 | 0.0952 ± 0.0001 | 0.1336 ± 0.0094 | 0.1290 ± 0.0092 | 0.1632 ± 0.0149 | 0.0936 ± 0.0134 | 0.1396 ± 0.0173 | 0.0073 ± 0.0002 | 0.0080 ± 0.0000 | 14d@365, 7d@225, 7d@180 |
+| §19 QPINO D: flux in training, 7 d only (α=0) | 3 | 0.0953 ± 0.0001 | 0.1294 ± 0.0032 | 0.1264 ± 0.0052 | 0.1528 ± 0.0107 | 0.0879 ± 0.0048 | 0.1275 ± 0.0126 | 0.0068 ± 0.0006 | 0.0080 ± 0.0001 | 7d@585, 7d@285, 7d@185 |
+| §19 QPINO D: no flux in training, 7 d only (α=0) | 3 | 0.0952 ± 0.0001 | 0.1341 ± 0.0088 | 0.1287 ± 0.0095 | 0.1655 ± 0.0130 | 0.0943 ± 0.0124 | 0.1425 ± 0.0150 | 0.0075 ± 0.0004 | 0.0080 ± 0.0001 | 7d@335, 7d@225, 7d@180 |
+| **§19 HEA C: flux in training, 7→14→21 d (α=1, main)** | 3 | 0.0953 ± 0.0001 | 0.1206 ± 0.0123 | 0.1134 ± 0.0071 | 0.1472 ± 0.0273 | 0.0730 ± 0.0193 | 0.1196 ± 0.0328 | 0.0067 ± 0.0015 | 0.0079 ± 0.0002 | 7d@155, 7d@160, 7d@155 |
+| §19 HEA C: no flux in training, 7→14→21 d (α=1) | 3 | 0.0954 ± 0.0001 | 0.1229 ± 0.0091 | 0.1145 ± 0.0051 | 0.1541 ± 0.0179 | 0.0773 ± 0.0149 | 0.1286 ± 0.0218 | 0.0076 ± 0.0005 | 0.0079 ± 0.0002 | 14d@310, 7d@160, 7d@150 |
+| §19 HEA C: flux in training, 7 d only (α=1) | 3 | 0.0953 ± 0.0001 | 0.1206 ± 0.0123 | 0.1134 ± 0.0071 | 0.1472 ± 0.0273 | 0.0730 ± 0.0193 | 0.1196 ± 0.0328 | 0.0067 ± 0.0015 | 0.0079 ± 0.0002 | 7d@155, 7d@160, 7d@155 |
+| §19 HEA C: no flux in training, 7 d only (α=1) | 3 | 0.0953 ± 0.0001 | 0.1207 ± 0.0088 | 0.1111 ± 0.0057 | 0.1513 ± 0.0174 | 0.0738 ± 0.0143 | 0.1253 ± 0.0211 | 0.0071 ± 0.0008 | 0.0079 ± 0.0002 | 7d@195, 7d@160, 7d@150 |
+| **§19 MLP B: flux in training, 7→14→21 d (α=0, main)** | 3 | 0.0952 ± 0.0001 | 0.1058 ± 0.0019 | 0.1030 ± 0.0015 | 0.1106 ± 0.0033 | 0.0467 ± 0.0044 | 0.0719 ± 0.0051 | 0.0031 ± 0.0001 | 0.0078 ± 0.0001 | 7d@150, 7d@225, 7d@275 |
+| §19 MLP B: no flux in training, 7→14→21 d (α=0) | 3 | 0.0953 ± 0.0001 | 0.1075 ± 0.0026 | 0.1033 ± 0.0012 | 0.1163 ± 0.0067 | 0.0503 ± 0.0056 | 0.0801 ± 0.0097 | 0.0037 ± 0.0004 | 0.0079 ± 0.0001 | 7d@165, 14d@315, 14d@340 |
+| §19 MLP B: flux in training, 7 d only (α=0) | 3 | 0.0952 ± 0.0001 | 0.1057 ± 0.0018 | 0.1028 ± 0.0014 | 0.1110 ± 0.0034 | 0.0465 ± 0.0043 | 0.0726 ± 0.0053 | 0.0031 ± 0.0001 | 0.0078 ± 0.0001 | 7d@150, 7d@225, 7d@355 |
+| §19 MLP B: no flux in training, 7 d only (α=0) | 3 | 0.0953 ± 0.0001 | 0.1093 ± 0.0037 | 0.1035 ± 0.0015 | 0.1233 ± 0.0112 | 0.0538 ± 0.0078 | 0.0896 ± 0.0155 | 0.0040 ± 0.0006 | 0.0080 ± 0.0002 | 7d@165, 7d@260, 7d@450 |
+
+Step-weighting pilot (seed 0, flux in training, 7→14→21 d; w_s ∝ s^-α), selected by the validation rollout:
+
+| model | α | val rollout RMSE (Jun 17–30) | July rollout RMSE |
+|---|---|---|---|
+| QPINO D | 0 | 0.1135 | 0.1250 |
+| QPINO D | 1 | 0.1134 | 0.1211 |
+| HEA C | 0 | 0.1143 | 0.1146 |
+| HEA C | 1 | 0.1116 | 0.1121 |
+| MLP B | 0 | 0.1105 | 0.1031 |
+| MLP B | 1 | 0.1115 | 0.1102 |
+
+* training wall time, MLP B long: 24 s per run (5 regions jointly, 1 thread; n=7)
+* training wall time, MLP B short: 16 s per run (5 regions jointly, 1 thread; n=6)
+* training wall time, HEA C long: 1025 s per run (5 regions jointly, 1 thread; n=7)
+* training wall time, HEA C short: 817 s per run (5 regions jointly, 1 thread; n=6)
+* training wall time, QPINO D long: 1240 s per run (5 regions jointly, 1 thread; n=9)
+* training wall time, QPINO D short: 1063 s per run (5 regions jointly, 1 thread; n=6)
+
+![Fig. 22](../results/figures/fig22_usa2d_regional_joint.png)
+
+**Fig. 22.** Top: observed Jul 26, the regional floor, the §18 regional QPINO D, and the §19 D and B forecasts (median seeds). Bottom: Jul 26 errors. Right, top: drift, i.e. RMSE vs the regional 45-mode projection by July day. Right, bottom: the validation rollout loss over the curriculum (D blue, B orange; dotted lines mark the 7/14/21-day stage boundaries).
+
+## 19.2 Findings
+
+* **The rollout drift was not fixed for the QPINO; it was reduced for the MLP.** RMSE vs the regional projection:
+
+  | model | §18 | §19 main |
+  |---|---|---|
+  | QPINO D | 0.0949 ± 0.0192 | 0.0925 ± 0.0122 (α = 1); 0.0893 ± 0.0056 (α = 0) |
+  | HEA C | – | 0.0730 ± 0.0193 |
+  | MLP B | 0.0870 ± 0.0354 | 0.0467 ± 0.0044 |
+
+  The baselines sit lower still: regional linear trend 0.0211, regional A 0.0307, regional persistence 0.0649. Against the observed field:
+
+  * D: 0.1348 → 0.1328 ± 0.0083 (α = 1) / 0.1303 ± 0.0038 (α = 0).
+  * C: 0.1206 ± 0.0123.
+  * B: 0.1311 → 0.1058 ± 0.0019.
+
+  The regional QPINO and HEA remain **worse than regional persistence (0.1149)**. The MLP beats persistence but not the regional linear trend (0.0972) or the regional Galerkin A (0.0997), and no learned model reaches the 0.0949 floor.
+* **Most of the MLP's gain is the training and selection protocol, not the flux or the horizon.** The flux-off, 7-day control (the §18 configuration but with joint batching, 900 epochs and validation-rollout selection) already gives 0.1093 ± 0.0037, against 0.1311 in §18. The seed spread also falls from 0.025 to 0.004.
+* **Flux in training helps a little, consistently, but within the seed spread.** Rollout RMSE with vs without the flux:
+
+  | model | 7→14→21 d | 7 d |
+  |---|---|---|
+  | D (α = 0) | 0.1303 vs 0.1336 | 0.1294 vs 0.1341 |
+  | C | 0.1206 vs 0.1229 | 0.1206 vs 0.1207 |
+  | B | 0.1058 vs 0.1075 | 0.1057 vs 0.1093 |
+
+  The physics violation of the rollout also falls slightly with the flux, e.g. B 0.0031 vs 0.0037–0.0040 and D 0.0068–0.0071 vs 0.0073–0.0075. The coupling is weak (fitted D ≈ 7 km²/day, flux ≈ 14% of the local RHS), so a large effect was not expected.
+* **The long-horizon curriculum does not help.** The validation rollout loss is lowest early in the 7-day stage and then *rises* as training continues: the final-to-best validation ratio averages 3.4 for D, 3.9 for C and 2.7 for B. Validation therefore selects a 7-day-stage checkpoint in 17 of the 23 curriculum runs. When it does, the curriculum run is identical to the 7-day control up to epoch 300 (same seed, data order and LR schedule). That is why the C flux-on long and short rows coincide exactly, and B's nearly so. Long vs short: D 0.1303 vs 0.1294, C 0.1206 vs 0.1206, B 0.1058 vs 0.1057. The 14- and 21-day losses fit the March–June training dynamics more closely, and that transfers *worse* to the June 17–30 window. This is the same regime shift that hurt the full-window ρ(x,y) fit in §17.
+* **Physics violation.** The fitted physics is violated by the July rollouts at 0.0068 (D), 0.0067 (C) and 0.0031 (B), against 0.0027 for the observed data and 0.0111 / 0.0080 for §18's D / B. Train one-step violation is about 0.008 for all models; λ_PDE = 1e-4 makes it a diagnostic only.
+
+## 19.3 Caveats
+
+* §19 differs from §18 in more than the flux and the horizon: joint batching (32 windows per epoch), 900 instead of 1500 epochs, and selection by a 14-day validation rollout. The flux-off, 7-day rows are the control that isolates those changes.
+* The step weighting was chosen on one pilot seed. For D the two values tie (0.1134 vs 0.1135), and the α = 0 grid happens to be slightly better on July (0.1303 vs 0.1328), which is not used for selection.
+* Training wall time per joint run (1 thread): D about 1240 s (7→14→21) / 1063 s (7 d), C about 1025 / 817 s, B about 24 / 16 s.
+* All circuits are classically simulated (5 independent 9-qubit statevectors). **No quantum advantage** is shown or claimed.
+
+
 ## Selected figures
 
 ![Fig. 3 — synthetic full vs M=2 Galerkin evolution](../results/figures/fig03_galerkin_vs_full.png)

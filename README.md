@@ -148,6 +148,31 @@ python usa2d_regional.py --assemble --model D --seed 0
 python usa2d_regional_report.py                            # T15 + fig21
 ```
 
+### Joint regional training with the flux inside training rollouts (report §19)
+
+The 5 regional models are trained jointly, with the classical interface flux in every training rollout step (`src/regional_training.py`, `tests/test_regional_training.py`). The rollout windows follow a 7→14→21-day curriculum, and the checkpoint and step weighting are chosen on validation. The circuit architecture is unchanged.
+
+July rollout RMSE vs observed:
+
+| model | §18 | §19 |
+|---|---|---|
+| QPINO D | 0.1348 | 0.1328 ± 0.0083 |
+| HEA C | – | 0.1206 ± 0.0123 |
+| MLP B | 0.1311 | 0.1058 ± 0.0019 |
+
+For comparison, regional persistence is 0.1149 and the regional linear trend 0.0972.
+
+* Flux in training helps slightly but consistently.
+* The long curriculum does not help: validation picks 7-day-stage checkpoints in 17 of 23 runs.
+* The QPINO drift vs the 45-mode projection is only marginally reduced (0.095 → 0.093).
+
+Tables: [`docs/results_tables_usa2d_regional_joint.md`](docs/results_tables_usa2d_regional_joint.md); figure `results/figures/fig22_usa2d_regional_joint.png`.
+
+```bash
+python usa2d_regional_joint.py --model D --seed 0 --flux 1 --curr long --alpha 1
+python usa2d_regional_joint_report.py      # T16 + fig22
+```
+
 ## Earlier complex-Fourier variant: M = 4 (9 qubits), mirrored boundary, data-dominated loss, re-uploading (report §14)
 
 Kept for reference. These runs use Re/Im complex-Fourier coefficients (`--boundary periodic|mirror`, `configs/m4_mirror.yaml`):

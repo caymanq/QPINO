@@ -243,6 +243,17 @@
     "D0_err": 0.0,
     "torch_err": 4.440892098500626e-16
   },
+  "test_flux_gradients_flow_between_regions": {
+    "neighbour_grad_flux_on": 0.23841394667986368,
+    "neighbour_grad_flux_off": 0.0,
+    "fd_rel_err": 1.4734653200088333e-08
+  },
+  "test_rollout_loss_matches_manual_rollout": {
+    "loss": 6.520412292340048,
+    "manual": 6.520412292340046,
+    "abs_diff": 1.7763568394002505e-15,
+    "decoupled_max_diff": 0.0
+  },
   "test_constant_rho_vector_equals_scalar": {
     "numpy_err": 7.41073868937292e-15,
     "torch_err": 2.7755575615628914e-17

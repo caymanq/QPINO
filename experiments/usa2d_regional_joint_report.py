@@ -109,7 +109,7 @@ mainD = [r["coupled"] | {"seed": r["seed"]} for r in runs.get(("D", 1, "long", 1
 mainC = [r["coupled"] | {"seed": r["seed"]} for r in runs.get(("C", 1, "long", 1.0), [])]
 mainB = [r["coupled"] | {"seed": r["seed"]} for r in runs.get(("B", 1, "long", 0.0), [])]
 fig = plt.figure(figsize=(22, 8.6))
-gs = fig.add_gridspec(2, 8, width_ratios=[1, 1, 1, 1, 1, 0.04, 0.5, 1.1], wspace=0.08, hspace=0.42)
+gs = fig.add_gridspec(2, 8, width_ratios=[1, 1, 1, 1, 1, 0.04, 0.8, 1.1], wspace=0.08, hspace=0.42)
 im = us_map(fig.add_subplot(gs[0, 0]), u[i26], "observed\nJul 26")
 us_map(fig.add_subplot(gs[0, 1]), grid(bR["Projection-floor"]["pred_rollout"])[d26], f"regional floor (45 modes)\nJul 26, RMSE {bR['Projection-floor']['rollout_rmse_by_day'][d26]:.3f}")
 r18 = med(a18["D"])
