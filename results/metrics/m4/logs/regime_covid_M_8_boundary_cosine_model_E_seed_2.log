@@ -1,0 +1,4 @@
+/workspace/QPINO/experiments/m4_experiments.py:215: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  r["learned_c"] = float(m.c)
+covid_M8_cosine_E_lam0_R1_s2 {'rel_l2': 0.095, 'rel_l2_increment': 1.1478, 'rollout_rel_l2': 0.6694, 'field_rmse_per100k_onestep': 11.7043, 'field_rmse_per100k_rollout': 21.1192, 'rollout_negative_frac': 0.0292, 'max_abs_Im_rollout': 0.1016, 'train_time_s': 417.4605, 'sec_per_epoch': 0.2783, 'learned_c': 1.3738}

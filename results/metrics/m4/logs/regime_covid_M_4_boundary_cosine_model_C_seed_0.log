@@ -1,0 +1,1 @@
+covid_M4_cosine_C_lam0.01_R1_s0 {'rel_l2': 0.0754, 'rel_l2_increment': 1.1633, 'rollout_rel_l2': 0.4944, 'field_rmse_per100k_onestep': 14.061, 'field_rmse_per100k_rollout': 19.9639, 'rollout_negative_frac': 0.0, 'max_abs_Im_rollout': 0.0974, 'train_time_s': 13.7966, 'sec_per_epoch': 0.0092, 'learned_c': 1.0}
