@@ -25,7 +25,7 @@ N_QUBITS = 5
 
 # ---------------------------------------------------------------- coupling graphs
 def _M(n):
-    return (n - 1) // 2
+    return galerkin.n_to_M(n)
 
 
 def galerkin_graph(n=N_QUBITS, tol=1e-12):

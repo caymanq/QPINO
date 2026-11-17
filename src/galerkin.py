@@ -33,6 +33,16 @@ import torch
 from scipy.integrate import solve_ivp
 
 M = 2
+BASIS = "fourier"   # "fourier" (periodic, 2M+1 real coeffs) or "cosine" (Neumann, M+1 coeffs);
+                    # set by experiment scripts via set_basis(); see src/cosine_galerkin.py
+
+
+def set_basis(name: str):
+    global BASIS
+    assert name in ("fourier", "cosine")
+    BASIS = name
+
+
 MODES = np.arange(-M, M + 1)
 NAMES = ["a0", "Re a1", "Im a1", "Re a2", "Im a2"]
 K_OF_COMPONENT = np.array([0, 1, 1, 2, 2])
@@ -317,3 +327,38 @@ def fit_galerkin_parameters(a_n, a_np1, dt, w=None, n_starts: int = 6, seed: int
             p = torch.exp(logp.detach()).numpy()
             best = dict(D=float(p[0]) if fit_D else 0.0, rho=float(p[1]), beta=float(p[2]), loss=loss)
     return best
+
+
+# ----------------------------------------------------------------------------
+# Basis dispatch (cosine / Neumann option).  The Fourier implementations above are kept
+# unchanged as *_fourier; the public names dispatch on BASIS at call time.
+# ----------------------------------------------------------------------------
+from . import cosine_galerkin as _cg  # noqa: E402
+
+reconstruct_fourier, reconstruct_uxx_fourier = reconstruct, reconstruct_uxx
+galerkin_rhs_fourier, field_to_coeffs_fourier = galerkin_rhs, field_to_coeffs
+coupling_hessian_fourier = coupling_hessian
+
+
+def reconstruct(a, x):  # noqa: F811
+    return _cg.reconstruct(a, x) if BASIS == "cosine" else reconstruct_fourier(a, x)
+
+
+def reconstruct_uxx(a, x):  # noqa: F811
+    return _cg.reconstruct_uxx(a, x) if BASIS == "cosine" else reconstruct_uxx_fourier(a, x)
+
+
+def galerkin_rhs(a, D, rho, beta):  # noqa: F811
+    return _cg.galerkin_rhs(a, D, rho, beta) if BASIS == "cosine" else galerkin_rhs_fourier(a, D, rho, beta)
+
+
+def field_to_coeffs(u, x=None, Mo: int = M):  # noqa: F811
+    return _cg.field_to_coeffs(u, x, Mo) if BASIS == "cosine" else field_to_coeffs_fourier(u, x, Mo)
+
+
+def coupling_hessian(D=0.1, rho=1.0, beta=1.0, Mo: int = M):  # noqa: F811
+    return _cg.coupling_hessian(Mo, D, rho, beta) if BASIS == "cosine" else coupling_hessian_fourier(D, rho, beta, Mo)
+
+
+def n_to_M(n: int) -> int:
+    return n - 1 if BASIS == "cosine" else (n - 1) // 2
