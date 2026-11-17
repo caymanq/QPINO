@@ -775,6 +775,89 @@ The diagnostic is informative. The QPINO rollouts violate the fitted physics abo
 * All circuits are classically simulated. **No quantum advantage** is shown or claimed.
 
 
+# 18. Regional domain-decomposition QPINO (5 regions × 9 qubits)
+
+**Idea.** A single 3×3 basis on the whole USA has a floor of 0.1157. The map is split into 5 regions (state groups). Each region gets its own 3×3 land-masked cosine basis on its bounding box, with the natural no-flux condition at its own boundary, and its own 9-qubit QPINO. That gives 45 real coefficients, one qubit per coefficient. **The regional circuits are never entangled with each other.** They are 5 independent 9-qubit statevectors, so no 45-qubit state is ever formed. Neighbouring regions are coupled *classically* at every step through the diffusive flux across their shared cell faces.
+
+## 18.1 Decomposition and coupling
+
+**Regions** (`data/processed/usa_regions_256x128.npz`; 137 grid cells not covered by a state polygon were assigned to the nearest region):
+
+* West: WA OR CA NV ID MT WY UT CO (5782 cells)
+* Southwest/Texas: AZ NM TX OK (3065)
+* Midwest: ND SD NE KS MN IA MO WI IL MI IN OH (4661)
+* Southeast: AR LA MS AL GA FL SC NC TN KY VA WV (2983)
+* Northeast: PA NY NJ CT RI MA VT NH ME MD DE DC (1118)
+
+The regions share 381 interface cell faces. cond(G) per region is 29, 898, 30, 106 and 234. The Southwest/Texas mask fills its bounding box poorly, which explains its large value.
+
+**Interface flux.** For region r and basis function i, $S_{r,i}=D\sum_{(p,q)\in\partial_{rs}}\phi^{(r)}_i(p)\,[u_s(q)-u_r(p)]\,A/h^2$, summed over faces between a cell p in r and a cell q in a neighbour s. This is exactly the cross-interface part of the 5-point finite-volume Laplacian (`src/regional_galerkin.py`). The regional Galerkin system is $G_r\dot b_r = -D\mathcal K_r b_r + \rho_r G_r b_r - \beta C_r(b_r,b_r) + S_r(b)$.
+
+**Tests** (`tests/test_regional.py`, 3 new; **44/44 tests pass**):
+
+1. Flux conservation: the total flux summed over regions is zero to machine precision, and a constant field gives zero flux.
+2. Interface consistency: the assembled interface flux equals the cross-interface part of an explicit global FV Laplacian.
+3. Decoupled limit: without coupling, or with D = 0, the regional system matches 5 independent single-region cosine Galerkin models. The torch and numpy versions agree.
+
+**Models.**
+
+* *Regional Galerkin ODE A* (classical): global D and β plus a per-region growth rate ρ_r. Here ρ_r is a piecewise-constant spatial ρ, the natural "per-region ρ". It is fitted with the §17 rollout protocol (H = 7, window chosen on validation: 56 days). The fit gives D = 8.8e-6 (7.4 km²/day), β = 0.0060, and ρ_r = 0.0083 (West), 0.0127 (Southwest/Texas), 0.0097 (Midwest), 0.0080 (Southeast) and 0.0076 (Northeast) /day.
+* *Regional QPINO D and MLP B*: one model per region, trained independently on that region's coefficient series, 3 seeds. Training uses λ_PDE = 1e-4 with the local weak-form physics (D, ρ_r, β) and the same epochs and optimiser as §16. The 5 regions ran in parallel; each regional D took 478–539 s.
+* *Coupled rollout*: $b^{t+1}_r = \mathcal N_r(b^t_r) + \Delta t\,S_r(b^t)$, with the classical flux added explicitly once per day. The *decoupled* ablation drops $S_r$.
+
+## 18.2 Results (same splits, seeds and metrics; vs observed full-resolution field)
+
+### T15. Regional decomposition, July 2020
+
+Regions (cells): West (5782), Southwest/Texas (3065), Midwest (4661), Southeast (2983), Northeast (1118); 381 interface cell faces. cond(G) per region: 29, 898, 30, 106, 234. Regional truncation floor: rel. L2 train 0.300 / val 0.172 / July 0.135, RMSE July 0.0949 (single 3×3 basis: RMSE July 0.1157).
+
+Regional Galerkin ODE A fit (rollout protocol, H=7, window 56 d chosen on validation): D = 8.8e-06 (7.37 km²/day), β = 0.0060, ρ_r = West 0.0083, Southwest/Texas 0.0127, Midwest 0.0097, Southeast 0.0080, Northeast 0.0076 /day. July interface-flux / local-RHS norm ratio (observed coefficients): 0.141.
+
+Rollout from the observed Jun 30 state, RMSE in u vs the full-resolution observed field (land cells); 'vs projection' is against the model's own projection (regional 45-mode projection for regional rows, single 3×3 projection for single-region rows). PDE violation: regional rows use the regional physics (D, ρ_r, β; pointwise PDE, 400 points per region); single-region rows use the §17 scalar reference — the two are not on the same scale of physics, compare within a block. Trained rows: 3 seeds, λ_PDE = 1e-4.
+
+| model | params | 1-step RMSE | rollout RMSE | Jul 12 | Jul 26 | rollout vs projection | PDE viol. rollout | West | Southwest/Texas | Midwest | Southeast | Northeast |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **regional** truncation floor | – | 0.0949 | 0.0949 | 0.0961 | 0.0840 | 0.0000 | 0.0027 | 0.1188 | 0.0830 | 0.0965 | 0.0556 | 0.0533 |
+| regional persistence | 0 | 0.0950 | 0.1149 | 0.1086 | 0.1350 | 0.0649 | 0.0036 | 0.1402 | 0.1125 | 0.1112 | 0.0795 | 0.0580 |
+| regional linear trend | 0 | 0.0949 | 0.0972 | 0.0971 | 0.0919 | 0.0211 | 0.0020 | 0.1210 | 0.0876 | 0.0987 | 0.0565 | 0.0538 |
+| regional Galerkin A, coupled (flux) | 7 | 0.0949 | 0.0997 | 0.0986 | 0.0979 | 0.0307 | 0.0002 | 0.1255 | 0.0905 | 0.0982 | 0.0591 | 0.0570 |
+| regional Galerkin A, decoupled | 7 | 0.0949 | 0.0999 | 0.0987 | 0.0984 | 0.0313 | 0.0000 | 0.1256 | 0.0912 | 0.0982 | 0.0589 | 0.0571 |
+| regional QPINO D (5×9 qubits), coupled | 2390 | 0.0960 ± 0.0003 | 0.1348 ± 0.0139 | 0.1279 ± 0.0171 | 0.1705 ± 0.0151 | 0.0949 ± 0.0192 | 0.0111 ± 0.0014 | 0.1533 ± 0.0029 | 0.1360 ± 0.0195 | 0.1159 ± 0.0117 | 0.1121 ± 0.0335 | 0.1383 ± 0.0616 |
+| regional QPINO D (5×9 qubits), decoupled | 2390 | 0.0960 ± 0.0003 | 0.1369 ± 0.0153 | 0.1278 ± 0.0177 | 0.1713 ± 0.0165 | 0.0977 ± 0.0208 | 0.0113 ± 0.0013 | 0.1555 ± 0.0068 | 0.1363 ± 0.0202 | 0.1164 ± 0.0104 | 0.1087 ± 0.0380 | 0.1575 ± 0.0679 |
+| regional MLP B, coupled | 2425 | 0.0961 ± 0.0003 | 0.1311 ± 0.0251 | 0.1191 ± 0.0170 | 0.1698 ± 0.0533 | 0.0870 ± 0.0354 | 0.0080 ± 0.0016 | 0.1367 ± 0.0025 | 0.1500 ± 0.0312 | 0.1249 ± 0.0294 | 0.1148 ± 0.0677 | 0.0606 ± 0.0006 |
+| regional MLP B, decoupled | 2425 | 0.0961 ± 0.0003 | 0.1308 ± 0.0245 | 0.1192 ± 0.0168 | 0.1684 ± 0.0511 | 0.0867 ± 0.0347 | 0.0079 ± 0.0016 | 0.1368 ± 0.0027 | 0.1516 ± 0.0335 | 0.1228 ± 0.0261 | 0.1142 ± 0.0663 | 0.0619 ± 0.0016 |
+| *single 3×3 basis (§16/§17)* | | | | | | | |  |  |  |  |  |
+| single-region truncation floor | – | 0.1157 | 0.1157 | 0.1188 | 0.1014 | 0.0000 | – | 0.1385 | 0.1036 | 0.1133 | 0.0803 | 0.1082 |
+| single-region persistence | 0 | 0.1158 | 0.1318 | 0.1285 | 0.1443 | 0.0630 | – | 0.1520 | 0.1210 | 0.1298 | 0.1069 | 0.1143 |
+| single-region linear trend | 0 | 0.1158 | 0.1164 | 0.1190 | 0.1039 | 0.0125 | – | – | – | – | – | – |
+| single-region Galerkin A (rollout protocol) | 3 | 0.1158 | 0.1189 | 0.1206 | 0.1101 | 0.0272 | – | 0.1396 | 0.1071 | 0.1146 | 0.0917 | 0.1153 |
+| single-region QPINO D (9 qubits), λ=1e-4 | 478 | 0.1161 ± 0.0000 | 0.1348 ± 0.0081 | 0.1324 ± 0.0076 | 0.1474 ± 0.0172 | 0.0673 ± 0.0173 | – | 0.1576 ± 0.0120 | 0.1141 ± 0.0030 | 0.1265 ± 0.0038 | 0.1021 ± 0.0037 | 0.1626 ± 0.0328 |
+| single-region MLP B, λ=1e-4 | 485 | 0.1164 ± 0.0004 | 0.1190 ± 0.0010 | 0.1205 ± 0.0008 | 0.1110 ± 0.0031 | 0.0274 ± 0.0048 | – | 0.1410 ± 0.0032 | 0.1061 ± 0.0017 | 0.1149 ± 0.0012 | 0.0862 ± 0.0063 | 0.1197 ± 0.0094 |
+
+* regional D: training wall time per region 495 s (range 478–539 s, 1 thread, regions run in parallel).
+* regional B: training wall time per region 9 s (range 9–10 s, 1 thread, regions run in parallel).
+
+![Fig. 21](../results/figures/fig21_usa2d_regional.png)
+
+**Fig. 21.** Top: the 5 regions, observed Jul 26, the regional truncation floor, the regional QPINO D forecast (coupled, median seed) and the regional Galerkin A forecast. Bottom: Jul 26 errors of the single-region QPINO D, the regional D coupled and decoupled, the regional A, and the regional floor. Right: July rollout RMSE by day.
+
+## 18.3 Findings
+
+* **New truncation floor:** decomposition lowers the July floor from 0.1157 to **0.0949** (rel. L2 0.135). That is roughly the 8×8 single-basis floor (0.0911) with 45 rather than 64 coefficients. The floor falls in every region, most in the Northeast (0.108 → 0.053) and the Southeast (0.080 → 0.056).
+* **Classical baselines gain the most.** The regional linear trend (0.0972) and the regional Galerkin A (0.0997 coupled, 0.0999 decoupled) beat every single-region model; the best single-region model is the linear trend at 0.1164. Regional persistence reaches 0.1149.
+* **The regional QPINO does not convert the lower floor into a better forecast.** The regional D gives 0.1348 ± 0.0139 coupled and 0.1369 ± 0.0153 decoupled; the seeds give 0.1222, 0.1541 and 0.1282 coupled. That equals the single-region D (0.1348 ± 0.0081) and is worse than regional persistence. Its one-step error sits on the new floor (0.0960), but the July rollout drifts away from its own projection (0.095 vs 0.067 for the single-region D). Its largest per-region rollout errors are in the West (0.153) and the Northeast (0.138 ± 0.062). The regional MLP B (0.1311 ± 0.0251; seeds 0.1155, 0.1666, 0.1113) is also worse and less stable than the single-region MLP (0.1190 ± 0.0010). Each regional model sees one short series of 9 coefficients, and the per-region series are noisier than the national one.
+* **The coupling is weak.** The fitted diffusion is tiny, and the July flux is 14% of the local right-hand side in norm. Coupled and decoupled differ by ≤ 0.002 for A and by about 0.002 for D (coupled is slightly better on average, not significant over 3 seeds).
+* **Physics violation** (regional physics, pointwise): observed data 0.0027, regional A 0.0002, regional linear trend 0.0020, persistence 0.0036, regional MLP 0.0080 ± 0.0016, regional QPINO D 0.0111 ± 0.0014. The QPINO again violates the fitted physics about 4× more than the data do.
+
+## 18.4 Caveats
+
+* The regional bases are independent, so the reconstructed field is **discontinuous across region borders** (visible in Fig. 21). The flux uses face differences of the reconstructed cell values; it is consistent with finite-volume diffusion but does not enforce continuity.
+* The QPINOs were trained without the flux term (the coupling is added classically in the rollout). This is a deliberate choice to keep the regional circuits independent. Training with the coupled rollout in the loss would require joint backpropagation through the 5 circuits, which was not done.
+* The pointwise PDE-violation metric excludes the interface flux and is not on the same scale as the single-region diagnostic of §17.
+* Explicit (forward-Euler, Δt = 1 day) flux coupling for the learned models; RK4 with the flux inside for the regional A.
+* All circuits are classically simulated. **No quantum advantage** is shown or claimed.
+
+
 ## Selected figures
 
 ![Fig. 3 — synthetic full vs M=2 Galerkin evolution](../results/figures/fig03_galerkin_vs_full.png)

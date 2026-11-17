@@ -135,6 +135,19 @@ python usa2d_experiments.py --K 3 --rho spatial --model D --seed 0
 python make_usa2d_rho_figure.py      # fig20_usa2d_spatial_rho.png
 ```
 
+### Regional domain-decomposition QPINO (report §18)
+
+The map is split into 5 regions (West, Southwest/Texas, Midwest, Southeast, Northeast). Each region has its own 3×3 land-masked cosine basis and its own 9-qubit QPINO; the regional circuits are never entangled with each other. Neighbouring regions are coupled classically through the finite-volume diffusive flux across their shared faces (`src/regional_galerkin.py`, `tests/test_regional.py`).
+
+The July truncation floor drops from 0.1157 to 0.0949. July rollout RMSE vs observed: regional linear trend 0.0972, regional Galerkin A 0.0997 (coupled) / 0.0999 (decoupled), regional persistence 0.1149, regional QPINO D 0.1348 ± 0.0139 (coupled) / 0.1369 ± 0.0153 (decoupled), regional MLP 0.1311 ± 0.0251. The single-region D was 0.1348 ± 0.0081. Tables: [`docs/results_tables_usa2d_regional.md`](docs/results_tables_usa2d_regional.md); figure `results/figures/fig21_usa2d_regional.png`.
+
+```bash
+python usa2d_regional.py --baselines
+python usa2d_regional.py --model D --region 0 --seed 0     # x 5 regions x seeds (scheduler: results/metrics/usa2d_regional/jobs.txt)
+python usa2d_regional.py --assemble --model D --seed 0
+python usa2d_regional_report.py                            # T15 + fig21
+```
+
 ## Earlier complex-Fourier variant: M = 4 (9 qubits), mirrored boundary, data-dominated loss, re-uploading (report §14)
 
 Kept for reference. These runs use Re/Im complex-Fourier coefficients (`--boundary periodic|mirror`, `configs/m4_mirror.yaml`):
