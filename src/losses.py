@@ -54,12 +54,18 @@ def full_pde_residual(a_n, a_hat, dt, D, rho, beta, x_c, scheme="forward"):
     return ut - r
 
 
-def pde_losses(a_n, a_hat, dt, phys, s_inc, s_field, x_c, scheme="forward"):
+def pde_losses(a_n, a_hat, dt, phys, s_inc, s_field, x_c, scheme="forward", hinge_tol=None):
+    """Scaled residual losses.  hinge_tol (optional, in the same scaled units): only the part of
+    |R| above the tolerance is penalised, (relu(|R| - tol))^2, so the PDE term acts purely as a
+    physics-violation penalty.  Default None = plain squared residual."""
     D, rho, beta = phys
     Rg = galerkin_residual(a_n, a_hat, dt, D, rho, beta, scheme)
     Rf = full_pde_residual(a_n, a_hat, dt, D, rho, beta, x_c, scheme)
-    L_gal = ((Rg * dt / s_inc) ** 2).sum(-1).mean()
-    L_full = ((Rf * dt / s_field) ** 2).mean()
+    rg, rf = Rg * dt / s_inc, Rf * dt / s_field
+    if hinge_tol:
+        rg, rf = torch.relu(rg.abs() - hinge_tol), torch.relu(rf.abs() - hinge_tol)
+    L_gal = (rg ** 2).sum(-1).mean()
+    L_full = (rf ** 2).mean()
     return L_full, L_gal
 
 

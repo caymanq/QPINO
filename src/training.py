@@ -74,7 +74,7 @@ def compute_losses(model, ds, dt, cfg, phys, scales, x_c, lam_pde, idx=None):
     out = {"data": losses.data_loss(a_hat, a_np1, s_inc)}
     out["field"] = losses.field_loss(a_hat, a_np1, x_c) / scales["s_field"] ** 2
     L_full, L_gal = losses.pde_losses(a_n, a_hat, dt, phys, s_inc, scales["s_field"], x_c,
-                                      cfg.get("scheme", "forward"))
+                                      cfg.get("scheme", "forward"), hinge_tol=cfg.get("pde_hinge_tol"))
     out["pde_full"], out["pde_gal"] = L_full, L_gal
     target = cfg.get("pde_target", "full")
     L_pde = {"full": L_full, "galerkin": L_gal, "both": 0.5 * (L_full + L_gal)}[target]
@@ -83,7 +83,8 @@ def compute_losses(model, ds, dt, cfg, phys, scales, x_c, lam_pde, idx=None):
         out["roll"], pred_roll = losses.rollout_loss(model, ds["windows"], dt, s_inc)
     else:
         out["roll"] = torch.zeros(())
-    K = phys[1] / phys[2] if phys[2] > 0 else None
+    rho_bar = float(np.mean(np.asarray(phys[1]))) if np.ndim(phys[1]) else phys[1]   # spatial rho: mean
+    K = rho_bar / phys[2] if phys[2] > 0 else None
     bound = cfg.get("stab_bound_factor", 3.0) * float(ds["a_n"].norm(dim=-1).max())
     reg, terms = losses.regularization(model, a_hat, x_c, K, pred_roll, bound, cfg.get("reg_weights", {}))
     out["reg"] = reg
