@@ -200,15 +200,19 @@ def coupling_hessian(n):
     return Hs
 
 
-def fit_spatial_rho(a_n, a_np1, dt, w, r0, D0, beta0, lam_smooth=1e-3, lam_l2=0.0, iters=300, fit_D=True):
+def fit_spatial_rho(a_n, a_np1, dt, w, r0, D0, beta0, lam_smooth=1e-3, lam_l2=0.0, iters=300, fit_D=True,
+                    windows=None, const_only=False):
     """Joint least-squares fit of (D, beta, r) to one-step pairs with the RK4 flow map of the
     spatial-rho weak-form system.  Penalty: lam_smooth * sum (k^2 + l^2) r_kl^2 (H1 seminorm of
-    rho on the rectangle, up to a constant) + lam_l2 * sum r^2, both relative to the data term."""
+    rho on the rectangle, up to a constant) + lam_l2 * sum_{m>0} r_m^2 (shrinkage of the non-constant
+    modes towards a uniform rho; lam_l2 -> inf recovers the scalar-rho model), both relative to the data term."""
     from .galerkin import rk4_step
     a_n, a_np1 = torch.as_tensor(a_n), torch.as_tensor(a_np1)
     w = torch.as_tensor(w)
     k2 = torch.tensor(_S["psi_k2"] / _S["psi_k2"][1:].min())
     r = torch.tensor(np.asarray(r0, float), requires_grad=True)
+    cmask = torch.zeros(len(r0)); cmask[0] = 1.0
+    W = None if windows is None else torch.as_tensor(windows)
     lD = torch.tensor(np.log(max(D0, 1e-8)), requires_grad=True)
     lb = torch.tensor(np.log(max(beta0, 1e-8)), requires_grad=True)
     params = [r, lb] + ([lD] if fit_D else [])
@@ -216,9 +220,16 @@ def fit_spatial_rho(a_n, a_np1, dt, w, r0, D0, beta0, lam_smooth=1e-3, lam_l2=0.
 
     def parts():
         D = torch.exp(lD) if fit_D else torch.tensor(0.0)
-        pred = rk4_step(a_n, dt, D, r, torch.exp(lb), substeps=4)
-        data = (((pred - a_np1) * w) ** 2).mean()
-        pen = lam_smooth * (k2 * r ** 2).sum() + lam_l2 * (r ** 2).sum()
+        rr = r * cmask if const_only else r
+        if W is None:
+            pred = rk4_step(a_n, dt, D, rr, torch.exp(lb), substeps=4)
+            data = (((pred - a_np1) * w) ** 2).mean()
+        else:
+            a, data = W[:, 0], 0.0
+            for s_ in range(1, W.shape[1]):
+                a = rk4_step(a, dt, D, rr, torch.exp(lb), substeps=4)
+                data = data + (((a - W[:, s_]) * w) ** 2).mean() / (W.shape[1] - 1)
+        pen = lam_smooth * (k2 * r ** 2).sum() + lam_l2 * (r[1:] ** 2).sum()
         return data, pen
 
     def closure():
@@ -230,5 +241,6 @@ def fit_spatial_rho(a_n, a_np1, dt, w, r0, D0, beta0, lam_smooth=1e-3, lam_l2=0.
     opt.step(closure)
     with torch.no_grad():
         d, p = parts()
-    return dict(D=float(torch.exp(lD)) if fit_D else 0.0, beta=float(torch.exp(lb)), r=r.detach().numpy().tolist(),
+    rf = (r * cmask if const_only else r).detach().numpy()
+    return dict(D=float(torch.exp(lD)) if fit_D else 0.0, beta=float(torch.exp(lb)), r=rf.tolist(),
                 loss=float(d), penalty=float(p), lam_smooth=lam_smooth, lam_l2=lam_l2)

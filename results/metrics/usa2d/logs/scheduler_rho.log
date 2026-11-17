@@ -1,0 +1,4 @@
+08:38:07 launched --K 3 --rho spatial --model D --seed 0
+08:38:22 launched --K 3 --rho scalar --model D --seed 0
+08:38:37 launched --K 3 --rho spatial --model C --seed 0
+08:38:52 launched --K 3 --rho scalar --model C --seed 0

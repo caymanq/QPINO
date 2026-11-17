@@ -10,5 +10,14 @@ horizon: 7
 c0: 1.0
 n_colloc: 400              # random land cells used as PDE collocation points
 train:
-  lambda_pde: 0.01
+  # Default from section 17 on: near-zero PDE weight (1e-4); the PDE residual is kept as a logged
+  # physics-violation diagnostic (every epoch).  Section 16 runs used 0.01 (already effectively data-only).
+  lambda_pde: 1.0e-4
+  log_every: 1
+  pde_hinge_tol: null      # optional hinge: penalise only |scaled residual| above this tolerance
+rho_modes: 4               # spatial growth rate rho(x,y): Kr x Kr cosine modes (section 17)
+rho_fit_windows: [28, 56, 0]                   # fit on the last NW training days (0 = whole window)
+rho_lam_l2_grid: [0.0, 0.1, 1.0, 10.0, 100.0]  # shrinkage of non-constant rho modes towards uniform
+rho_fit_iters: 200                             # (NW, lam_l2) chosen by the Jun 17-30 validation rollout
+n_eval_points: 2000        # land cells for the PDE-residual (physics-violation) diagnostic
 mlp_hidden: {9: 14, 16: 16}
