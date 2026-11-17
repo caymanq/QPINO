@@ -1,5 +1,5 @@
 ---
-title: "QPINO: a Physics-Informed Quantum Neural Operator for M = 2 Galerkin Fisher–KPP dynamics, with an exploratory JHU COVID-19 application"
+title: "QPINO: a Physics-Informed Quantum Neural Operator for real cosine-Galerkin (Neumann) Fisher–KPP dynamics, with an exploratory JHU COVID-19 application"
 author: "Cayman Quinn (BYU) — technical report generated from the code and results in this repository"
 date: "November 2026"
 ---
@@ -19,7 +19,7 @@ date: "November 2026"
 * **Extension (§14): M = 4 (9 qubits), mirrored boundary, λ_PDE = 0.01, re-uploading R = 1–3.** Mirroring removes the wrap jump but does not reduce the truncation error (M=4 mirrored July 0.389 vs M=2 periodic 0.377). On COVID July the QPINO 31-day rollout improves to 19.35 ± 0.90 (old 21.3), which is about equal to persistence (19.65) and still behind the linear trend (17.94) and the Galerkin ODE (18.00). The best learned model is the HEA (17.58 ± 0.21). On synthetic data, M = 4 is harder for every learned model (D rollout 0.082 vs 0.043). λ_PDE ≤ 0.01 has no measurable effect, and re-uploading gives no resolvable gain. A mirrored-normalisation bug was found and fixed, and the affected runs were rerun (§14.8).
 * **No quantum advantage** is shown or claimed (§10).
 
-# 2. The Fisher–KPP model and its M = 2 Galerkin truncation
+# 2. The Fisher–KPP model and its M = 2 complex-Fourier Galerkin truncation (earlier complex-Fourier variant; the default real cosine basis is in §15)
 
 ## 2.1 Model
 
@@ -66,6 +66,8 @@ Projection: $a_k=\frac1N\sum_j u(x_j)e^{-ikx_j}$ on a uniform grid (exact for ba
 * Galerkin ODE (baseline A): `solve_ivp(DOP853, rtol=1e-10, atol=1e-12)`, and a differentiable RK4 flow map with 20 sub-steps per step (agrees with DOP853 to $<10^{-10}$, test `test_galerkin_integrator_agreement`).
 
 # 3. Quantum model
+
+**Inputs (default model).** The circuit receives **only real Galerkin coefficients, one real coefficient per mode on one qubit**: in the default real cosine/Neumann basis (§15) qubit $j$ carries $b_j$, $j=0,\dots,M$ ($M=8$: 9 qubits; $M=4$: 5 qubits). Sections 3.1–3.4 are written for the 5 inputs of the earlier complex-Fourier variant $(a_0,\mathrm{Re}\,a_1,\mathrm{Im}\,a_1,\mathrm{Re}\,a_2,\mathrm{Im}\,a_2)$, where each complex mode used two qubits; the embedding, Hamiltonian family, readout and decoder are identical in both bases, only the meaning of $z_j$ and the coupling graph $E$ change (for the cosine graph see §15.3).
 
 ## 3.1 Embedding: why $R_y$
 
@@ -129,7 +131,7 @@ A 1-D PDE needs a spatial coordinate where neighbouring points are neighbouring 
 
 **Splits (chronological, no shuffling of overlapping windows):** train Mar 1 – Jun 16 2020 (107 one-step pairs; 7-step rollout windows lie inside the training period), validation Jun 17 – Jun 30 (14 pairs), test = July 1–31 (31 one-step-ahead targets, each predicted from the observed previous day, plus one 31-day autonomous rollout from the observed Jun 30 state). Forecast horizon: 1 day (one-step) and 1–31 days (rollout).
 
-## 5.3 The periodic assumption and M = 2 sufficiency (tested, Fig. 2)
+## 5.3 The periodic assumption and M = 2 sufficiency (earlier complex-Fourier variant; tested, Fig. 2)
 
 Identifying Los Angeles ($x=0$) with Jacksonville ($x=2\pi$) is a **modelling choice**: the two ends are not neighbours. The wrap-around jump averages 21 % of the field maximum (23 % in training, 14 % in July). Mean relative $L^2$ error of the M = 2 projection of the observed field:
 
@@ -161,7 +163,7 @@ July truncation error versus M: 0.41 (M=1), 0.38 (M=2), 0.32 (M=4), 0.21 (M=8). 
 
 These tests passed before any full training. The final `pytest` run after all experiments also passes, 19/19.
 
-# 7. Synthetic Fisher–KPP validation (primary physical test)
+# 7. Synthetic Fisher–KPP validation, earlier complex-Fourier variant (M = 2 periodic)
 
 Setup: $D=0.1,\rho=1,\beta=1$ (K = 1), $\Delta t=0.1$, 40 steps (T = 4), pseudo-spectral reference on N=128, with random positive low-mode ICs: 32 train, 8 validation and 12 **unseen test** trajectories. The targets are the M=2 projections of the *full* PDE solution, so they include truncation. The M=2 truncation error of the full solutions is 0.32 % (M=1: 4.3 %, M=4: 0.011 %), and the Galerkin ODE tracks the projected full solution to 0.024 % (Fig. 3). Parameter identification from the training coefficients gives $(D,\rho,\beta)=(0.0980, 0.9985, 0.9981)$ against true $(0.1,1,1)$.
 
@@ -188,7 +190,7 @@ What these show:
 * **Physics loss at the default weight is inert here** (D ≈ E, B ≈ B-data), because the data are already exactly consistent with the PDE. See the ablation in §9.2.
 * **Generalisation.** Unseen ICs: the table above. Resolution: re-projecting the test trajectories from N = 8 or 256 grids changes the coefficients by ≤1.3e-5 and every model's error by <1 %, so resolution generalisation is trivially satisfied by a 5-coefficient model and is separate from truncation error. Time window: a D model trained only on $t\le2$ has a later-window ($t\in[2,4]$) one-step increment error of 0.113 vs 0.056 in-window (B: 0.128 vs 0.044), with later-window rollout errors of 0.020 (D) and 0.017 (B), vs 0.230 for persistence. **Time step:** D trained at Δt = 0.1 degrades to a one-step increment error of 0.49 at Δt = 0.05 and 0.56 at Δt = 0.2 (rollouts 0.16 / 0.21), while C (HEA, no τ) stays at 0.091 / 0.097 and the MLP at 0.053 / 0.056. Tying the quantum evolution time to the step, τ = cΔt, makes the decoded "derivative" G depend on Δt even though the true RHS does not (§9.1).
 
-# 8. JHU COVID-19 I-10 results — July 2020 (exploratory)
+# 8. JHU COVID-19 I-10 results — July 2020, earlier complex-Fourier variant (M = 2 periodic; exploratory)
 
 Fitted Fisher–KPP (Galerkin one-step least squares on train pairs, 12 starts): **D = 1.49e-3** in $x\in[0,2\pi)$ units = **528 km²/day**, **ρ = 0.0352 /day**, **β = 0.104 /day**, K = ρ/β = 0.339 u = 28 cases/100k/day. The scaled fit loss is 0.991, i.e. barely better than persistence. **D is not identified from below:** the profile loss is flat at 0.991–1.000 for D ∈ [1e-4, 1e-2] and rises only for D ≥ 0.03 (1.09) and 0.1 (2.09). β trades off against D, and ρ stays at 0.033–0.044 across the profile. The July field (a₀ rising to ≈0.45) exceeds the fitted K, so the fitted saturation is contradicted by the test period. These are phenomenological parameters only.
 
@@ -215,7 +217,7 @@ Interpretation:
 * **31-day rollout:** the 3-parameter Fisher–KPP models are best: Galerkin 18.0, full-grid 16.9 (vs persistence 19.7). The quantum and classical networks (21–24) are **worse than persistence**. Among them, D is slightly better than C, F and B, but the seed spread (±1.4) covers those differences. B rollouts have 12 % negative grid values; D has 0.7 %.
 * Physics loss at the default weight changes nothing (D ≈ E). Stronger physics does help (§9.2).
 
-# 9. Ablations (Fig. 11; synthetic: seeds 0,1; COVID: seeds 0,1,2)
+# 9. Ablations, earlier complex-Fourier variant (Fig. 11; synthetic: seeds 0,1; COVID: seeds 0,1,2)
 
 ## 9.1 Ansatz (synthetic, 40-step rollout rel. L2 / one-step increment)
 
@@ -280,7 +282,7 @@ Decouple τ from Δt or decode the state directly. Use a physics loss from epoch
 
 All figures also exist as PDF.
 
-# 14. Extension: M = 4 (9 qubits), mirrored boundary, data-dominated loss, re-uploading sweep
+# 14. Earlier complex-Fourier variant at M = 4 (9 qubits): mirrored boundary, data-dominated loss, re-uploading sweep
 
 These are **new options added alongside** the M = 2 periodic results (§§7–10 are unchanged).
 Configuration: `configs/m4_mirror.yaml`. Runner: `experiments/m4_experiments.py` (one run per process), `experiments/m4_scheduler.py`.

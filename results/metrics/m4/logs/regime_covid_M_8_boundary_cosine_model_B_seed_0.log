@@ -1,0 +1,1 @@
+covid_M8_cosine_B_lam0.01_R1_s0 {'rel_l2': 0.1107, 'rel_l2_increment': 1.3375, 'rollout_rel_l2': 0.3819, 'field_rmse_per100k_onestep': 11.8081, 'field_rmse_per100k_rollout': 15.2118, 'rollout_negative_frac': 0.0, 'max_abs_Im_rollout': 0.1069, 'train_time_s': 6.2655, 'sec_per_epoch': 0.0042}
