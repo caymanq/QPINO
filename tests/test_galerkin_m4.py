@@ -132,3 +132,35 @@ def test_torch_matches_pennylane_9_qubits(record):
     errs["trotter2"] = float(np.abs(mt - pl).max())
     record(n_features=int(mt.shape[1]), **errs)
     assert mt.shape[1] == 9 + 36 and max(errs.values()) < 1e-10
+
+
+def test_eigh_expm_matches_matrix_exp(record):
+    """The fast eigh-based exact exponential used for 9-qubit training gives the same unitary
+    and gradients as torch.linalg.matrix_exp (incl. a fully degenerate spectrum)."""
+    from src.custom_ansatz import HamiltonianAnsatz
+    out = {}
+    W = torch.randn(512, 512, dtype=torch.complex128, generator=torch.Generator().manual_seed(0))
+    A = HamiltonianAnsatz(get_graph("structured", 9), n=9, seed=1)
+    res = {}
+    for meth in ("exact", "exact_eigh"):
+        A.zero_grad()
+        c = torch.tensor(1.3, requires_grad=True)
+        U = A.unitary(c * 0.7, meth)
+        ((U * W).real.sum() + (U.abs() ** 2 * W.real).sum()).backward()
+        res[meth] = (U.detach(), [p.grad.clone() for p in A.parameters()], float(c.grad))
+    a, b = res["exact"], res["exact_eigh"]
+    out["U_err"] = float((a[0] - b[0]).abs().max())
+    out["grad_rel_err"] = max(float((x - y).abs().max() / x.abs().max()) for x, y in zip(a[1], b[1]))
+    out["tau_grad_rel_err"] = abs(a[2] - b[2]) / abs(a[2])
+    D = HamiltonianAnsatz([], n=5, seed=1)
+    with torch.no_grad():
+        D.h.fill_(0.3); D.g.fill_(0.0)
+    G = {}
+    for meth in ("exact", "exact_eigh"):
+        D.zero_grad()
+        (D.unitary(torch.tensor(0.9), meth) * torch.arange(1024.).reshape(32, 32)).real.sum().backward()
+        G[meth] = [p.grad.clone() for p in D.parameters() if p.grad is not None]
+    out["degenerate_grad_rel_err"] = max(float((x - y).abs().max() / x.abs().max()) for x, y in zip(G["exact"], G["exact_eigh"]))
+    record(**out)
+    assert out["U_err"] < 1e-12 and out["grad_rel_err"] < 1e-10 and out["tau_grad_rel_err"] < 1e-10
+    assert out["degenerate_grad_rel_err"] < 1e-9

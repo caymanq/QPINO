@@ -86,6 +86,8 @@ class HamiltonianAnsatz(nn.Module):
     def unitary(self, tau, method="exact", L=1):
         if method == "exact":
             return torch.linalg.matrix_exp(-1j * self.hamiltonian() * tau)
+        if method == "exact_eigh":
+            return expm_hermitian(self.hamiltonian(), tau)
         return self.trotter_unitary(tau, L)
 
     def trotter_unitary(self, tau, L):
@@ -159,3 +161,43 @@ class HardwareEfficientAnsatz(nn.Module):
                 layer = gj if layer is None else torch.kron(layer, gj)
             U = self.ring @ layer @ U
         return U
+
+
+# ---------------------------------------------------------------- fast exact exponential
+class HermitianExpm(torch.autograd.Function):
+    """U = exp(-i tau H) for Hermitian H via eigh, with the exact Daleckii-Krein backward.
+
+    Forward: H = V diag(w) V^dagger,  U = V diag(e^{-i tau w}) V^dagger.
+    Backward: the Frechet derivative is L(E) = V[(V^dagger E V) o Gamma]V^dagger with
+    Gamma_ij = (phi(w_i) - phi(w_j)) / (w_i - w_j)  (-> phi'(w_i) when w_i ~ w_j),
+    phi(w) = e^{-i tau w}; for a real loss the adjoint is V[(V^dagger G V) o conj(Gamma)]V^dagger.
+    Same value and gradient as torch.linalg.matrix_exp (tests/test_galerkin_m4.py), but the
+    backward costs a few matrix products instead of a 2n x 2n matrix exponential whose cost
+    grows with the gradient norm.  Used for the 9-qubit runs (evolution="exact_eigh")."""
+
+    @staticmethod
+    def forward(ctx, H, tau):
+        w, V = torch.linalg.eigh(H)
+        ph = torch.exp(-1j * tau.to(w.dtype) * w)
+        U = (V * ph[None, :]) @ V.conj().T
+        ctx.save_for_backward(w, V, ph, tau, H, U)
+        return U
+
+    @staticmethod
+    def backward(ctx, G):
+        w, V, ph, tau, H, U = ctx.saved_tensors
+        dw = w[:, None] - w[None, :]
+        close = dw.abs() < 1e-9
+        gam = torch.where(close, (-1j * tau * ph)[:, None].expand_as(dw).to(ph.dtype),
+                          (ph[:, None] - ph[None, :]) / torch.where(close, torch.ones_like(dw), dw))
+        Gt = V.conj().T @ G @ V
+        gH = V @ (Gt * gam.conj()) @ V.conj().T
+        # dU/dtau = -i H U  ->  dL/dtau = Re tr(G^dagger (-i H U))
+        gtau = (G.conj() * (-1j * H @ U)).sum().real.to(tau.dtype)
+        return gH, gtau.reshape(tau.shape)
+
+
+def expm_hermitian(H, tau):
+    if not torch.is_tensor(tau):
+        tau = torch.tensor(float(tau), dtype=torch.float64)
+    return HermitianExpm.apply(H, tau)
