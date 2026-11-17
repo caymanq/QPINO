@@ -4,13 +4,23 @@ author: "Cayman Quinn (BYU) — technical report generated from the code and res
 date: "November 2026"
 ---
 
-**Status.** Everything below was produced by the code in this repository (branch `qpino-fisher-kpp`). All numbers are read from `results/metrics/*.json`; full tables are in [`docs/results_tables.md`](results_tables.md). All quantum circuits are *classically simulated* (exact 5-qubit statevector). No quantum advantage is claimed or implied.
+**Status.** Everything below was produced by the code in this repository (branch `qpino-fisher-kpp`). All numbers are read from `results/metrics/*.json`; full tables are in [`docs/results_tables.md`](results_tables.md). All quantum circuits are *classically simulated* (exact 5- and 9-qubit statevectors). No quantum advantage is claimed or implied.
 
 # 1. Question and summary
 
-**Research question.** Can a custom quantum Hamiltonian $H_\theta$, through the unitary $U_\theta(\tau)=e^{-iH_\theta\tau}$ together with an $R_y$ data embedding, $Z$-basis measurement and a classical decoder, approximate the nonlinear, dissipative one-step evolution operator of the $M=2$ Galerkin-truncated Fisher–KPP system?
+**Research question.** Can a custom quantum Hamiltonian $H_\theta$, through the unitary $U_\theta(\tau)=e^{-iH_\theta\tau}$ together with an $R_y$ data embedding, $Z$-basis measurement and a classical decoder, approximate the nonlinear, dissipative one-step evolution operator of a Galerkin-truncated Fisher–KPP system?
 
-* **Verification:** all 19 Phase-12 tests pass (§6).
+**Default model (§15): real cosine / Neumann basis.** The classical data fed to the circuit are only real Galerkin coefficients, one per mode on one qubit: $u=\sum_{k=0}^{M}b_k\cos(k\pi s/L)$ with no-flux boundaries, M = 8 (9 qubits), and all baselines A–F use the same real inputs.
+
+* **Verification:** all 33 tests pass (`pytest -v tests`), 6 of them new for the cosine basis. The explicit triad tensor $T_{kpq}=\tfrac12[\delta_{|p-q|,k}+\delta_{p+q,k}]$ matches a fine-grid projection to $1.6\times10^{-15}$. The cosine Galerkin ODE converges spectrally to a fine-grid Neumann solver (field error $4.5\times10^{-3}$, $4.2\times10^{-5}$, $7.7\times10^{-10}$ at M = 2, 4, 8). The 9-qubit simulator matches PennyLane to $5\times10^{-15}$.
+* **The coupling graph is complete** in the cosine basis (36/36 pairs at M = 8). Selectivity is only in the tensor: 109 of 729 entries are non-zero.
+* **Truncation error** of the I-10 field (train / July): cosine M = 4: 0.632 / 0.389 (identical to the M = 4 even mirror, but with 5 instead of 9 qubits); cosine M = 8: 0.555 / 0.314.
+* **JHU COVID-19, July 2020, cosine M = 8, λ_PDE = 0.01, 3 seeds.** No learned model beats persistence one day ahead (all increment errors > 1). For the 31-day rollout the 3-parameter Galerkin ODE A is best (17.80 cases/100k/day vs persistence 19.14). QPINO D gets 19.98 ± 2.70, HEA C 20.42 ± 1.67, MLP B 19.45 ± 4.44 and D without ZZ 21.39 ± 2.50. Seed spread is large. With 5 qubits (cosine M = 4), D reaches 18.47 ± 1.51 (earlier M = 2 periodic: 21.33 ± 1.38). Re-uploading R = 1/2/3 gives 19.98 / 19.32 / 20.96, at 446 / 897 / 1419 s per run.
+* **Synthetic Neumann Fisher–KPP, cosine M = 8.** 40-step rollout rel. L2: A 2.3e-8, MLP 0.019, HEA 0.058, QPINO D 0.067, D without physics loss 0.066 (2 seeds), D without ZZ 0.112 (2 seeds). The couplings matter; the small physics weight has no resolvable effect.
+
+**Earlier complex-Fourier variant (kept; §§2, 5.3, 7–9, 14).** Re/Im Fourier coefficients on separate qubits, periodic or mirrored, M = 2 or 4:
+
+
 * **Synthetic Fisher–KPP (primary validation):** the 5-qubit custom-Hamiltonian QPINO with a *linear* decoder learns the M=2 one-step operator to a one-step increment error of 0.100 ± 0.017 and a 40-step rollout error of 0.043 ± 0.011 on unseen initial conditions (persistence: 1.0 / 0.69). It does **not** match the classical Galerkin ODE (0.0011 / 0.0004), and it is not better than a 165-parameter MLP (0.047 / 0.015) or a generic hardware-efficient ansatz with the same parameter count (0.086 / 0.032). With an MLP decoder it reaches 0.039 / 0.015.
 * **Entanglement is necessary:** removing the $ZZ$ couplings triples the error (0.31 / 0.13). Training the Hamiltonian beats frozen random quantum features by ≈3×. The Galerkin-derived graph matches full connectivity and beats nearest-neighbour and "triad-only" graphs.
 * **Design pitfalls found:** (i) τ = cΔt with a derivative readout makes the model fail to transfer across Δt (one-step error 0.49–0.56 at Δt = 0.05 / 0.2), while the τ-free HEA transfers. (ii) The default physics-loss curriculum switches the PDE term on too late to matter. Applied from epoch 0 with the true physics, it cuts low-data rollout error from 0.28 to 0.11.
@@ -450,6 +460,147 @@ The first batch of **COVID mirrored runs** (29 JSONs, M = 2 and M = 4) had a nor
 * **Contention.** Runtimes were measured under contention, and the thread count differs between the synthetic R=1 and R≥2 runs (see the runtime table).
 * **Uncorrected comparisons.** C (HEA) being best on COVID July is one cell of a large grid, with no multiple-comparison correction.
 
+
+# 15. Default model: real cosine / Neumann Galerkin basis (one real coefficient per qubit)
+
+This is the **default model** of the repository (`configs/default.yaml: galerkin.basis = cosine, M = 8`). The classical data fed to the circuit are **only real Galerkin coefficients, one real coefficient per mode on one qubit**. All baselines A–F, persistence and linear trend in the cosine runs use exactly the same real inputs $\mathbf b=(b_0,\dots,b_M)$ (same standardisation, same splits, same loss with $\lambda_{\mathrm{PDE}}=0.01$ and the same ramp, same model-selection window). The complex-Fourier (Re/Im) periodic and mirrored runs of §§2, 5.3, 7–9 and 14 are kept as the **earlier complex-Fourier variant**.
+
+## 15.1 Model and explicit triad tensor
+
+On $s\in[0,L]$ with no-flux boundaries $u_s(0)=u_s(L)=0$, rescale $x=\pi s/L\in[0,\pi]$ and expand
+$$u(x,t)=\sum_{k=0}^{M}b_k(t)\cos(kx),\qquad b_k\in\mathbb R .$$
+Every term satisfies the Neumann condition, and $\{\cos kx\}$ is orthogonal on $[0,\pi]$ with $\int_0^\pi\cos^2(kx)\,dx=\pi$ for $k=0$ and $\pi/2$ for $k>0$, so the projection is $b_0=\frac1\pi\int_0^\pi u\,dx$, $b_k=\frac2\pi\int_0^\pi u\cos kx\,dx$ ($k\ge1$). With $\cos px\cos qx=\tfrac12[\cos(p-q)x+\cos(p+q)x]$ and $\cos(-mx)=\cos(mx)$,
+$$u^2=\sum_{p,q=0}^{M}b_pb_q\cos px\cos qx=\sum_{k\ge0}\Big(\sum_{p,q}T_{kpq}\,b_pb_q\Big)\cos kx,\qquad T_{kpq}=\tfrac12\big[\delta_{|p-q|,k}+\delta_{p+q,k}\big].$$
+The $k=0$ vs $k>0$ normalisation is built in: the projection weights $\frac1\pi$ and $\frac2\pi$ exactly compensate the norms, so the same $T$ serves all $k$. For example $(u^2)_0=b_0^2+\tfrac12\sum_{p\ge1}b_p^2$, because the mean of $\cos^2$ is $\frac12$. Galerkin truncation keeps $k\le M$ (terms with $p+q>M$ are dropped). With $\partial_x^2\cos kx=-k^2\cos kx$ (dimensional wavenumber $k\pi/L$),
+$$\boxed{\ \dot b_k=\big(\rho-D\,k^2\big)\,b_k-\beta\sum_{p,q=0}^{M}T_{kpq}\,b_pb_q,\qquad k=0,\dots,M\ }$$
+($D$ in units of $(L/\pi)^2$ per day; $D_{\mathrm{phys}}=D(L/\pi)^2$ with $L=3735$ km). Explicitly at $M=4$:
+
+$$\begin{aligned}
+\dot b_0&=\rho b_0-\beta\big[b_0^2+\tfrac12(b_1^2+b_2^2+b_3^2+b_4^2)\big]\\
+\dot b_1&=(\rho-D)b_1-\beta\big[2b_0b_1+b_1b_2+b_2b_3+b_3b_4\big]\\
+\dot b_2&=(\rho-4D)b_2-\beta\big[2b_0b_2+\tfrac12b_1^2+b_1b_3+b_2b_4\big]\\
+\dot b_3&=(\rho-9D)b_3-\beta\big[2b_0b_3+b_1b_2+b_1b_4\big]\\
+\dot b_4&=(\rho-16D)b_4-\beta\big[2b_0b_4+b_1b_3+\tfrac12b_2^2\big]
+\end{aligned}$$
+
+and in general
+$$(u^2)_0=b_0^2+\tfrac12\sum_{p=1}^{M}b_p^2,\qquad (u^2)_k=\underbrace{\sum_{p=0}^{M-k}b_pb_{p+k}}_{\text{difference triads}}+\underbrace{\tfrac12\sum_{p=0}^{k}b_pb_{k-p}}_{\text{sum triads}}\quad(k\ge1),$$
+so the mean mode always enters as $2b_0b_k$. At $M=8$ the tensor has **109 non-zero entries of $9^3=729$** (15 %); the number of distinct pairs $\{p,q\}$ entering equation $k$ is $[9,8,8,7,7,6,6,5,5]$ for $k=0..8$. Code: `src/cosine_galerkin.py` (`triad_tensor`, `quad` (einsum), `quad_explicit` (double loop), `galerkin_rhs`, `galerkin_rhs_by_projection`); dispatched through `src/galerkin.py` with `set_basis("cosine")`.
+
+## 15.2 Verification (6 new tests in `tests/test_cosine_galerkin.py`)
+
+| test | result |
+|---|---|
+| einsum tensor vs explicit double loop vs fine-grid ($N=256$) DCT projection of $Du_{xx}+\rho u-\beta u^2$ | max diff $1.1\times10^{-16}$ (loop) / $1.6\times10^{-15}$ (projection) at $M=8$; $k=0$ normalisation error 0 |
+| Neumann reference solvers: 2nd-order FD with reflecting ghost cells vs even-extension spectral | errors $4.4\times10^{-4},1.1\times10^{-4},2.8\times10^{-5}$ at $N=32,64,128$; observed order 2.00 |
+| cosine Galerkin ODE vs cosine projection of the fine-grid ($N=256$) Neumann solution, $t\in[0,4]$ | field rel. error $4.5\times10^{-3}$ ($M=2$), $4.2\times10^{-5}$ ($M=4$), $7.7\times10^{-10}$ ($M=8$), $3.0\times10^{-9}$ ($M=16$, time-integration tolerance floor) — spectral convergence |
+| cosine projection of the 32-bin field = even-mirror Fourier projection | max diff $2.0\times10^{-15}$ ($M=8$) |
+| coupling graph | 36 of 36 pairs at $M=8$, 10 of 10 at $M=4$; 109 tensor non-zeros |
+| 9-qubit cosine QPINO, torch simulator vs PennyLane `default.qubit` | max diff $5.4\times10^{-15}$ |
+
+## 15.3 Coupling graph and its selectivity
+
+The structured Hamiltonian graph has an edge $(p,q)$ whenever $\partial^2\dot b_k/\partial b_p\partial b_q\ne0$ for some $k$. For the cosine basis **every pair couples**: for $p\ne q$ the difference triad $k=|p-q|\le M$ always exists. The graph is therefore **complete** (36/36 edges at $M=8$, 10/10 at $M=4$) and **not selective at the pair level**, unlike the complex-Fourier graph (9 of 10 edges at $M=2$, 34 of 36 at $M=4$). The selectivity of the cosine system lives only in the tensor (15 % non-zero; each equation sees 5–9 pairs). A pairwise $Z_pZ_q$ Hamiltonian cannot express which output $k$ a pair should feed. That job is left to the readout/decoder, so in the cosine basis "structured" = "full" and the graph ablation has nothing to test. Model F (no $ZZ$) remains the informative structural ablation.
+
+## 15.4 Data
+
+* **COVID:** the original 32-bin I-10 field (LA → Jacksonville, $L=3735$ km) with Neumann boundaries. The cosine projection is identical to the even-mirror Fourier projection (test above), but each mode now uses one qubit instead of a Re/Im pair whose Im part is identically 0. The splits are unchanged: train Mar 1–Jun 16, validate Jun 17–30, test July 2020 (one-step and a 31-day rollout from the observed Jun 30 state).
+* **Synthetic:** a Neumann Fisher–KPP dataset (`cosine_galerkin.generate_neumann_trajectories`). Random smooth non-negative cosine ICs evolve under the full-grid Neumann solver ($N=256$, spectral even extension) with the same $(D,\rho,\beta)$ and $\Delta t$ as the periodic synthetic set, and are projected onto $M+1$ cosine modes. The test set is 12 unseen ICs × 40 steps; rollout errors are measured against the projection of the full PDE solution.
+
+
+## 15.5 Results (λ_PDE = 0.01, same splits, 3 seeds unless noted; tables from `experiments/m4_tables.py`)
+
+### T7. Truncation error, cosine vs the earlier complex-Fourier variant (mean rel. L2, 32 bins)
+
+| basis | M | qubits | train | val | July |
+|---|---|---|---|---|---|
+| cosine (Neumann) | 4 | 5 | 0.632 | 0.589 | 0.389 |
+| cosine (Neumann) | 8 | 9 | 0.555 | 0.469 | 0.314 |
+| cosine (Neumann) | 16 | 17 | 0.395 | 0.391 | 0.239 |
+| complex Fourier, periodic | 2 | 5 | 0.627 | 0.535 | 0.377 |
+| complex Fourier, periodic | 4 | 9 | 0.543 | 0.475 | 0.323 |
+| complex Fourier, mirrored | 2 | 5 | 0.688 | 0.618 | 0.412 |
+| complex Fourier, mirrored | 4 | 9 (5 used) | 0.632 | 0.589 | 0.389 |
+
+### T8. COVID July 2020, cosine M=8 (9 qubits, λ_PDE=0.01) vs the previous best of each model
+
+| model | cosine 1-step incr. | cosine 1-step RMSE | cosine 31-day rollout RMSE | rollout coeff rel. L2 | params | previous best rollout RMSE (config) | previous 1-step incr. |
+|---|---|---|---|---|---|---|---|
+| Persistence | 1.000 | 11.63 | 19.14 | 0.523 | 0 | 19.65 (M4 mirror) | 1.000 |
+| LinearTrend | 1.063 | 11.65 | 22.32 | 0.734 | 0 | 16.67 (M2 mirror) | 0.885 |
+| A | 1.037 | 11.66 | 17.80 | 0.452 | 3 | 17.68 (M4 periodic) | 1.072 |
+| B | 1.308 ± 0.059 | 11.78 ± 0.03 | 19.45 ± 4.44 | 0.598 ± 0.218 | 485 | 22.26 ± 2.75 (M2 periodic λ0.1) | 1.210 |
+| C | 1.172 ± 0.022 | 11.71 ± 0.01 | 20.42 ± 1.67 | 0.586 ± 0.084 | 459 | 17.58 ± 0.21 (M4 mirror λ0.01 R1) | 1.158 |
+| D | 1.171 ± 0.063 | 11.71 ± 0.03 | 19.98 ± 2.70 | 0.597 ± 0.125 | 478 | 18.34 ± 0.29 (M2 mirror λ0.01 R1) | 1.199 |
+| E | 1.170 ± 0.064 | 11.71 ± 0.03 | 20.49 ± 1.72 | 0.617 ± 0.083 | 478 | 20.79 ± 2.08 (M4 mirror λ0 R1) | 1.221 |
+| F | 1.268 ± 0.081 | 11.76 ± 0.04 | 21.39 ± 2.50 | 0.641 ± 0.098 | 442 | 19.71 ± 1.18 (M4 mirror λ0.01 R1) | 1.438 |
+
+Projection floor (observed field's own cosine M=8 projection): 11.42. Previous best = lowest rollout RMSE of the same model in any earlier complex-Fourier configuration (M2/M4, periodic/mirror, any λ, R).
+* fitted (M8_cosine): D = 7.43e-10 (0.00105 km²/day), ρ = 0.0411/day, β = 0.1329, K = 0.309, fit loss 0.992
+* fitted (M4_cosine): D = 0.00198 (2.8e+03 km²/day), ρ = 0.0388/day, β = 0.1140, K = 0.341, fit loss 0.986
+
+**Reading T8.** On the cosine M=8 inputs:
+* No learned model beats persistence one day ahead. Every learned model has a one-step increment error above 1 (D 1.17 ± 0.06, C 1.17 ± 0.02, B 1.31 ± 0.06), as in every earlier configuration. The one-step field RMSE of all methods (11.6–11.8) sits on the cosine M=8 projection floor (11.42): day-to-day changes are dominated by unresolved, unpredictable small-scale variation.
+* For the 31-day rollout, the best cosine method is the 3-parameter Galerkin ODE A (17.80), ahead of persistence (19.14). Seed means of the learned models lie between 19.3 and 21.4 with seed spreads of ±1.7–4.4. QPINO D is 19.98 ± 2.70 (seeds 16.19, 22.30, 21.45), the HEA C 20.42 ± 1.67, the MLP B 19.45 ± 4.44 (15.21, 25.58, 17.57), E (no physics loss) 20.49 ± 1.72 and F (no ZZ) 21.39 ± 2.50. With 3 seeds, none of the differences among B–F is resolved. D vs F (couplings on/off) is 1.4 apart with overlapping spreads.
+* Against the previous best of each model, the cosine M=8 versions are not better. D's previous best was 18.34 ± 0.29 (M=2 mirrored, λ=0.01) and C's was 17.58 ± 0.21 (M=4 mirrored). The cosine runs are also much more seed-sensitive. B improves on its previous best (22.26 → 19.45), but with a large spread. The real inputs remove the wasted, identically-zero Im qubits of the mirrored variant. They do not, by themselves, improve the forecasts: at matched qubit count (9) the cosine basis carries 9 modes instead of 5, so each learned model must fit 9 outputs from the same ~100 training days.
+* Linear trend is much worse in the cosine M=8 basis (22.32 vs 17.94 at M=4): extrapolating 9 noisy coefficients amplifies high-mode noise.
+* Fitted cosine M=8 physics: ρ = 0.041/day, β = 0.133, carrying capacity K = 0.31 (scaled units), and D → 7e-10 (≈0.001 km²/day). With M = 4, D = 2.0e-3 (≈2.8e3 km²/day), so **D remains unidentifiable**, as in the earlier variant.
+
+**Equal-qubit comparison (T9, 5 qubits).** Cosine M=4 gives D 18.47 ± 1.51 and C 19.30 ± 0.50, compared with 21.33 ± 1.38 and 21.45 ± 1.55 for the earlier M=2 periodic complex-Fourier runs (which also used λ_PDE = 0.1). Both learned models improve by about 2–3 points at the same qubit count. Part of the gain comes from the loss change (§14.4 isolates it for the earlier variant). Cosine M=4 is numerically the same field approximation as the M=4 even mirror (truncation error identical, 0.389 in July), so the persistence/linear-trend/A references (19.65/17.94/18.00) are identical to the M=4-mirror ones. On COVID, the 5-qubit cosine D trains in 12 s per run (9 qubits: ~450 s).
+
+**Re-uploading (T11, cosine M=8, COVID, QPINO D).** R = 1, 2, 3 give rollout 19.98 ± 2.70, 19.32 ± 1.86 and 20.96 ± 2.79, and one-step increment errors 1.171, 1.105 and 1.069. The one-step error decreases slightly with R, but stays above persistence. No rollout trend is resolved. Cost per run grows linearly with R: 446 ± 17 s, 897 ± 8 s and 1419 ± 4 s per run (0.30, 0.60 and 0.95 s/epoch, 1 thread, 9 qubits, exact eigh-based exponential), with 478, 532 and 586 parameters.
+
+
+### T9. Equal-qubit comparison (5 qubits): cosine M=4 vs complex-Fourier M=2 periodic
+
+| model | COVID cosine M=4 rollout RMSE | COVID cosine M=4 1-step incr. | COVID M=2 periodic rollout RMSE (old λ0.1) | synthetic cosine M=4 rollout rel. L2 (Neumann data) | synthetic M=2 periodic rollout (old λ0.1; periodic data) |
+|---|---|---|---|---|---|
+| D | 18.47 ± 1.51 | 1.231 ± 0.008 | 21.33 ± 1.38 | 0.0303 ± 0.0010 | 0.0434 ± 0.0110 |
+| C | 19.30 ± 0.50 | 1.172 ± 0.046 | 21.45 ± 1.55 | 0.0346 ± 0.0109 | 0.0324 ± 0.0043 |
+| Persistence / LinearTrend / A (COVID cosine M=4) | 19.65 / 17.94 / 18.00 | | | | |
+
+### T11. Re-uploading R ∈ {1,2,3}, cosine M=8, COVID (QPINO D, λ_PDE=0.01)
+
+| R | params | 1-step incr. | rollout RMSE | rollout coeff rel. L2 | s/epoch (1 thread) | train time/run (s) |
+|---|---|---|---|---|---|---|
+| 1 | 478 | 1.171 ± 0.063 | 19.98 ± 2.70 | 0.597 ± 0.125 | 0.30 ± 0.01 | 446 ± 17 |
+| 2 | 532 | 1.105 ± 0.026 | 19.32 ± 1.86 | 0.555 ± 0.082 | 0.60 ± 0.01 | 897 ± 8 |
+| 3 | 586 | 1.069 ± 0.054 | 20.96 ± 2.79 | 0.627 ± 0.125 | 0.95 ± 0.00 | 1419 ± 4 |
+
+### T10. Synthetic Neumann Fisher–KPP, cosine M=8 (12 unseen ICs, 40 steps)
+
+| model | 1-step incr. | 40-step rollout rel. L2 | rollout field rel. L2 vs full Neumann PDE | params | s/epoch |
+|---|---|---|---|---|---|
+| Persistence | 1.00e+00 | 7.24e-01 | 7.23e-01 | 0 | – |
+| A | 2.80e-07 | 2.31e-08 | 1.00e-06 | 3 | – |
+| B | 0.0373 ± 0.0037 | 0.0194 ± 0.0021 | 0.0182 ± 0.0025 | 485 | 0.01 |
+| C | 0.0570 ± 0.0139 | 0.0577 ± 0.0238 | 0.0553 ± 0.0251 | 459 | 0.92 |
+| D | 0.0996 ± 0.0208 | 0.0672 ± 0.0128 | 0.0610 ± 0.0103 | 478 | 0.95 |
+| E | 0.1089 ± 0.0165 (n=2) | 0.0655 ± 0.0233 (n=2) | 0.0546 ± 0.0158 (n=2) | 478 (n=2) | 0.93 (n=2) |
+| F | 0.1712 ± 0.0132 (n=2) | 0.1121 ± 0.0308 (n=2) | 0.1041 ± 0.0284 (n=2) | 442 (n=2) | 0.92 (n=2) |
+
+**Reading T10 (synthetic Neumann Fisher–KPP, cosine M=8).** With known physics, the classical Galerkin ODE A is exact up to integration error (rollout 2.3e-8). Among learned models with matched parameter counts, the classical MLP B is best: rollout 0.0194 ± 0.0021, one-step 0.037. QPINO D reaches 0.067 ± 0.013 (one-step 0.100 ± 0.021), the HEA C 0.058 ± 0.024, and D without physics loss (E, 2 seeds) 0.066 ± 0.023. Removing the $ZZ$ couplings (F, 2 seeds) degrades the rollout to 0.112 ± 0.031 and the one-step error to 0.171 ± 0.013. The **couplings matter**, as in the earlier variant, while λ_PDE = 0.01 has no resolvable effect (D vs E). At 5 qubits (cosine M=4), D reaches 0.0303 ± 0.0010 and C 0.0346 ± 0.0109, against 0.0434 ± 0.0110 and 0.0324 ± 0.0043 for the earlier M=2 periodic runs. Those used a different (periodic) synthetic dataset and λ_PDE = 0.1, so this comparison is indicative only. Training cost per synthetic run, 1 thread: ~1400 s at 9 qubits (D, C, E, F; 0.92–0.95 s/epoch), 37–50 s at 5 qubits, 13–16 s for the MLP.
+
+## 15.6 Figure
+
+Fig. 17 (`results/figures/fig17_cosine_basis.png|pdf`) has six panels:
+* (a) truncation error against qubit budget for the cosine, periodic-Fourier and mirrored-Fourier bases;
+* (b) COVID 31-day rollout RMSE by day for cosine M=8, all models and references;
+* (c) July rollout RMSE of every model in cosine M=8 and M=4 versus the earlier complex-Fourier configurations;
+* (d)–(f) the observed July field, a QPINO D rollout forecast and the Galerkin ODE A forecast.
+
+## 15.7 Caveats specific to the cosine runs
+
+* **Trimmed:** synthetic cosine M=8 E and F seed 2 (`results/metrics/m4/TRIMMED.md`). E and F synthetic use 2 seeds. Everything else ran with 3 seeds.
+* **Seed sensitivity:** on COVID, the cosine M=8 learned models have seed spreads of ±1.7–4.4 RMSE units. With 3 seeds, no ranking among B–F is resolved.
+* **The coupling graph is complete** in the cosine basis, so the "physics-derived graph" carries no structural information here. Only the F (no-ZZ) ablation tests the couplings.
+* **Basis comparison:** cosine M=4 is numerically identical to the M=4 even-mirror projection. The gain from real inputs is qubit efficiency (5 instead of 9 qubits for the same field), not a better field representation.
+* **D is unidentifiable** on the COVID field: the fitted D moves from 2e-3 (M=4) to 7e-10 (M=8).
+* The `max_abs_Im_rollout` field in the cosine JSONs is meaningless (no Im components) and is not reported.
+* All quantum circuits are classically simulated (exact statevector). **No quantum advantage** is shown or claimed.
+
+
+![Fig. 17](../results/figures/fig17_cosine_basis.png)
 
 ## Selected figures
 

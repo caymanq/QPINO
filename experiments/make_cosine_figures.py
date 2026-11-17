@@ -90,7 +90,7 @@ ext = [1, 31, s_km[0], s_km[-1]]
 vmax = np.percentile(u[te] * S, 99)
 im = axs[1, 0].imshow((u[te] * S).T, aspect="auto", origin="lower", extent=ext, vmin=0, vmax=vmax, cmap="magma")
 axs[1, 0].set_title("(d) observed July 2020 field"); axs[1, 0].set_ylabel("km along I-10 (LA → Jacksonville)")
-for ax, nm, ttl in [(axs[1, 1], "D", "(e) QPINO D rollout, cosine M=8, seed 0"), (axs[1, 2], "A", "(f) Galerkin ODE A rollout, cosine M=8")]:
+for ax, nm, ttl in [(axs[1, 1], "D", "(e) QPINO D rollout, cosine M=8 (one seed)"), (axs[1, 2], "A", "(f) Galerkin ODE A rollout, cosine M=8")]:
     pr = None
     if nm == "A":
         pr = bc["A"].get("pred_rollout")

@@ -1,4 +1,39 @@
 {
+  "test_triad_tensor_vs_explicit_vs_projection": {
+    "M4_einsum_vs_loop": 5.551115123125783e-17,
+    "M4_rhs_vs_projection": 6.661338147750939e-16,
+    "M8_einsum_vs_loop": 1.1102230246251565e-16,
+    "M8_rhs_vs_projection": 1.5543122344752192e-15,
+    "k0_normalisation_err": 0.0
+  },
+  "test_neumann_solvers_agree": {
+    "fd_err_N32": 0.00044111090335918757,
+    "fd_err_N64": 0.00011083596002264828,
+    "fd_err_N128": 2.7680298504639822e-05,
+    "fd_order": 2.0014946243599057
+  },
+  "test_cosine_galerkin_converges_to_neumann_solution": {
+    "field_rel_err_M2": 0.004545507666403556,
+    "field_rel_err_M4": 4.205550546172363e-05,
+    "field_rel_err_M8": 7.681787296530992e-10,
+    "field_rel_err_M16": 2.9928983532004914e-09
+  },
+  "test_cosine_coupling_graph": {
+    "M8_edges": 36.0,
+    "M8_pairs": 36.0,
+    "M8_tensor_nnz": 109.0,
+    "M8_tensor_size": 729.0,
+    "M4_edges": 10.0,
+    "M8_pairs_per_eq": "[9, 8, 8, 7, 7, 6, 6, 5, 5]"
+  },
+  "test_cosine_equals_mirrored_fourier_projection": {
+    "M4": 8.881784197001252e-16,
+    "M8": 1.9984014443252818e-15
+  },
+  "test_cosine_qpino_matches_pennylane": {
+    "max_err": 5.440092820663267e-15,
+    "n_edges": 36.0
+  },
   "test_fourier_roundtrip": {
     "max_abs_error": 1.7763568394002505e-15
   },
@@ -75,14 +110,14 @@
   },
   "test_torch_matches_pennylane_9_qubits": {
     "n_features": 45.0,
-    "R1": 1.6653345369377348e-14,
-    "R2": 3.175237850427948e-14,
-    "trotter2": 5.440092820663267e-15
+    "R1": 1.9984014443252818e-14,
+    "R2": 3.652633751016765e-14,
+    "trotter2": 5.88418203051333e-15
   },
   "test_eigh_expm_matches_matrix_exp": {
-    "U_err": 3.110631144156604e-14,
-    "grad_rel_err": 2.503014436480042e-13,
-    "tau_grad_rel_err": 2.2284391456005176e-13,
+    "U_err": 3.1412886946383074e-14,
+    "grad_rel_err": 2.556270062788128e-13,
+    "tau_grad_rel_err": 2.2250956510084694e-13,
     "degenerate_grad_rel_err": 1.6949469693235654e-12
   },
   "test_galerkin_residual_converges": {
