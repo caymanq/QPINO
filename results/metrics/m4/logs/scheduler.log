@@ -1,0 +1,55 @@
+18:17:38 launched --regime synthetic --M 4 --model D --R 3 --seed 2
+18:24:58 launched --regime synthetic --M 4 --model D --R 2 --seed 0
+18:25:13 launched --regime synthetic --M 4 --model D --R 2 --seed 1
+18:29:48 launched --regime synthetic --M 4 --model D --R 2 --seed 2
+18:30:23 launched --regime synthetic --M 4 --model E --seed 1
+18:30:38 launched --regime synthetic --M 4 --model F --seed 1
+18:30:53 launched --regime synthetic --M 4 --model D --lambda_pde 0.001 --seed 1
+18:38:23 launched --regime covid --M 4 --boundary mirror --model D --seed 0
+18:44:58 launched --regime covid --M 4 --boundary mirror --model E --seed 0
+18:51:33 launched --regime covid --M 4 --boundary mirror --model F --seed 0
+18:51:48 launched --regime covid --M 4 --boundary mirror --model C --seed 0
+18:52:03 launched --regime covid --M 4 --boundary mirror --model B --seed 0
+18:52:19 launched --regime covid --M 4 --boundary mirror --model D --seed 1
+18:52:34 launched --regime covid --M 4 --boundary mirror --model E --seed 1
+18:57:29 launched --regime covid --M 4 --boundary mirror --model F --seed 1
+18:58:24 launched --regime covid --M 4 --boundary mirror --model C --seed 1
+18:58:59 launched --regime covid --M 4 --boundary mirror --model B --seed 1
+18:59:14 launched --regime covid --M 4 --boundary mirror --model D --seed 2
+18:59:29 launched --regime covid --M 4 --boundary mirror --model E --seed 2
+19:04:04 launched --regime covid --M 4 --boundary mirror --model F --seed 2
+19:04:19 launched --regime covid --M 4 --boundary mirror --model C --seed 2
+19:05:54 launched --regime covid --M 4 --boundary mirror --model B --seed 2
+19:06:09 launched --regime covid --M 4 --boundary mirror --model D --R 2 --seed 0
+19:06:24 launched --regime covid --M 2 --boundary mirror --model D --R 1 --seed 0
+19:06:39 launched --regime synthetic --M 2 --model D --R 1 --seed 0
+19:07:34 launched --regime covid --M 2 --boundary mirror --model D --R 2 --seed 0
+19:08:10 launched --regime synthetic --M 2 --model D --R 2 --seed 0
+19:09:45 launched --regime covid --M 2 --boundary mirror --model D --R 3 --seed 0
+19:10:40 launched --regime synthetic --M 2 --model D --R 3 --seed 0
+19:10:55 launched --regime covid --M 4 --boundary mirror --model D --R 2 --seed 1
+19:15:50 launched --regime covid --M 2 --boundary mirror --model D --R 1 --seed 1
+19:16:05 launched --regime synthetic --M 2 --model D --R 1 --seed 1
+19:17:20 launched --regime covid --M 2 --boundary mirror --model D --R 2 --seed 1
+19:17:55 launched --regime synthetic --M 2 --model D --R 2 --seed 1
+19:18:50 launched --regime covid --M 2 --boundary mirror --model D --R 3 --seed 1
+19:19:45 launched --regime synthetic --M 2 --model D --R 3 --seed 1
+19:20:20 launched --regime covid --M 4 --boundary mirror --model D --R 2 --seed 2
+19:23:36 launched --regime covid --M 2 --boundary mirror --model D --R 1 --seed 2
+19:24:11 launched --regime synthetic --M 2 --model D --R 1 --seed 2
+19:25:06 launched --regime covid --M 2 --boundary mirror --model D --R 2 --seed 2
+19:25:21 launched --regime synthetic --M 2 --model D --R 2 --seed 2
+19:25:56 launched --regime covid --M 2 --boundary mirror --model D --R 3 --seed 2
+19:26:11 launched --regime synthetic --M 2 --model D --R 3 --seed 2
+19:26:26 launched --regime covid --M 4 --boundary mirror --model D --lambda_pde 0.001 --seed 0
+19:27:01 launched --regime covid --M 4 --boundary mirror --model D --lambda_pde 0.001 --seed 1
+19:27:16 launched --regime covid --M 4 --boundary mirror --model D --lambda_pde 0.001 --seed 2
+19:28:51 launched --regime synthetic --M 4 --model C --seed 0
+19:30:06 launched --regime synthetic --M 4 --model B --seed 0
+19:30:21 launched --regime synthetic --M 4 --model C --seed 1
+19:30:36 launched --regime synthetic --M 4 --model B --seed 1
+19:30:51 launched --regime synthetic --M 4 --model C --seed 2
+19:31:05 launched --regime covid --M 4 --boundary mirror --model D --R 3 --seed 0
+19:31:20 launched --regime covid --M 4 --boundary mirror --model D --R 3 --seed 1
+19:31:35 launched --regime covid --M 4 --boundary mirror --model D --R 3 --seed 2
+19:31:50 launched --regime covid --M 4 --boundary mirror --model D --seed 0

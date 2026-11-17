@@ -80,7 +80,13 @@ norm, scales = make_norm(Dd["train"], dt, X_C)
 # Components with zero training variance (Im a_k under mirroring) would get s_inc ~ 1e-12 and
 # sigma ~ 1e-8, i.e. 1e24 loss weights.  Give them the median scale of the active components so
 # the loss penalises spurious Im outputs at a normal scale (and float ops stay well-conditioned).
-_si = scales["s_inc"].clone(); dead = _si < 1e-9
+# (Bug fix, 2026-11-16 19:40 MST: the first version detected dead components by s_inc < 1e-9, which
+# never triggers because make_norm adds 1e-3*max|dA| over ALL components; the Im inputs then had
+# sigma = 1e-8 and s_inc 100x too small, which made the mirrored runs unstable.  Those runs are
+# kept in results/metrics/m4/superseded_mirror_bug/ and were rerun.)
+_A = np.concatenate([np.asarray(T) for T in Dd["train"]])
+dead = torch.tensor(np.abs(_A).max(0) < 1e-12)
+_si = scales["s_inc"].clone()
 if bool(dead.any()):
     _si[dead] = _si[~dead].median()
     scales["s_inc"] = _si
