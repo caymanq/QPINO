@@ -1,0 +1,1 @@
+covid_M4_mirror_C_lam0.01_R1_s1 {'rel_l2': 0.0517, 'rel_l2_increment': 1.2529, 'rollout_rel_l2': 0.2642, 'field_rmse_per100k_onestep': 14.0939, 'field_rmse_per100k_rollout': 17.5913, 'rollout_negative_frac': 0.0, 'max_abs_Im_rollout': 0.0034, 'train_time_s': 327.6839, 'sec_per_epoch': 0.2185, 'learned_c': 1.0}

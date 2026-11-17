@@ -196,7 +196,7 @@ for reg, b, mk in [("synthetic", "periodic", "o-"), ("covid", "mirror", "s--")]:
         ax.plot(Rs, [s[0] for s in st], mk, color=c, label=f"{reg} M={Mk}")
 ax.set_yscale("log"); ax.set_xticks(Rs); ax.set_xlabel("re-uploads R"); ax.set_ylabel("s / epoch (1–2 threads, shared box)")
 ax.legend(); ax.set_title("training cost per R")
-fig.suptitle("Fig. 15  Data re-uploading W_R S(z)…W_1 S(z), λ_PDE=0.01, 3 seeds", fontsize=10)
+fig.suptitle("Fig. 15  Data re-uploading W_R S(z)…W_1 S(z), λ_PDE=0.01, 3 seeds (synthetic M=4 R=1,3: 2 seeds)", fontsize=10)
 save(fig, "fig15_reupload_sweep")
 
 # ---------------------------------------------------------------- fig16: lambda sweep

@@ -52,11 +52,11 @@ Field RMSE in cases/100k/day vs the observed 32-bin field. Projection-floor = th
 | Persistence | 1.000 | 19.71 | 1.000 | 14.03 | 19.65 | 0.382 | 0 |
 | LinearTrend | 0.951 | 18.42 | 0.948 | 14.03 | 17.94 | 0.277 | 0 |
 | A | 1.025 | 18.01 | 1.038 | 14.04 | 18.00 | 0.311 | 3 |
-| B | 1.210 ± 0.029 | 22.26 ± 2.75 | n/a | n/a | n/a | n/a | n/a |
-| C | 1.188 ± 0.069 | 21.45 ± 1.55 | n/a | n/a | n/a | n/a | n/a |
-| D | 1.132 ± 0.090 | 21.33 ± 1.38 | n/a | n/a | n/a | n/a | n/a |
-| E | 1.134 ± 0.090 | 21.35 ± 1.43 | n/a | n/a | n/a | n/a | n/a |
-| F | 1.214 ± 0.091 | 21.79 ± 1.92 | n/a | n/a | n/a | n/a | n/a |
+| B | 1.210 ± 0.029 | 22.26 ± 2.75 | 1.394 ± 0.119 | 14.15 ± 0.04 | 29.10 ± 4.46 | 0.562 ± 0.115 | 485 |
+| C | 1.188 ± 0.069 | 21.45 ± 1.55 | 1.158 ± 0.093 | 14.07 ± 0.02 | 17.58 ± 0.21 | 0.272 ± 0.018 | 459 |
+| D | 1.132 ± 0.090 | 21.33 ± 1.38 | 1.223 ± 0.007 | 14.07 ± 0.00 | 19.35 ± 0.90 | 0.340 ± 0.058 | 476 |
+| E | 1.134 ± 0.090 | 21.35 ± 1.43 | 1.221 ± 0.013 | 14.07 ± 0.00 | 20.79 ± 2.08 | 0.394 ± 0.099 | 476 |
+| F | 1.214 ± 0.091 | 21.79 ± 1.92 | 1.438 ± 0.102 | 14.13 ± 0.02 | 19.71 ± 1.18 | 0.350 ± 0.059 | 442 |
 
 ## T4. Synthetic Fisher–KPP (12 unseen ICs, 40 steps): old M=2 (λ=0.1) vs new M=4 (λ=0.01)
 
@@ -64,39 +64,39 @@ Field RMSE in cases/100k/day vs the observed 32-bin field. Projection-floor = th
 |---|---|---|---|---|---|---|---|
 | Persistence | 1.0000 | 0.6855 | 1.0000 | 0.6855 | 0.6854 | 0 | – |
 | A | 0.0011 | 0.0004 | 0.0000 | 0.0000 | 0.0001 | 3 | – |
-| B | 0.0471 ± 0.0099 | 0.0145 ± 0.0032 | n/a | n/a | n/a | n/a | n/a |
-| C | 0.0857 ± 0.0046 | 0.0324 ± 0.0043 | n/a | n/a | n/a | n/a | n/a |
-| D | 0.1001 ± 0.0167 | 0.0434 ± 0.0110 | n/a | n/a | n/a | n/a | n/a |
-| E | 0.1003 ± 0.0167 | 0.0435 ± 0.0111 | n/a | n/a | n/a | n/a | n/a |
-| F | 0.3089 ± 0.0194 | 0.1336 ± 0.0300 | n/a | n/a | n/a | n/a | n/a |
+| B | 0.0471 ± 0.0099 | 0.0145 ± 0.0032 | 0.1353 ± 0.0561 | 0.0337 ± 0.0065 | 0.0364 ± 0.0070 | 485 | 0.02 |
+| C | 0.0857 ± 0.0046 | 0.0324 ± 0.0043 | 0.1039 ± 0.0225 | 0.0725 ± 0.0111 | 0.0789 ± 0.0105 | 459 | 0.81 |
+| D | 0.1001 ± 0.0167 | 0.0434 ± 0.0110 | 0.1474 ± 0.0137 (n=2) | 0.0823 ± 0.0065 (n=2) | 0.0949 ± 0.0013 (n=2) | 476 (n=2) | 1.47 (n=2) |
+| E | 0.1003 ± 0.0167 | 0.0435 ± 0.0111 | 0.1474 ± 0.0137 (n=2) | 0.0823 ± 0.0065 (n=2) | 0.0949 ± 0.0013 (n=2) | 476 (n=2) | 0.85 (n=2) |
+| F | 0.3089 ± 0.0194 | 0.1336 ± 0.0300 | 0.4072 ± 0.0073 (n=2) | 0.1704 ± 0.0122 (n=2) | 0.1766 ± 0.0104 (n=2) | 442 (n=2) | 0.85 (n=2) |
 
 ## T5. λ_PDE sweep on the new configs (QPINO D, R=1; λ=0 is model E)
 
 | regime | λ_PDE | 1-step incr. | rollout coeff rel. L2 | rollout field RMSE (COVID) |
 |---|---|---|---|---|
-| synthetic M=4 periodic | 0 | n/a | n/a | – |
-| synthetic M=4 periodic | 0.001 | n/a | n/a | – |
-| synthetic M=4 periodic | 0.01 | n/a | n/a | – |
-| covid M=4 mirror | 0 | n/a | n/a | n/a |
-| covid M=4 mirror | 0.001 | n/a | n/a | n/a |
-| covid M=4 mirror | 0.01 | n/a | n/a | n/a |
+| synthetic M=4 periodic | 0 | 0.1474 ± 0.0137 (n=2) | 0.0823 ± 0.0065 (n=2) | – |
+| synthetic M=4 periodic | 0.001 | 0.1474 ± 0.0137 (n=2) | 0.0823 ± 0.0065 (n=2) | – |
+| synthetic M=4 periodic | 0.01 | 0.1474 ± 0.0137 (n=2) | 0.0823 ± 0.0065 (n=2) | – |
+| covid M=4 mirror | 0 | 1.2213 ± 0.0134 | 0.3939 ± 0.0994 | 20.79 ± 2.08 |
+| covid M=4 mirror | 0.001 | 1.2265 ± 0.0046 | 0.3414 ± 0.0572 | 19.39 ± 0.88 |
+| covid M=4 mirror | 0.01 | 1.2233 ± 0.0071 | 0.3401 ± 0.0576 | 19.35 ± 0.90 |
 
 ## T6. Data re-uploading sweep R ∈ {1,2,3} (QPINO D, λ_PDE = 0.01)
 
 | regime | M | R | params | 1-step incr. | rollout coeff rel. L2 | rollout field RMSE (COVID) | s/epoch (1 thread) | train time/run (s) |
 |---|---|---|---|---|---|---|---|---|
-| synthetic periodic | 2 | 1 | n/a | n/a | n/a | – | n/a | n/a |
-| synthetic periodic | 2 | 2 | n/a | n/a | n/a | – | n/a | n/a |
-| synthetic periodic | 2 | 3 | n/a | n/a | n/a | – | n/a | n/a |
-| synthetic periodic | 4 | 1 | n/a | n/a | n/a | – | n/a | n/a |
-| synthetic periodic | 4 | 2 | n/a | n/a | n/a | – | n/a | n/a |
-| synthetic periodic | 4 | 3 | n/a | n/a | n/a | – | n/a | n/a |
-| covid mirror | 2 | 1 | n/a | n/a | n/a | n/a | n/a | n/a |
-| covid mirror | 2 | 2 | n/a | n/a | n/a | n/a | n/a | n/a |
-| covid mirror | 2 | 3 | n/a | n/a | n/a | n/a | n/a | n/a |
-| covid mirror | 4 | 1 | n/a | n/a | n/a | n/a | n/a | n/a |
-| covid mirror | 4 | 2 | n/a | n/a | n/a | n/a | n/a | n/a |
-| covid mirror | 4 | 3 | n/a | n/a | n/a | n/a | n/a | n/a |
+| synthetic periodic | 2 | 1 | 105 | 0.1004 ± 0.0167 | 0.0435 ± 0.0111 | – | 0.03 ± 0.00 | 47 ± 3 |
+| synthetic periodic | 2 | 2 | 124 | 0.0875 ± 0.0061 | 0.0387 ± 0.0089 | – | 0.21 ± 0.07 | 321 ± 103 |
+| synthetic periodic | 2 | 3 | 143 | 0.0979 ± 0.0287 | 0.0415 ± 0.0152 | – | 0.24 ± 0.07 | 365 ± 100 |
+| synthetic periodic | 4 | 1 | 476 (n=2) | 0.1474 ± 0.0137 (n=2) | 0.0823 ± 0.0065 (n=2) | – | 1.47 ± 0.61 (n=2) | 2209 ± 908 (n=2) |
+| synthetic periodic | 4 | 2 | 528 | 0.1536 ± 0.0188 | 0.0926 ± 0.0059 | – | 2.45 ± 0.01 | 3675 ± 12 |
+| synthetic periodic | 4 | 3 | 580 (n=2) | 0.1274 ± 0.0032 (n=2) | 0.0692 ± 0.0126 (n=2) | – | 3.17 ± 0.02 (n=2) | 4762 ± 28 (n=2) |
+| covid mirror | 2 | 1 | 105 | 1.1990 ± 0.0635 | 0.2771 ± 0.0182 | 18.34 ± 0.29 | 0.01 ± 0.00 | 13 ± 1 |
+| covid mirror | 2 | 2 | 124 | 1.1239 ± 0.0363 | 0.3340 ± 0.0460 | 19.32 ± 0.75 | 0.02 ± 0.00 | 34 ± 3 |
+| covid mirror | 2 | 3 | 143 | 1.1887 ± 0.0459 | 0.2791 ± 0.1055 | 18.49 ± 2.09 | 0.04 ± 0.00 | 53 ± 4 |
+| covid mirror | 4 | 1 | 476 | 1.2233 ± 0.0071 | 0.3401 ± 0.0576 | 19.35 ± 0.90 | 0.26 ± 0.00 | 396 ± 3 |
+| covid mirror | 4 | 2 | 528 | 1.1566 ± 0.0250 | 0.3677 ± 0.0367 | 19.70 ± 0.60 | 0.63 ± 0.00 | 945 ± 6 |
+| covid mirror | 4 | 3 | 580 | 1.1826 ± 0.0532 | 0.3293 ± 0.0835 | 18.77 ± 1.71 | 0.84 ± 0.00 | 1255 ± 5 |
 
 Runtimes: single-thread processes, 7 running concurrently on an 8-core box (so absolute times are inflated by contention; ratios between R are meaningful).
 
