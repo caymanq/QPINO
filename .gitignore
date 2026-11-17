@@ -5,3 +5,6 @@ data/raw/*
 !data/raw/.gitkeep
 results/checkpoints/*_large.pt
 *.ipynb_checkpoints
+
+# 9-qubit checkpoints store dense 512x512 operator buffers (70-110 MB each): kept locally only
+results/checkpoints/m4/
