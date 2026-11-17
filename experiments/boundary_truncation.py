@@ -41,10 +41,20 @@ out = {"note": "mean relative L2 error of the |k|<=M projection, measured on the
 for Mk in (1, 2, 4, 8):
     for mir in (False, True):
         out[f"M{Mk}_{'mirror' if mir else 'periodic'}"] = {k: rel(Mk, mir, v) for k, v in splits.items()}
+# cosine / Neumann basis on the 32 bins (x_j = pi (j+1/2)/32): M+1 real coefficients
+from src import cosine_galerkin as cg  # noqa: E402
+xc = cg.grid(N)
+for Mk in (2, 4, 8, 16):
+    out[f"cosine_M{Mk}"] = {}
+    for k, v in splits.items():
+        f = u[v]; rec = cg.reconstruct(cg.field_to_coeffs(f, xc, Mk), xc)
+        out[f"cosine_M{Mk}"][k] = float(np.nanmean(np.linalg.norm(f - rec, axis=-1) / (np.linalg.norm(f, axis=-1) + 1e-12)))
+out["cosine_qubits"] = {f"M{Mk}": Mk + 1 for Mk in (2, 4, 8, 16)}
 # effective resolved wavelengths
 L = 3735.0
 out["wavelengths_km"] = {"periodic_M2": [L, L / 2], "periodic_M4": [L / k for k in range(1, 5)],
-                         "mirror_M2": [2 * L, L], "mirror_M4": [2 * L / k for k in range(1, 5)]}
+                         "mirror_M2": [2 * L, L], "mirror_M4": [2 * L / k for k in range(1, 5)],
+                         "cosine_M8": [2 * L / k for k in range(1, 9)]}
 out["dof"] = {"periodic_M2": 5, "periodic_M4": 9, "mirror_M2": "3 nonzero of 5 (Im = 0)",
               "mirror_M4": "5 nonzero of 9 (Im = 0)", "mirror_M8": "9 nonzero of 17"}
 im = np.abs(gk.field_to_coeffs(um, xm, 4)[:, 2::2]).max()

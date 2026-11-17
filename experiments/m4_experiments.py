@@ -26,8 +26,8 @@ from src.training import set_seed, train
 OVR = yaml.safe_load(open(os.path.join(ROOT, "configs", "m4_mirror.yaml")))
 p = argparse.ArgumentParser()
 p.add_argument("--regime", choices=["covid", "synthetic"], required=True)
-p.add_argument("--M", type=int, default=OVR["galerkin_M"])
-p.add_argument("--boundary", choices=["periodic", "mirror", "cosine"], default="periodic")
+p.add_argument("--M", type=int, default=None)
+p.add_argument("--boundary", choices=["periodic", "mirror", "cosine"], default=C.get("galerkin", {}).get("basis", "cosine"))
 p.add_argument("--model", default="D")
 p.add_argument("--seed", type=int, default=0)
 p.add_argument("--lambda_pde", type=float, default=OVR["train"]["lambda_pde"])
@@ -35,6 +35,8 @@ p.add_argument("--R", type=int, default=1)
 p.add_argument("--epochs", type=int, default=C["train"]["epochs"])
 p.add_argument("--baselines", action="store_true")
 args = p.parse_args()
+if args.M is None:   # defaults: cosine M=8 (configs/default.yaml); complex-Fourier variant M=4
+    args.M = C.get("galerkin", {}).get("M", 8) if args.boundary == "cosine" else OVR["galerkin_M"]
 COS = args.boundary == "cosine"          # Neumann cosine basis: M+1 real coefficients = qubits
 if COS:
     gk.set_basis("cosine")

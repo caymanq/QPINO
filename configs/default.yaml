@@ -1,5 +1,14 @@
 # QPINO default configuration (all experiments read this file; CLI flags may override)
 seed: 0
+
+# DEFAULT model input: ONLY real Galerkin coefficients, one real coefficient per mode per qubit.
+# Real cosine / Neumann (no-flux) basis u = sum_{k=0}^{M} b_k cos(k pi s / L), M = 8 -> 9 qubits.
+# Runner: experiments/m4_experiments.py (reads this block).  The complex-Fourier (Re/Im)
+# periodic and mirrored M=2/M=4 runs (synthetic_validation.py, covid_training.py, ablation
+# scripts, and m4_experiments.py --boundary periodic|mirror) are the earlier complex-Fourier variant.
+galerkin:
+  basis: cosine        # cosine (default, real) | periodic | mirror (earlier complex-Fourier variant)
+  M: 8
 seeds: [0, 1, 2]
 threads: 4
 
