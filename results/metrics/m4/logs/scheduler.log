@@ -121,3 +121,12 @@ ALL_LAUNCHED
 22:00:41 launched --regime synthetic --M 8 --boundary cosine --model B --seed 0
 22:00:56 launched --regime synthetic --M 4 --boundary cosine --model D --seed 0
 22:01:31 launched --regime synthetic --M 4 --boundary cosine --model C --seed 0
+22:02:06 launched --regime synthetic --M 8 --boundary cosine --model D --seed 1
+22:02:41 launched --regime synthetic --M 8 --boundary cosine --model C --seed 1
+22:12:57 launched --regime synthetic --M 8 --boundary cosine --model B --seed 1
+22:13:52 launched --regime synthetic --M 4 --boundary cosine --model D --seed 1
+22:14:07 launched --regime synthetic --M 4 --boundary cosine --model C --seed 1
+22:14:42 launched --regime synthetic --M 8 --boundary cosine --model D --seed 2
+22:14:57 launched --regime synthetic --M 8 --boundary cosine --model C --seed 2
+22:15:32 launched --regime synthetic --M 8 --boundary cosine --model B --seed 2
+22:16:27 launched --regime synthetic --M 4 --boundary cosine --model D --seed 2
