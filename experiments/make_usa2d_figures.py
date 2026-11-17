@@ -37,6 +37,8 @@ LREF = Ly / np.pi
 runs = defaultdict(list)
 for f in glob.glob(os.path.join(MET, "usa2d_K*_s[0-9].json")):
     d = json.load(open(f)); m = d["meta"]
+    if m.get("lambda_pde") == 1e-4:          # section 17 runs: fig20 (make_usa2d_rho_figure.py)
+        continue
     runs[(m["K"], m["model"])].append(d["result"] | {"seed": m["seed"]})
 base = {K: json.load(open(os.path.join(MET, f"baselines_usa2d_K{K}.json"))) for K in (3, 4)
         if os.path.exists(os.path.join(MET, f"baselines_usa2d_K{K}.json"))}

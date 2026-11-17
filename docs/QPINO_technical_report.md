@@ -702,6 +702,79 @@ Reference without truncation: persistence of the full-resolution Jun 30 field gi
 * A scheduler bug (`pgrep -E`) launched all 15 3×3 jobs at once, with 11 concurrent on 8 cores. The results are unaffected, but the s/epoch values (0.30–0.36) are inflated by about 1.4×. The bug is fixed (`results/metrics/usa2d/NOTES.md`).
 * All circuits are classically simulated. **No quantum advantage** is shown or claimed.
 
+# 17. Spatially varying growth rate ρ(x,y) and a near-zero PDE weight
+
+Cayman's suggestion (from his finite-difference Fisher–KPP solver) was to let the growth rate vary in space so that growth can be localised: $u_t = D\nabla^2u + \rho(x,y)\,u - \beta u^2$ on the §16 2D land-masked cosine basis. A second instruction set the PDE weight in the loss close to zero, so that the residual serves mainly as a physics-violation diagnostic.
+
+## 17.1 Method
+
+**Galerkin form.** We expand $\rho(x,y)=\sum_m r_m\psi_m(x,y)$ in a small cosine basis $\psi_m=\cos(k\pi x/L_x)\cos(l\pi y/L_y)$, with $K_r=4$ modes per axis (16 coefficients, $\psi_0=1$). On the land mask Ω the weak form is
+$$G\dot b = -D\,\mathcal K b + E(r)\,b - \beta\,C(b,b),\qquad E(r)_{ij}=\sum_m r_m\,\langle\phi_i\,\psi_m\,\phi_j\rangle_\Omega ,$$
+so the ρu term projects through the triple-product (ρ-coupling) tensor $E_{imj}$. A constant ρ reproduces the scalar model exactly. A non-constant ρ couples modes that the scalar model leaves uncoupled: $G^{-1}E(r)$ is a dense, real, non-symmetric 9×9 matrix. The physics loss and the full-PDE residual on the grid use the pointwise ρ(x,y) (`src/cosine2d_galerkin.py`: `setup(..., Kr)`, `rho_field`, `galerkin_rhs`, `fit_spatial_rho`). In the QPINO physics loss the reference D, ρ(x,y), β come from the classical fit below and are not trained with the circuit. Cayman asked for a joint learn; we did not do that because the physics weight is now 1e-4 (§17.3), so a jointly learned ρ would barely be constrained by the loss. The 8×8 fit below shows how badly an unconstrained ρ(x,y) behaves.
+
+**Fitting ρ(x,y), D and β (classical Galerkin ODE "A-ρ").** A one-step least-squares fit over the full training window gave a good training loss but a poor rollout: validation rollout rel. L2 0.087 against 0.051 for scalar ρ, and July rollout RMSE 0.161. The 16 extra parameters fit the March–April take-off, which looks nothing like June/July. We therefore fit by an H = 7-day multi-step rollout objective on the last NW ∈ {28, 56, all} training days. An L2 shrinkage λ_L2 ∈ {0, 0.1, 1, 10, 100} is applied to the non-constant ρ modes. The pair is chosen by the Jun 17–30 validation rollout. The initial ρ is the local log-growth of the projected field (∂ₜ log u projected on ψ; range [−0.24, 0.71]/day on land, so it is very noisy). **Fairness:** the scalar model is refitted with the identical protocol ("A, scalar ρ (rollout protocol)") so that the comparison isolates the spatial term. Validation selected NW = 28 days and λ_L2 = 100, at the edge of the grid, i.e. the *strongest* shrinkage. The learned ρ(x,y) ranges over [0.0002, 0.0179]/day (mean 0.0093), with D ≈ 1e-8 (unidentifiable, as before) and β = 0.0079. The scalar refit is ρ = 0.0143, β = 0.0153.
+
+**Tests** (`tests/test_spatial_rho.py`, 4 new): (i) a constant ρ vector equals the scalar model; (ii) the Galerkin ρu term equals the land least-squares projection of the pointwise product ρ(x,y)u, including off-diagonal coupling; (iii) the fit recovers a planted r = [0.30, 0.08, −0.06, 0.04] and β = 0.5 from synthetic Galerkin data; (iv) the hinge PDE loss. With the 3 regional tests of §18 the suite has **44 tests, all passing**.
+
+## 17.2 Can localisation help at 3×3? (honest note)
+
+Only slightly. With 9 cosine modes the *solution* cannot hold localised structure: the projection floor (RMSE 0.1157) is set by the basis, not by the dynamics. A localised ρ can only reshape how those 9 smooth modes grow. Against the observed field, A-ρ(x,y) improves the July rollout from 0.1189 (scalar, same protocol) to 0.1184, or 0.1186 for the §16 one-step scalar fit. Against the projected field the improvement is 0.0272 → 0.0251. The learned ρ is smooth (heavy shrinkage) and highest over the northern Plains/upper Midwest, where the 3×3 field was still rising.
+
+**Cheap higher-mode classical reference (8×8, 64 modes, classical only, no circuit).** The truncation floor drops to 0.0911. The scalar Galerkin ODE fitted with the rollout protocol reaches 0.0982, the best July rollout of any model in this section, against linear trend 0.1164 and persistence 0.1318 at 3×3. The 8×8 ρ(x,y) fit is a **negative result**. The validation-selected fit drives β → 0 and produces a signed ρ in [−0.124, 0.106]/day. That makes the dynamics linear and exponential, so the July rollout diverges (RMSE 0.586, Jul 26 1.21). A 16-coefficient ρ with 64 modes and only 28 days of fitting data is not identifiable without much stronger priors (positivity of ρ, a lower bound on β, or smoothness priors). Localised growth therefore needs both more modes *and* a constrained ρ. At 3×3 there is too little resolution for it to matter; at 8×8 there is enough resolution but the fit becomes unstable.
+
+## 17.3 PDE weight 1e-4 and the physics-violation diagnostic
+
+The default `lambda_pde` for the 2D runs is now **1e-4** (`configs/usa2d.yaml`, overridable with `--lambda_pde`). An optional hinge form relu(|R| − τ)² is available through `train.pde_hinge_tol` / `--hinge_tol` (default off; not used in these runs). The full-PDE residual is still computed every epoch (`log_every: 1`). For every model, baselines included, we report the **physics violation**: the RMS (u/day) of the trapezoid full-PDE residual $(u^{n+1}-u^n)/\Delta t-\tfrac12[f(u^n)+f(u^{n+1})]$ on 2000 land points. We evaluate it on train and val one-step predictions and on the July rollout, against both the scalar and the spatial reference physics. The observed July data themselves give 0.0022 (scalar reference) / 0.0024 (spatial reference) after 3×3 projection.
+
+**As expected, λ = 0.01 was already effectively data-only.** Moving to 1e-4 changes the QPINO D rollout from 0.1355 ± 0.0076 to 0.1348 ± 0.0081 (scalar ρ). C changes from 0.1376 to 0.1373 and B from 0.1188 to 0.1190, all well within the seed spread. With the PDE term this small, the scalar/ρ(x,y) choice barely enters training: D 0.1348 → 0.1330, C 0.1373 → 0.1372, B 0.1190 → 0.1184, all within one seed standard deviation.
+
+The diagnostic is informative. The QPINO rollouts violate the fitted physics about 4× more than the observed data do (≈0.0087 against 0.0022). The MLP violates it about 2× more (≈0.004), and the Galerkin ODEs violate it at or below the data level.
+
+## 17.4 Results (3 seeds; same splits and metrics as §16)
+
+### T14. July 2020 RMSE and physics violation
+
+λ_PDE = 1e-4 for all trained rows except the §16 rows (λ = 0.01). ρ(x,y) = Σ r_m ψ_m with a 4×4 cosine basis (16 coefficients). PDE violation = RMS (u/day) of the trapezoid full-PDE residual on 2000 land points; 'own' uses the model's reference physics (scalar fit for scalar rows, spatial fit for ρ(x,y) rows); rollout column gives scalar-ref / spatial-ref. Observed July data: 0.0022 / 0.0024 (3×3 projection, scalar / spatial ref).
+
+| modes | model | params | 1-step RMSE | rollout RMSE | Jul 12 | Jul 26 | rollout vs projection | PDE viol. val 1-step (own) | PDE viol. test rollout (scalar / spatial ref) |
+|---|---|---|---|---|---|---|---|---|---|
+| 3×3 | truncation floor | – | 0.1157 | 0.1157 | 0.1188 | 0.1014 | 0 | – | 0.0022 / 0.0024 |
+| 3×3 | Persistence | 0 | 0.1158 | 0.1318 | 0.1285 | 0.1443 | 0.0630 | – | 0.0056 / 0.0032 |
+| 3×3 | Linear trend | 0 | 0.1158 | 0.1164 | 0.1190 | 0.1039 | 0.0125 | – | 0.0025 / 0.0021 |
+| 3×3 | A, scalar ρ (§16 one-step fit) | 3 | 0.1158 | 0.1186 | 0.1208 | 0.1088 | 0.0258 | 0.0001 | 0.0000 / 0.0029 |
+| 3×3 | A, scalar ρ (rollout protocol) | 3 | 0.1158 | 0.1189 | 0.1206 | 0.1101 | 0.0272 | 0.0029 | 0.0025 / 0.0018 |
+| 3×3 | **A-ρ(x,y)** (rollout protocol) | 18 | 0.1158 | 0.1184 | 0.1203 | 0.1088 | 0.0251 | 0.0013 | 0.0029 / 0.0014 |
+| 3×3 | D (9-qubit QPINO), scalar ρ, λ=0.01 (§16) | 478 ± 0 | 0.1161 ± 0.0000 | 0.1355 ± 0.0076 | 0.1327 ± 0.0075 | 0.1542 ± 0.0168 | 0.0691 ± 0.0159 | – | – |
+| 3×3 | D (9-qubit QPINO), scalar ρ, λ=1e-4 | 478 ± 0 | 0.1161 ± 0.0000 | 0.1348 ± 0.0081 | 0.1324 ± 0.0076 | 0.1474 ± 0.0172 | 0.0673 ± 0.0173 | 0.0090 ± 0.0010 | 0.0089 ± 0.0015 / 0.0084 ± 0.0019 |
+| 3×3 | **D (9-qubit QPINO), ρ(x,y), λ=1e-4** | 478 ± 0 | 0.1161 ± 0.0000 | 0.1330 ± 0.0074 | 0.1318 ± 0.0077 | 0.1421 ± 0.0153 | 0.0639 ± 0.0158 | 0.0093 ± 0.0005 | 0.0087 ± 0.0013 / 0.0082 ± 0.0017 |
+| 3×3 | C (HEA QPINO), scalar ρ, λ=0.01 (§16) | 459 ± 0 | 0.1164 ± 0.0003 | 0.1376 ± 0.0109 | 0.1354 ± 0.0125 | 0.1544 ± 0.0114 | 0.0725 ± 0.0196 | – | – |
+| 3×3 | C (HEA QPINO), scalar ρ, λ=1e-4 | 459 ± 0 | 0.1164 ± 0.0003 | 0.1373 ± 0.0097 | 0.1354 ± 0.0126 | 0.1553 ± 0.0112 | 0.0723 ± 0.0176 | 0.0057 ± 0.0007 | 0.0086 ± 0.0012 / 0.0084 ± 0.0010 |
+| 3×3 | **C (HEA QPINO), ρ(x,y), λ=1e-4** | 459 ± 0 | 0.1164 ± 0.0003 | 0.1372 ± 0.0097 | 0.1354 ± 0.0126 | 0.1552 ± 0.0111 | 0.0722 ± 0.0177 | 0.0057 ± 0.0005 | 0.0086 ± 0.0012 / 0.0084 ± 0.0010 |
+| 3×3 | B (MLP), scalar ρ, λ=0.01 (§16) | 485 ± 0 | 0.1164 ± 0.0004 | 0.1188 ± 0.0010 | 0.1202 ± 0.0008 | 0.1112 ± 0.0031 | 0.0263 ± 0.0045 | – | – |
+| 3×3 | B (MLP), scalar ρ, λ=1e-4 | 485 ± 0 | 0.1164 ± 0.0004 | 0.1190 ± 0.0010 | 0.1205 ± 0.0008 | 0.1110 ± 0.0031 | 0.0274 ± 0.0048 | 0.0054 ± 0.0026 | 0.0044 ± 0.0012 / 0.0040 ± 0.0013 |
+| 3×3 | **B (MLP), ρ(x,y), λ=1e-4** | 485 ± 0 | 0.1164 ± 0.0003 | 0.1184 ± 0.0011 | 0.1202 ± 0.0009 | 0.1094 ± 0.0023 | 0.0246 ± 0.0051 | 0.0061 ± 0.0033 | 0.0038 ± 0.0003 / 0.0035 ± 0.0008 |
+| 8×8 (classical) | truncation floor | – | 0.0911 | 0.0911 | 0.0917 | 0.0809 | 0 | – | – |
+| 8×8 (classical) | classical A, scalar ρ (one-step fit) | 3 | 0.0913 | 0.1162 | 0.1092 | 0.1414 | 0.0721 | 0.0002 | 0.0002 / 0.0307 |
+| 8×8 (classical) | classical A, scalar ρ (rollout protocol) | 3 | 0.0912 | 0.0982 | 0.0957 | 0.0993 | 0.0365 | 0.0065 | 0.0060 / 0.0258 |
+| 8×8 (classical) | classical A-ρ(x,y) (rollout protocol) | 18 | 0.0951 | 0.5861 | 0.3452 | 1.2131 | 0.5790 | 0.0011 | 0.1080 / 0.0039 |
+
+* ρ(x,y) fit (3×3): window 28 d, λ_L2 = 100, D = 1e-08, β = 0.0079, ρ range on land [0.0002, 0.0179]/day (mean 0.0093), val rollout rel. L2 0.0263; scalar same protocol: window 56 d, ρ = 0.0143, β = 0.0153, val rollout rel. L2 0.0462.
+* ρ(x,y) fit (8×8): window 28 d, λ_L2 = 10, D = 3.58e-12, β = 0.0000, ρ range on land [-0.1242, 0.1060]/day (mean -0.0083), val rollout rel. L2 0.1052; scalar same protocol: window 28 d, ρ = 0.0042, β = 0.0000, val rollout rel. L2 0.1687.
+* local log-growth initialiser range (3×3 projection, last 28 training days): [-0.241, 0.712]/day.
+
+![Fig. 20](../results/figures/fig20_usa2d_spatial_rho.png)
+
+**Fig. 20.** Top row: the learned ρ(x,y) (3×3 A-ρ fit), the unstable 8×8 classical ρ(x,y) (signed, β → 0), the observed Jul 26 field, the QPINO D ρ(x,y) forecast (median seed), and the Galerkin A-ρ forecast. Bottom row: Jul 26 forecast − observed for QPINO D with scalar ρ and with ρ(x,y), Galerkin A with scalar ρ and with ρ(x,y), and the 3×3 truncation floor. Right: July rollout RMSE by day.
+
+## 17.5 Caveats
+
+* ρ(x,y) was **not mapped into the circuit Hamiltonian H_θ**. The ρ-coupling G⁻¹E(r) is a real, non-symmetric matrix on coefficient space. It has no natural Z/ZZ map onto the one-qubit-per-mode encoding, and forcing one would need a learned surrogate that adds no information. ρ(x,y) enters the QPINO only through the (now 1e-4-weighted) physics loss and the diagnostic.
+* The selected shrinkage λ_L2 = 100 sits at the edge of the grid, so the data prefer an almost constant ρ at 3×3.
+* The 12 QPINO C/D runs at λ = 1e-4 finished training, but the first evaluation crashed (a context manager reused twice). They were re-evaluated from their saved final checkpoints (`--eval_only`), so the same weights were evaluated. Their training wall times are recovered from the scheduler launch time and the checkpoint mtime (403–628 s); the per-epoch histories of those 12 runs were not kept.
+* The 8×8 rows are classical Galerkin ODEs, not QPINOs (a 64-qubit statevector is out of reach).
+* All circuits are classically simulated. **No quantum advantage** is shown or claimed.
+
+
 ## Selected figures
 
 ![Fig. 3 — synthetic full vs M=2 Galerkin evolution](../results/figures/fig03_galerkin_vs_full.png)

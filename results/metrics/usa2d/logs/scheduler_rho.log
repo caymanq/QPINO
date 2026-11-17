@@ -2,3 +2,18 @@
 08:38:22 launched --K 3 --rho scalar --model D --seed 0
 08:38:37 launched --K 3 --rho spatial --model C --seed 0
 08:38:52 launched --K 3 --rho scalar --model C --seed 0
+08:41:26 launched --K 3 --rho spatial --model B --seed 0
+08:41:41 launched --K 3 --rho scalar --model B --seed 0
+08:41:56 launched --K 3 --rho spatial --model D --seed 1
+08:42:11 launched --K 3 --rho scalar --model D --seed 1
+08:42:26 launched --K 3 --rho spatial --model C --seed 1
+08:47:41 launched --K 3 --rho scalar --model C --seed 1
+08:47:56 launched --K 3 --rho spatial --model B --seed 1
+08:48:31 launched --K 3 --rho scalar --model B --seed 1
+08:48:46 launched --K 3 --rho spatial --model D --seed 2
+08:49:01 launched --K 3 --rho scalar --model D --seed 2
+08:49:16 launched --K 3 --rho spatial --model C --seed 2
+08:51:12 launched --K 3 --rho scalar --model C --seed 2
+08:52:47 launched --K 3 --rho spatial --model B --seed 2
+08:53:02 launched --K 3 --rho scalar --model B --seed 2
+ALL_LAUNCHED

@@ -1,0 +1,7 @@
+truncation {'train': 0.297, 'val': 0.1662, 'july': 0.1302, 'rmse_train': 0.1078, 'rmse_july': 0.0911}
+Projection-floor {'rel_l2': 0.0, 'rel_l2_increment': 0.0, 'rollout_rel_l2': 0.0, 'rmse_onestep': 0.0911, 'rmse_rollout': 0.0911, 'rmse_rollout_vs_projection': 0.0, 'rmse_jul12': 0.0917, 'rmse_jul26': 0.0809}
+Persistence {'rel_l2': 0.0381, 'rel_l2_increment': 1.0, 'rollout_rel_l2': 0.2467, 'rmse_onestep': 0.0913, 'rmse_rollout': 0.1122, 'rmse_rollout_vs_projection': 0.0655, 'rmse_jul12': 0.1049, 'rmse_jul26': 0.1337}
+Persistence-fullres {'rmse_rollout': 0.0762, 'rmse_onestep': 0.0098, 'rmse_jul12': 0.0615, 'rmse_jul26': 0.1195}
+LinearTrend {'rel_l2': 0.0392, 'rel_l2_increment': 1.0289, 'rollout_rel_l2': 0.0848, 'rmse_onestep': 0.0912, 'rmse_rollout': 0.0941, 'rmse_rollout_vs_projection': 0.0236, 'rmse_jul12': 0.093, 'rmse_jul26': 0.0907}
+A {'rel_l2': 0.0349, 'rel_l2_increment': 0.9172, 'rollout_rel_l2': 0.1184, 'rmse_onestep': 0.0913, 'rmse_rollout': 0.1162, 'rmse_rollout_vs_projection': 0.0721, 'rmse_jul12': 0.1092, 'rmse_jul26': 0.1414, 'eval_time_s': 1.508}
+fit {'D': 2.3416043875222243e-05, 'rho': 0.0346052198934607, 'beta': 0.03141258919743972, 'loss': 0.8762473397631355, 'D_physical_km2_per_day': 19.608081027851792, 'K_carrying_capacity_u': 1.1016353881545426}

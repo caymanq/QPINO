@@ -121,6 +121,20 @@ python usa2d_tables.py && python make_usa2d_figures.py
 ```
 The 256×128 grid (`data/processed/us_grid_density_256x128.npz`, 26 MB, git-ignored) is copied from the PINN package (`configs/usa2d.yaml: grid_npz`).
 
+### Spatially varying growth rate ρ(x,y), λ_PDE = 1e-4 (report §17)
+
+The growth rate is now ρ(x,y) = Σ r_m ψ_m (4×4 cosine modes). Its effect on the coefficients goes through the triple-product tensor ⟨φ_i ψ_m φ_j⟩ on the land domain. ρ, D and β are fitted by a 7-day rollout objective on recent training windows, with L2 shrinkage chosen on the validation window. The scalar model is refitted with the same protocol. The default λ_PDE is now 1e-4 (`--lambda_pde`; optional hinge `--hinge_tol`). The PDE residual is logged every epoch and reported as a physics-violation diagnostic for every model.
+
+July rollout RMSE vs observed (3×3): Galerkin A-ρ(x,y) 0.1184, scalar A with the same protocol 0.1189, QPINO D scalar 0.1348 ± 0.0081 vs D-ρ(x,y) 0.1330 ± 0.0074, MLP B scalar 0.1190 ± 0.0010 vs B-ρ(x,y) 0.1184 ± 0.0011. Localisation barely helps at 3×3, because the floor (0.1157) is set by the basis.
+
+A classical 8×8 reference: the scalar Galerkin ODE reaches 0.0982 (floor 0.0911). The 8×8 ρ(x,y) fit is unstable (β → 0, rollout diverges).
+
+```bash
+python usa2d_experiments.py --K 3 --rho spatial --Kr 4 --baselines
+python usa2d_experiments.py --K 3 --rho spatial --model D --seed 0
+python make_usa2d_rho_figure.py      # fig20_usa2d_spatial_rho.png
+```
+
 ## Earlier complex-Fourier variant: M = 4 (9 qubits), mirrored boundary, data-dominated loss, re-uploading (report §14)
 
 Kept for reference. These runs use Re/Im complex-Fourier coefficients (`--boundary periodic|mirror`, `configs/m4_mirror.yaml`):

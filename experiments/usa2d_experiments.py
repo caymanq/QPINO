@@ -31,6 +31,7 @@ p.add_argument("--evolution", default=None)
 p.add_argument("--baselines", action="store_true")
 p.add_argument("--rho", choices=["scalar", "spatial"], default="scalar")
 p.add_argument("--Kr", type=int, default=U2["rho_modes"])
+p.add_argument("--eval_only", type=float, default=None, help="load the saved checkpoint; value = training wall time (s)")
 p.add_argument("--hinge_tol", type=float, default=U2["train"].get("pde_hinge_tol"))
 args = p.parse_args()
 gk.set_basis("cosine2d")
@@ -170,13 +171,13 @@ def metrics(one, roll):
 
 @torch.no_grad()
 def evaluate(m):
-    ctx = m.cache_unitaries() if hasattr(m, "cache_unitaries") else torch.no_grad()
-    with ctx:
+    ctx = lambda: m.cache_unitaries() if hasattr(m, "cache_unitaries") else torch.no_grad()  # noqa: E731  fresh per use
+    with ctx():
         one = m(torch.tensor(A[te - 1]), dt).numpy()
         roll = m.rollout(torch.tensor(A[i30][None]), dt, len(te))[0].numpy()
     r = metrics(one, roll)
     r["pred_onestep"], r["pred_rollout"] = one.tolist(), roll.tolist()
-    with ctx:
+    with ctx():
         Ttr, Tva = train_tr[0], val_tr[0]
         p_tr = m(torch.tensor(Ttr[:-1]), dt).numpy()
         p_va = m(torch.tensor(Tva[:-1]), dt).numpy()
@@ -246,8 +247,12 @@ else:
 tag = f"{cfg_name}_{args.model}_lam{tcfg['lambda_pde']:g}_R{args.R}_s{args.seed}"
 Dtr, Dva = make_dataset(train_tr, H), make_dataset(val_tr, min(H, len(val_tr[0]) - 1))
 t0 = time.time()
-hist, m = train(m, Dtr, Dva, dt, tcfg, phys, scales, X_C, ckpt_path=os.path.join(CKPT, "usa2d", f"{tag}.pt"))
-wall = time.time() - t0
+if args.eval_only is not None:     # re-evaluate a saved final checkpoint (wall = training time recovered from the logs)
+    m.load_state_dict(torch.load(os.path.join(CKPT, "usa2d", f"{tag}.pt"), weights_only=False)["state_dict"])
+    hist, wall = {}, args.eval_only
+else:
+    hist, m = train(m, Dtr, Dva, dt, tcfg, phys, scales, X_C, ckpt_path=os.path.join(CKPT, "usa2d", f"{tag}.pt"))
+    wall = time.time() - t0
 r = evaluate(m)
 r.update(n_params=count_params(m), train_time_s=wall, epochs=args.epochs, sec_per_epoch=wall / args.epochs,
          threads=torch.get_num_threads())

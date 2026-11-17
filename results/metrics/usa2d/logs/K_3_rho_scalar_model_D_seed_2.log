@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/workspace/QPINO/experiments/usa2d_experiments.py", line 251, in <module>
+    r = evaluate(m)
+  File "/home/box/.local/lib/python3.13/site-packages/torch/utils/_contextlib.py", line 158, in no_grad
+    return func(*args, **kwargs)
+  File "/workspace/QPINO/experiments/usa2d_experiments.py", line 179, in evaluate
+    with ctx:
+         ^^^
+  File "/usr/lib/python3.13/contextlib.py", line 139, in __enter__
+    del self.args, self.kwds, self.func
+        ^^^^^^^^^
+AttributeError: '_GeneratorContextManager' object has no attribute 'args'
